@@ -5,20 +5,15 @@ import { getFirestore, doc, getDoc }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { firebaseConfig } from './firebase-config.js';
 
-console.log('Groundwork: app.js loading...');
+console.log('Groundwork: app.js loading');
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
-console.log('Groundwork: Firebase initialized OK');
-
-const loginOverlay = document.getElementById('login-overlay');
-const appShell     = document.getElementById('app');
 
 document.getElementById('login-google-btn')?.addEventListener('click', () => {
-  console.log('Groundwork: sign-in button clicked');
-  const provider = new GoogleAuthProvider();
-  signInWithPopup(auth, provider)
+  console.log('button clicked');
+  signInWithPopup(auth, new GoogleAuthProvider())
     .then(r => console.log('signed in', r.user.email))
     .catch(e => console.error('sign-in error', e.code, e.message));
 });
@@ -28,14 +23,16 @@ document.getElementById('avatar-btn')?.addEventListener('click', () => {
 });
 
 onAuthStateChanged(auth, async (user) => {
-  console.log('auth state:', user?.email ?? 'none');
+  console.log('auth state:', user?.email ?? 'not signed in');
+  const loginOverlay = document.getElementById('login-overlay');
+  const appShell     = document.getElementById('app');
   if (user) {
     loginOverlay?.classList.add('hidden');
     appShell?.classList.remove('hidden');
     const el = document.getElementById('avatar-initial');
-    if (el) el.textContent = (user.displayName || user.email || '?')[0].toUpperCase();
+    if (el) el.textContent = (user.displayName || user.email)[0].toUpperCase();
     const hour = new Date().getHours();
-    const tod = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+    const tod  = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
     const name = user.displayName?.split(' ')[0] || '';
     const g = document.getElementById('greeting');
     if (g) g.textContent = `Good ${tod}${name ? ', ' + name : ''}.`;
