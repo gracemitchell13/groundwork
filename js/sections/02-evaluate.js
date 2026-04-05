@@ -309,6 +309,7 @@ async function saveEvaluation() {
     answers,
     score,
     tier,
+    prose:        document.getElementById('result-prose')?.textContent || '',
     savedAt:      new Date().toISOString(),
   };
 
@@ -367,28 +368,83 @@ async function loadPreviousEvals() {
   wrap.style.display = 'block';
   list.innerHTML = '';
 
-  // Show most recent 5
-  [...evals].reverse().slice(0, 5).forEach(ev => {
+  const flagMap = {
+    q0: { good: 'Strong mission alignment', caution: 'Partial mission alignment', bad: 'Weak mission fit' },
+    q1: { good: 'Meets all eligibility requirements', caution: 'One eligibility requirement unclear', bad: 'Does not meet a key requirement' },
+    q2: { good: 'Sufficient time to apply', caution: 'Timeline is tight', bad: 'Not enough time' },
+    q3: { good: 'Award amount is well-matched', caution: 'Amount may need explanation', bad: 'Amount mismatch' },
+    q4: { good: 'Team has the capacity', caution: 'Capacity is stretched', bad: 'Insufficient capacity' },
+    q5: { good: 'Existing funder relationship', caution: 'Limited relationship', bad: 'No funder relationship' },
+    q6: { good: 'Reporting requirements manageable', caution: 'Reporting is significant', bad: 'Reporting burden too high' },
+    q7: { good: 'Has a sustainability plan', caution: 'Sustainability needs development', bad: 'No sustainability plan' },
+  };
+
+  [...evals].reverse().slice(0, 10).forEach((ev, idx) => {
     const badgeClass = ev.tier === 'apply' ? 'badge-apply' :
                        ev.tier === 'caution' ? 'badge-caution' : 'badge-pass';
     const badgeText  = ev.tier === 'apply' ? 'Apply' :
                        ev.tier === 'caution' ? 'Caution' : 'Pass';
     const date = ev.savedAt ? new Date(ev.savedAt).toLocaleDateString('en-US',
       { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+    const detailId = `eval-detail-${idx}`;
+
+    // Build flag HTML
+    let flagsHTML = '';
+    if (ev.answers) {
+      Object.entries(ev.answers).forEach(([qid, ans]) => {
+        const ft = ans.value === 2 ? 'good' : ans.value === 1 ? 'caution' : 'bad';
+        const fc = ans.value === 2 ? 'flag-good' : ans.value === 1 ? 'flag-caution' : 'flag-bad';
+        const text = flagMap[qid]?.[ft] || '';
+        if (text) flagsHTML += `<li class="result-flag ${fc}" style="margin-bottom:4px;">${text}</li>`;
+      });
+    }
+
+    const borderColor = ev.tier === 'apply' ? 'var(--accent-1)' :
+                        ev.tier === 'caution' ? 'var(--accent-2)' : 'var(--accent-4)';
 
     const item = document.createElement('div');
-    item.className = 'prev-eval-item';
-    item.style.cursor = 'pointer';
+    item.style.marginBottom = '8px';
     item.innerHTML = `
-      <span class="prev-eval-badge ${badgeClass}">${badgeText}</span>
-      <span class="prev-eval-name">${ev.name}${ev.funder ? ' — ' + ev.funder : ''}</span>
-      <span class="prev-eval-date">${date}</span>
-      <span style="font-size:12px;color:var(--accent-3);text-decoration:underline;flex-shrink:0;">View →</span>`;
-
-    // Click to reload this evaluation
-    item.addEventListener('click', () => loadEvaluation(ev));
+      <div class="prev-eval-item" style="cursor:pointer;" onclick="
+        const d = document.getElementById('${detailId}');
+        const arrow = this.querySelector('.eval-arrow');
+        if (d.style.display === 'none') {
+          d.style.display = 'block';
+          arrow.textContent = '▼';
+        } else {
+          d.style.display = 'none';
+          arrow.textContent = '▶';
+        }
+      ">
+        <span class="prev-eval-badge ${badgeClass}">${badgeText}</span>
+        <span class="prev-eval-name">${ev.name}${ev.funder ? ' — ' + ev.funder : ''}</span>
+        <span class="prev-eval-date">${date}</span>
+        <span class="eval-arrow" style="font-size:10px;color:var(--accent-3);flex-shrink:0;">▶</span>
+      </div>
+      <div id="${detailId}" style="display:none;background:var(--linen-card);border:1px solid var(--linen-border);border-top:3px solid ${borderColor};border-radius:0 0 8px 8px;padding:18px 20px;margin-top:-2px;">
+        <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:14px;font-size:13px;color:var(--muted);">
+          ${ev.funder ? `<span><strong style="color:var(--body);">Funder:</strong> ${ev.funder}</span>` : ''}
+          ${ev.amount ? `<span><strong style="color:var(--body);">Amount:</strong> ${ev.amount}</span>` : ''}
+          ${ev.deadline ? `<span><strong style="color:var(--body);">Deadline:</strong> ${new Date(ev.deadline + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span>` : ''}
+          <span><strong style="color:var(--body);">Score:</strong> ${ev.score ?? '—'} / 16</span>
+        </div>
+        ${ev.description ? `<p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6;border-left:2px solid var(--linen-border);padding-left:10px;">${ev.description}</p>` : ''}
+        ${flagsHTML ? `<ul style="list-style:none;display:flex;flex-direction:column;gap:4px;margin-bottom:16px;">${flagsHTML}</ul>` : ''}
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn-primary" style="font-size:13px;padding:7px 16px;" onclick="window._loadEval(${idx})">Load into evaluator</button>
+          <button class="copy-btn" style="font-size:13px;padding:7px 16px;" onclick="
+            const prose = document.getElementById('prose-${idx}')?.textContent;
+            if (prose) navigator.clipboard.writeText(prose).then(() => { this.textContent='Copied ✓'; setTimeout(()=>this.textContent='Copy summary',2000); });
+          ">Copy summary</button>
+        </div>
+        <pre id="prose-${idx}" style="display:none;">${ev.prose || ''}</pre>
+      </div>`;
     list.appendChild(item);
   });
+
+  // Store evals on window for load button
+  window._evals = [...evals].reverse().slice(0, 10);
+  window._loadEval = (idx) => loadEvaluation(window._evals[idx]);
 }
 
 function loadEvaluation(ev) {

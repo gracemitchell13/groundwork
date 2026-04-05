@@ -36,17 +36,16 @@
       margin-top: 8px;
     }
 
-    /* Collapsed summary card */
+    /* Summary card — anchored strip between header and scrolling content */
     .opp-summary {
       display: none;
-      background: var(--linen-card);
-      border: 1.5px solid var(--linen-border);
+      background: var(--linen-header);
+      border-bottom: 1px solid #C8BEA8;
       border-left: 5px solid var(--accent-2);
-      border-radius: 9px;
-      padding: 16px 20px;
-      margin-bottom: 28px;
+      padding: 14px 26px 14px 30px;
+      flex-shrink: 0;
     }
-    .opp-summary.visible { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .opp-summary.visible { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     .opp-summary-main { flex: 1; }
     .opp-summary-name {
       font-size: 16px;
@@ -348,16 +347,23 @@
       </div>
     </header>
 
+    <!-- Summary card lives outside page-content so it stays anchored -->
+    <div class="opp-summary" id="opp-summary">
+      <div class="opp-summary-main">
+        <div class="opp-summary-name" id="summary-name">—</div>
+        <div class="opp-summary-meta">
+          <span id="summary-funder"></span>
+          <span id="summary-amount"></span>
+        </div>
+      </div>
+      <span class="opp-summary-deadline" id="summary-deadline"></span>
+      <button class="opp-edit-btn" id="opp-edit-btn">Edit details</button>
+    </div>
+
     <div class="page-content">
       <p class="section-tag">Section 02</p>
       <h2 class="page-title">Evaluate This Opportunity</h2>
       <p class="page-intro">Not every grant is worth applying for. A weak application wastes your time and the funder's. Work through these eight questions before you commit to writing anything. At the end you'll get a clear recommendation — and a summary you can share with your board.</p>
-
-      <!-- Previous evaluations -->
-      <div id="prev-evals-wrap" style="display:none;">
-        <p style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);margin-bottom:10px;">Previous evaluations</p>
-        <div class="prev-evals" id="prev-evals-list"></div>
-      </div>
 
       <!-- Opportunity info form -->
       <div class="opp-form" id="opp-form">
@@ -389,19 +395,6 @@
         </div>
       </div>
 
-      <!-- Sticky summary card — shown after form is submitted -->
-      <div class="opp-summary" id="opp-summary">
-        <div class="opp-summary-main">
-          <div class="opp-summary-name" id="summary-name">—</div>
-          <div class="opp-summary-meta">
-            <span id="summary-funder"></span>
-            <span id="summary-amount"></span>
-          </div>
-        </div>
-        <span class="opp-summary-deadline" id="summary-deadline"></span>
-        <button class="opp-edit-btn" id="opp-edit-btn">Edit details</button>
-      </div>
-
       <!-- Questions -->
       <div id="questions-section" style="display:none;">
         <p style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);margin-bottom:14px;">The evaluation</p>
@@ -419,6 +412,12 @@
           <button class="btn-primary" id="save-eval-btn">Save this evaluation</button>
           <button class="copy-btn" id="copy-btn">Copy summary to clipboard</button>
         </div>
+      </div>
+
+      <!-- Previous evaluations -->
+      <div id="prev-evals-wrap" style="display:none;margin-top:32px;padding-top:28px;border-top:1px solid var(--linen-border);">
+        <p style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);margin-bottom:12px;">Previous evaluations</p>
+        <div class="prev-evals" id="prev-evals-list"></div>
       </div>
 
     </div>
