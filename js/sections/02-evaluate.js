@@ -181,35 +181,60 @@ function renderQuestions() {
 
 // ── Calculate and show result ───────────────────────────────
 function showResult() {
-  const score = Object.values(answers).reduce((sum, a) => sum + a.value, 0);
+  const score    = Object.values(answers).reduce((sum, a) => sum + a.value, 0);
   const maxScore = QUESTIONS.length * 2;
+  const name     = document.getElementById('opp-name')?.value.trim() || 'this opportunity';
+  const funder   = document.getElementById('opp-funder')?.value.trim();
+  const deadline = document.getElementById('opp-deadline')?.value;
 
-  let tier, headline, summary;
+  let tier, headline;
 
   if (score >= 13) {
-    tier = 'apply';
+    tier     = 'apply';
     headline = 'This opportunity is worth pursuing.';
-    summary = `Your score of ${score} out of ${maxScore} indicates strong alignment between this opportunity and your organization. You have good mission fit, appear eligible, and have the capacity to pursue this. Move forward with the application.`;
   } else if (score >= 9) {
-    tier = 'caution';
+    tier     = 'caution';
     headline = 'Proceed with caution.';
-    summary = `Your score of ${score} out of ${maxScore} suggests this opportunity has real potential but some meaningful concerns. Review the flagged areas below carefully before committing time to an application. It may be worth a conversation with the funder before proceeding.`;
   } else {
-    tier = 'pass';
+    tier     = 'pass';
     headline = 'Consider passing on this one.';
-    summary = `Your score of ${score} out of ${maxScore} indicates significant barriers to a successful application. Investing time in this grant right now is likely not the best use of your capacity. The concerns flagged below are worth addressing before you apply — either to this funder in a future cycle, or to similar opportunities.`;
+  }
+
+  // Build prose summary
+  const oppRef   = funder ? `${name} (${funder})` : name;
+  const dateNote = deadline ? ` The deadline is ${new Date(deadline + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.` : '';
+  const weakAreas = QUESTIONS.filter(q => answers[q.id]?.value === 0).map(q => q.text.replace('?','').toLowerCase());
+  const cautionAreas = QUESTIONS.filter(q => answers[q.id]?.value === 1).map(q => q.text.replace('?','').toLowerCase());
+
+  let prose = '';
+  if (tier === 'apply') {
+    prose = `Groundwork evaluation for: ${oppRef}\nScore: ${score} / ${maxScore} — Recommendation: Apply\n\n`;
+    prose += `This opportunity is a strong match. With a score of ${score} out of ${maxScore}, the evaluation indicates good mission alignment, eligibility, and organizational capacity.${dateNote}`;
+    if (cautionAreas.length) prose += ` There are a few areas to watch: ${cautionAreas.join('; ')}. Address these in your narrative.`;
+    prose += `\n\nRecommendation: Move forward with the application.`;
+  } else if (tier === 'caution') {
+    prose = `Groundwork evaluation for: ${oppRef}\nScore: ${score} / ${maxScore} — Recommendation: Proceed with Caution\n\n`;
+    prose += `This opportunity has potential but meaningful concerns.${dateNote}`;
+    if (weakAreas.length) prose += ` The following areas scored poorly and should be addressed before applying: ${weakAreas.join('; ')}.`;
+    if (cautionAreas.length) prose += ` Areas requiring attention: ${cautionAreas.join('; ')}.`;
+    prose += `\n\nRecommendation: Consider a pre-application call with the funder before committing to a full application.`;
+  } else {
+    prose = `Groundwork evaluation for: ${oppRef}\nScore: ${score} / ${maxScore} — Recommendation: Pass\n\n`;
+    prose += `This opportunity is not a strong fit at this time.${dateNote}`;
+    if (weakAreas.length) prose += ` The following areas are significant barriers: ${weakAreas.join('; ')}.`;
+    prose += `\n\nRecommendation: Pass on this cycle and revisit when the barriers above have been addressed.`;
   }
 
   // Build flags
   const flagMap = {
-    q0: { good: 'Strong mission alignment', caution: 'Partial mission alignment — clarify the connection', bad: 'Weak mission fit — consider passing' },
+    q0: { good: 'Strong mission alignment', caution: 'Partial mission alignment — clarify the connection in your narrative', bad: 'Weak mission fit — application likely to be unsuccessful' },
     q1: { good: 'You meet all eligibility requirements', caution: 'One eligibility requirement is unclear — confirm before applying', bad: 'You don\'t meet a key requirement — do not apply' },
     q2: { good: 'Sufficient time to write a strong application', caution: 'Timeline is tight — prioritize ruthlessly', bad: 'Not enough time — consider waiting for the next cycle' },
-    q3: { good: 'Award amount is well-matched', caution: 'Award amount may require explanation in your budget narrative', bad: 'Amount mismatch — reconsider the ask or the opportunity' },
-    q4: { good: 'Your team has the capacity to manage this grant', caution: 'Capacity is stretched — identify who will own this', bad: 'Insufficient capacity — do not overcommit your team' },
-    q5: { good: 'You have an existing funder relationship', caution: 'Limited relationship — consider a pre-application outreach call', bad: 'No relationship — prioritize introduction before applying' },
-    q6: { good: 'Reporting requirements are manageable', caution: 'Reporting is significant — plan accordingly', bad: 'Reporting burden may outweigh the grant value' },
-    q7: { good: 'You have a sustainability plan', caution: 'Sustainability plan needs development — address this in your narrative', bad: 'No sustainability plan — this will be a gap in your application' },
+    q3: { good: 'Award amount is well-matched to your budget and project', caution: 'Award amount may need explanation in your budget narrative', bad: 'Amount mismatch — reconsider the ask or the opportunity' },
+    q4: { good: 'Your team has the capacity to manage this grant', caution: 'Capacity is stretched — identify who will own this before applying', bad: 'Insufficient capacity — do not overcommit your team' },
+    q5: { good: 'You have an existing funder relationship', caution: 'Limited relationship — consider a pre-application outreach call', bad: 'No relationship — prioritize introduction before applying cold' },
+    q6: { good: 'Reporting requirements are manageable', caution: 'Reporting is significant — build a tracking plan before you apply', bad: 'Reporting burden may outweigh the grant value' },
+    q7: { good: 'You have a sustainability plan for when the grant ends', caution: 'Sustainability plan needs development — address this in your narrative', bad: 'No sustainability plan — this will be a visible gap in your application' },
   };
 
   const flagsList = document.getElementById('result-flags');
@@ -217,7 +242,7 @@ function showResult() {
   QUESTIONS.forEach(q => {
     const a = answers[q.id];
     if (!a) return;
-    const flagType = a.value === 2 ? 'good' : a.value === 1 ? 'caution' : 'bad';
+    const flagType  = a.value === 2 ? 'good' : a.value === 1 ? 'caution' : 'bad';
     const flagClass = a.value === 2 ? 'flag-good' : a.value === 1 ? 'flag-caution' : 'flag-bad';
     const li = document.createElement('li');
     li.className = `result-flag ${flagClass}`;
@@ -228,12 +253,25 @@ function showResult() {
   // Update result panel
   const panel = document.getElementById('result-panel');
   panel.className = `result-panel show result-${tier}`;
-  document.getElementById('result-label').textContent =
+  document.getElementById('result-label').textContent   =
     tier === 'apply' ? 'Recommendation: Apply' :
     tier === 'caution' ? 'Recommendation: Proceed with Caution' : 'Recommendation: Pass';
   document.getElementById('result-headline').textContent = headline;
-  document.getElementById('result-score').textContent = `Score: ${score} / ${maxScore}`;
-  document.getElementById('result-summary').textContent = summary;
+  document.getElementById('result-score').textContent    = `Score: ${score} / ${maxScore}`;
+  document.getElementById('result-prose').textContent    = prose;
+
+  // Wire copy button
+  const copyBtn = document.getElementById('copy-btn');
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(prose).then(() => {
+      copyBtn.textContent = 'Copied ✓';
+      copyBtn.classList.add('copied');
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy summary to clipboard';
+        copyBtn.classList.remove('copied');
+      }, 2500);
+    });
+  };
 
   panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -317,7 +355,7 @@ async function loadPreviousEvals() {
   const orgSnap = await getDoc(orgRef);
   if (!orgSnap.exists()) return;
 
-  const org = orgSnap.data();
+  const org   = orgSnap.data();
   const evals = org.evaluations || [];
 
   const wrap = document.getElementById('prev-evals-wrap');
@@ -340,12 +378,52 @@ async function loadPreviousEvals() {
 
     const item = document.createElement('div');
     item.className = 'prev-eval-item';
+    item.style.cursor = 'pointer';
     item.innerHTML = `
       <span class="prev-eval-badge ${badgeClass}">${badgeText}</span>
       <span class="prev-eval-name">${ev.name}${ev.funder ? ' — ' + ev.funder : ''}</span>
-      <span class="prev-eval-date">${date}</span>`;
+      <span class="prev-eval-date">${date}</span>
+      <span style="font-size:12px;color:var(--accent-3);text-decoration:underline;flex-shrink:0;">View →</span>`;
+
+    // Click to reload this evaluation
+    item.addEventListener('click', () => loadEvaluation(ev));
     list.appendChild(item);
   });
+}
+
+function loadEvaluation(ev) {
+  // Populate form fields
+  setField('opp-name',     ev.name);
+  setField('opp-funder',   ev.funder);
+  setField('opp-amount',   ev.amount);
+  setField('opp-deadline', ev.deadline);
+  setField('opp-desc',     ev.description);
+
+  // Restore answers
+  answers = {};
+  if (ev.answers) {
+    Object.entries(ev.answers).forEach(([qid, ans]) => {
+      answers[qid] = ans;
+    });
+  }
+
+  // Trigger the start flow to show summary + questions
+  document.getElementById('start-eval-btn')?.click();
+
+  // Re-render questions with saved answers
+  document.getElementById('questions-wrap').innerHTML = '';
+  renderQuestions();
+
+  // Show result
+  showResult();
+
+  // Scroll to top of content
+  document.getElementById('opp-summary')?.scrollIntoView({ behavior: 'smooth' });
+}
+
+function setField(id, value) {
+  const el = document.getElementById(id);
+  if (el && value) el.value = value;
 }
 
 // ── Auth ────────────────────────────────────────────────────
