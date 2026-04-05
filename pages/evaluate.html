@@ -5,6 +5,213 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Evaluate This Opportunity — Groundwork</title>
   <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .page-title {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 32px;
+      color: var(--body);
+      margin-bottom: 10px;
+      font-weight: 400;
+    }
+    .page-intro { font-size: 16px; line-height: 1.7; margin-bottom: 28px; max-width: 100%; }
+    .section-tag { color: var(--muted-2); }
+    .form-label { font-size: 16px; }
+    .form-input, .form-textarea { font-size: 15px; padding: 11px 14px; }
+
+    /* Opportunity header fields */
+    .opp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 28px;
+      margin-bottom: 32px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--linen-border);
+    }
+    .opp-grid .full { grid-column: 1 / -1; }
+
+    /* Question cards */
+    .q-card {
+      background: var(--linen-card);
+      border: 1px solid var(--linen-border);
+      border-left: 4px solid var(--linen-border);
+      border-radius: 9px;
+      padding: 20px 22px 18px;
+      margin-bottom: 14px;
+      transition: border-left-color 0.2s;
+    }
+    .q-card.answered { border-left-color: var(--accent-1); }
+    .q-card.answered-caution { border-left-color: var(--accent-2); }
+    .q-card.answered-no { border-left-color: var(--accent-4); }
+
+    .q-number {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted-2);
+      margin-bottom: 6px;
+    }
+    .q-text {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--body);
+      margin-bottom: 14px;
+      line-height: 1.35;
+    }
+    .q-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .q-option {
+      padding: 8px 18px;
+      border: 1.5px solid var(--linen-border);
+      border-radius: 99px;
+      font-size: 14px;
+      color: var(--muted);
+      cursor: pointer;
+      background: var(--linen);
+      transition: all 0.15s;
+      font-family: var(--sans);
+    }
+    .q-option:hover { border-color: var(--accent-3); color: var(--accent-3); }
+    .q-option.sel-yes  { background: var(--accent-1); border-color: var(--accent-1); color: #fff; font-weight: 500; }
+    .q-option.sel-maybe { background: var(--accent-2); border-color: var(--accent-2); color: #fff; font-weight: 500; }
+    .q-option.sel-no   { background: var(--accent-4); border-color: var(--accent-4); color: #fff; font-weight: 500; }
+
+    .q-why-toggle {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent-3);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .q-why-toggle .arrow { font-size: 10px; transition: transform 0.2s; display: inline-block; }
+    .q-why-toggle.open .arrow { transform: rotate(90deg); }
+    .q-why {
+      display: none;
+      font-size: 14px;
+      color: var(--accent-3);
+      margin-top: 10px;
+      line-height: 1.65;
+      background: #EDF5F8;
+      border-left: 3px solid var(--accent-3);
+      border-radius: 0 6px 6px 0;
+      padding: 10px 14px;
+    }
+    .q-why.open { display: block; }
+
+    /* Result panel */
+    .result-panel {
+      display: none;
+      border-radius: 12px;
+      padding: 28px 30px;
+      margin-top: 24px;
+      margin-bottom: 24px;
+    }
+    .result-panel.show { display: block; }
+    .result-apply   { background: #E8F4E0; border: 2px solid var(--accent-1); }
+    .result-caution { background: #FBF5E8; border: 2px solid var(--accent-2); }
+    .result-pass    { background: #FAF0EC; border: 2px solid var(--accent-4); }
+
+    .result-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .result-apply   .result-label { color: var(--accent-1); }
+    .result-caution .result-label { color: var(--accent-2); }
+    .result-pass    .result-label { color: var(--accent-4); }
+
+    .result-headline {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 26px;
+      color: var(--body);
+      margin-bottom: 10px;
+    }
+    .result-summary {
+      font-size: 15px;
+      color: var(--body);
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+    .result-score {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .result-flags {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+    .result-flag {
+      font-size: 14px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.6);
+      color: var(--body);
+      line-height: 1.5;
+    }
+    .result-flag::before { margin-right: 6px; }
+    .flag-good::before   { content: '✓'; color: var(--accent-1); font-weight: 700; }
+    .flag-caution::before { content: '~'; color: var(--accent-2); font-weight: 700; }
+    .flag-bad::before    { content: '✗'; color: var(--accent-4); font-weight: 700; }
+
+    .save-bar {
+      position: sticky; bottom: 0;
+      background: var(--linen);
+      border-top: 1px solid var(--linen-border);
+      padding: 14px 36px;
+      display: flex; align-items: center; gap: 16px;
+      flex-shrink: 0;
+    }
+    .save-status { font-size: 14px; color: var(--muted); }
+    .save-status.saved { color: #2E6020; }
+    .save-status.error { color: var(--accent-4); }
+
+    .prev-evals {
+      margin-top: 8px;
+      margin-bottom: 28px;
+    }
+    .prev-eval-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--linen-card);
+      border: 1px solid var(--linen-border);
+      border-radius: 7px;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .prev-eval-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+    .badge-apply   { background: #D0EAC8; color: #2E5020; }
+    .badge-caution { background: #F8E0B0; color: #7A5000; }
+    .badge-pass    { background: #EED0C4; color: #6A2C18; }
+    .prev-eval-name { font-weight: 500; color: var(--body); flex: 1; }
+    .prev-eval-date { color: var(--muted); font-size: 12px; }
+  </style>
 </head>
 <body>
 <div class="page-shell">
@@ -23,16 +230,16 @@
       <p class="wordmark-sub">Grant Writing Toolkit</p>
     </div>
     <nav class="sidebar-nav">
-      <a href="org.html"      class="nav-item" data-section="1">
+      <a href="org.html" class="nav-item" data-section="1">
         <span class="nav-num">01</span><span class="nav-label">Know Your Organization</span>
       </a>
       <a href="evaluate.html" class="nav-item active" data-section="2">
         <span class="nav-num">02</span><span class="nav-label">Evaluate This Opportunity</span>
       </a>
-      <a href="prepare.html"  class="nav-item" data-section="3">
+      <a href="prepare.html" class="nav-item" data-section="3">
         <span class="nav-num">03</span><span class="nav-label">Prepare Your Application</span>
       </a>
-      <a href="library.html"  class="nav-item" data-section="4">
+      <a href="library.html" class="nav-item" data-section="4">
         <span class="nav-num">04</span><span class="nav-label">Build Your Language Library</span>
       </a>
       <a href="pipeline.html" class="nav-item" data-section="5">
@@ -62,27 +269,80 @@
           <span id="avatar-initial">?</span>
         </button>
       </div>
-      <svg class="corner-mark" width="90" height="90" viewBox="0 0 90 90" fill="none" aria-hidden="true">
-        <path d="M90 90 Q55 75 45 45 Q35 15 0 0" stroke="#3D5830" stroke-width="1.5" fill="none"/>
-        <path d="M90 90 Q60 80 52 55 Q44 28 10 10" stroke="#3D5830" stroke-width="1.5" fill="none"/>
-        <path d="M90 90 Q65 85 58 64 Q52 40 20 20" stroke="#3D5830" stroke-width="1.5" fill="none"/>
-        <path d="M90 90 Q70 88 65 72 Q59 52 30 30" stroke="#3D5830" stroke-width="1.5" fill="none"/>
-        <path d="M90 90 Q76 90 73 80 Q68 65 42 42" stroke="#3D5830" stroke-width="1.5" fill="none"/>
-      </svg>
     </header>
 
     <div class="page-content">
-      <p class="section-tag" style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#C08828;margin-bottom:10px;">Section 2</p>
+      <p class="section-tag">Section 02</p>
       <h2 class="page-title">Evaluate This Opportunity</h2>
-      <p class="page-intro">Not every grant is worth applying for. This section walks you through a structured go/no-go assessment — mission fit, eligibility, deadline feasibility, organizational capacity, funder relationship, and reporting requirements. Each question explains why it matters.</p>
-      <!-- Section content goes here -->
+      <p class="page-intro">Not every grant is worth applying for. A weak application wastes your time and the funder's. Work through these eight questions before you commit to writing anything. At the end you'll get a clear recommendation — and a summary you can share with your board.</p>
+
+      <!-- Previous evaluations -->
+      <div id="prev-evals-wrap" style="display:none;">
+        <p style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);margin-bottom:10px;">Previous evaluations</p>
+        <div class="prev-evals" id="prev-evals-list"></div>
+      </div>
+
+      <!-- Opportunity info -->
+      <p style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);margin-bottom:14px;">About this opportunity</p>
+      <div class="opp-grid">
+        <div class="form-group">
+          <label class="form-label" for="opp-name">Grant / opportunity name</label>
+          <input class="form-input" type="text" id="opp-name" placeholder="e.g. Meyer Memorial Trust — Education">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="opp-funder">Funder name</label>
+          <input class="form-input" type="text" id="opp-funder" placeholder="e.g. Meyer Memorial Trust">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="opp-amount">Award amount (approximate)</label>
+          <input class="form-input" type="text" id="opp-amount" placeholder="e.g. $25,000">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="opp-deadline">Application deadline</label>
+          <input class="form-input" type="date" id="opp-deadline">
+        </div>
+        <div class="form-group full">
+          <label class="form-label" for="opp-desc">Brief description of the opportunity</label>
+          <textarea class="form-textarea" id="opp-desc" placeholder="What is this grant for? Who does the funder typically support? Paste key details from the RFP here." style="min-height:90px;"></textarea>
+        </div>
+      </div>
+
+      <!-- Questions -->
+      <p style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);margin-bottom:14px;">The evaluation</p>
+
+      <div id="questions-wrap"></div>
+
+      <!-- Result -->
+      <div class="result-panel" id="result-panel">
+        <div class="result-label" id="result-label"></div>
+        <div class="result-headline" id="result-headline"></div>
+        <div class="result-score" id="result-score"></div>
+        <div class="result-summary" id="result-summary"></div>
+        <ul class="result-flags" id="result-flags"></ul>
+        <button class="btn-primary" id="save-eval-btn">Save this evaluation</button>
+      </div>
+
+    </div>
+
+    <div class="save-bar">
+      <button class="btn-primary" id="evaluate-btn">See my recommendation</button>
+      <span class="save-status" id="save-status"></span>
+      <a href="../index.html" style="margin-left:auto;font-size:13px;color:var(--muted);">← Back to dashboard</a>
     </div>
   </div>
 
 </div>
-<script type="module">
-  import { initPage } from '../js/auth.js';
-  initPage();
+
+<script>
+  // Toggle why explanations
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.q-why-toggle');
+    if (!btn) return;
+    btn.classList.toggle('open');
+    const panel = btn.nextElementSibling;
+    if (panel?.classList.contains('q-why')) panel.classList.toggle('open');
+  });
 </script>
+<script type="module" src="../js/sections/02-evaluate.js"></script>
 </body>
 </html>
