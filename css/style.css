@@ -23,11 +23,11 @@
   --accent-4: #A04830;  /* terracotta — section 4 */
   --accent-5: #7A4870;  /* plum — section 5 (distinct from 1) */
 
-  --num-bg-1: #D0EAC8; --num-fg-1: #2E5020;
-  --num-bg-2: #F8E0B0; --num-fg-2: #7A5000;
-  --num-bg-3: #C8E4EE; --num-fg-3: #1E4858;
-  --num-bg-4: #EED0C4; --num-fg-4: #6A2C18;
-  --num-bg-5: #EAD0E8; --num-fg-5: #522050;
+  --num-bg-1: #BCDEB0; --num-fg-1: #2E5020;
+  --num-bg-2: #F0CC88; --num-fg-2: #7A5000;
+  --num-bg-3: #A8D4E0; --num-fg-3: #1E4858;
+  --num-bg-4: #E8B8A4; --num-fg-4: #6A2C18;
+  --num-bg-5: #DDB8DC; --num-fg-5: #522050;
 
   --serif: Baskerville, 'Baskerville Old Face', 'Hoefler Text', Georgia, serif;
   --sans:  -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
@@ -172,7 +172,7 @@ button { cursor: pointer; border: none; background: none; font-family: var(--san
 
 .wordmark-sub {
   font-size: 11px;
-  color: var(--green-mid);
+  color: #C8BEA8;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -333,7 +333,7 @@ button { cursor: pointer; border: none; background: none; font-family: var(--san
 .card {
   background: var(--linen-card);
   border: 1px solid var(--linen-border);
-  border-left-width: 4px;
+  border-left-width: 5px;
   border-left-style: solid;
   border-radius: 9px;
   padding: 18px 18px 16px;
@@ -423,17 +423,12 @@ button { cursor: pointer; border: none; background: none; font-family: var(--san
   font-weight: 500;
 }
 
-/* Per-section card tints */
-.card-1 { background: #F2F8EE; }
-.card-1:hover { background: #E8F4E0; }
-.card-2 { background: #FBF5E8; }
-.card-2:hover { background: #F5EAD0; }
-.card-3 { background: #EDF5F8; }
-.card-3:hover { background: #DCF0F4; }
-.card-4 { background: #FAF0EC; }
-.card-4:hover { background: #F5E0D4; }
-.card-5 { background: #F5EEF8; }
-.card-5:hover { background: #EDE0F4; }
+/* Per-section hover tints — subtle, accent-matched */
+.card-1:hover { background: #F6FAF4; }
+.card-2:hover { background: #FBF7EE; }
+.card-3:hover { background: #F2F8FA; }
+.card-4:hover { background: #FAF4F2; }
+.card-5:hover { background: #F8F4FA; }
 
 /* ── Section page shell ────────────────────────────────── */
 .page-shell {
