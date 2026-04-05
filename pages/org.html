@@ -277,8 +277,61 @@
         <div class="form-group form-group-full">
           <label class="form-label" for="org-toc">Theory of change</label>
           <textarea class="form-textarea" id="org-toc" placeholder="If we do [activities], then [population] will experience [outcomes], because [rationale]." style="min-height:110px;"></textarea>
+<<<<<<< Updated upstream
           <button class="why-toggle" type="button"><span class="why-arrow">▶</span> Why this matters</button>
+=======
+          <div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;">
+            <button class="why-toggle" type="button"><span class="why-arrow">▶</span> Why this matters</button>
+            <button class="why-toggle" type="button" data-target="toc-explainer"><span class="why-arrow">▶</span> Show me an example</button>
+          </div>
+>>>>>>> Stashed changes
           <p class="field-why">A theory of change explains the logic behind your work — why you believe your activities lead to the outcomes you claim. Funders use it to evaluate whether your approach makes sense. You don't need jargon. A clear "if/then" statement is enough: "If we provide weekly tutoring to struggling readers in grades 1–3, then those students will improve their reading levels, because research shows early intervention has the highest impact."</p>
+          <div class="toc-explainer field-why" id="toc-explainer" style="display:none;">
+            <p style="font-weight:600;margin-bottom:12px;color:var(--body);">How a theory of change works</p>
+
+            <!-- Visual chain -->
+            <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;margin-bottom:16px;">
+              <div class="toc-box" style="background:#EDF5F8;border:1.5px solid var(--accent-3);border-radius:8px;padding:10px 14px;min-width:100px;text-align:center;">
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-3);margin-bottom:3px;">Inputs</div>
+                <div style="font-size:13px;color:var(--body);font-weight:500;">Resources &amp; staff</div>
+              </div>
+              <div style="font-size:20px;color:var(--accent-3);padding:0 6px;">→</div>
+              <div class="toc-box" style="background:#EDF5F8;border:1.5px solid var(--accent-3);border-radius:8px;padding:10px 14px;min-width:100px;text-align:center;">
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-3);margin-bottom:3px;">Activities</div>
+                <div style="font-size:13px;color:var(--body);font-weight:500;">What you do</div>
+              </div>
+              <div style="font-size:20px;color:var(--accent-3);padding:0 6px;">→</div>
+              <div class="toc-box" style="background:#EDF5F8;border:1.5px solid var(--accent-3);border-radius:8px;padding:10px 14px;min-width:100px;text-align:center;">
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-3);margin-bottom:3px;">Outputs</div>
+                <div style="font-size:13px;color:var(--body);font-weight:500;">Direct results</div>
+              </div>
+              <div style="font-size:20px;color:var(--accent-3);padding:0 6px;">→</div>
+              <div class="toc-box" style="background:#D8EED0;border:1.5px solid var(--accent-1);border-radius:8px;padding:10px 14px;min-width:100px;text-align:center;">
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-1);margin-bottom:3px;">Outcomes</div>
+                <div style="font-size:13px;color:var(--body);font-weight:500;">Change you cause</div>
+              </div>
+              <div style="font-size:20px;color:var(--accent-1);padding:0 6px;">→</div>
+              <div class="toc-box" style="background:#D8EED0;border:1.5px solid var(--accent-1);border-radius:8px;padding:10px 14px;min-width:100px;text-align:center;">
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-1);margin-bottom:3px;">Impact</div>
+                <div style="font-size:13px;color:var(--body);font-weight:500;">Long-term difference</div>
+              </div>
+            </div>
+
+            <!-- Example -->
+            <div style="background:#fff;border-radius:6px;padding:12px 14px;margin-bottom:14px;border:1px solid #C8E4EE;">
+              <p style="font-size:12px;font-weight:600;color:var(--accent-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Example — literacy program</p>
+              <p style="font-size:13px;color:var(--body);line-height:1.65;">"If we <strong>provide weekly one-on-one tutoring</strong> to struggling readers in grades 1–3, then <strong>those students will improve their reading levels by at least one grade</strong> within a school year, because <strong>research consistently shows that early, sustained intervention has the highest impact on literacy outcomes.</strong>"</p>
+            </div>
+
+            <!-- Links -->
+            <p style="font-size:12px;font-weight:600;color:var(--body);margin-bottom:8px;">Go deeper:</p>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;">
+              <li><a href="https://www.theoryofchange.org/what-is-theory-of-change/" target="_blank" rel="noopener" style="font-size:13px;color:var(--accent-3);text-decoration:underline;text-underline-offset:2px;">Theory of Change Community — What is a Theory of Change?</a></li>
+              <li><a href="https://www.councilofnonprofits.org/running-your-nonprofit/evaluation/theory-of-change" target="_blank" rel="noopener" style="font-size:13px;color:var(--accent-3);text-decoration:underline;text-underline-offset:2px;">Council of Nonprofits — Theory of Change guide</a></li>
+              <li><a href="https://ssir.org/articles/entry/a_theory_of_change" target="_blank" rel="noopener" style="font-size:13px;color:var(--accent-3);text-decoration:underline;text-underline-offset:2px;">Stanford Social Innovation Review — A Theory of Change</a></li>
+              <li><a href="https://www.urban.org/sites/default/files/publication/32871/411136-Measuring-Program-Outcomes.PDF" target="_blank" rel="noopener" style="font-size:13px;color:var(--accent-3);text-decoration:underline;text-underline-offset:2px;">Urban Institute — Measuring Program Outcomes (PDF)</a></li>
+            </ul>
+          </div>
         </div>
 
         <hr class="section-divider">
@@ -310,11 +363,27 @@
 
 </div>
 <script>
+<<<<<<< Updated upstream
   // Why-this toggles — pure JS, no module needed
+=======
+>>>>>>> Stashed changes
   document.addEventListener('click', e => {
     const btn = e.target.closest('.why-toggle');
     if (!btn) return;
     btn.classList.toggle('open');
+<<<<<<< Updated upstream
+=======
+
+    // If button has a data-target, toggle that specific element
+    const targetId = btn.dataset.target;
+    if (targetId) {
+      const panel = document.getElementById(targetId);
+      if (panel) panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+      return;
+    }
+
+    // Otherwise toggle the immediately following field-why
+>>>>>>> Stashed changes
     const panel = btn.nextElementSibling;
     if (panel?.classList.contains('field-why')) {
       panel.classList.toggle('open');
