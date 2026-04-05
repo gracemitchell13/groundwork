@@ -19,27 +19,27 @@ const QUESTIONS = [
   {
     id: 'q0',
     text: 'Does this opportunity align with your mission and current programs?',
-    why: 'Mission fit is the single most important factor. Funders fund what they fund — if you have to stretch your work to fit their priorities, the application will feel forced and probably won't succeed. A strong fit means you could describe your work and their priorities in the same sentence without reaching.',
+    why: 'Mission fit is the single most important factor. Funders fund what they fund — if you have to stretch your work to fit their priorities, the application will feel forced and probably won\'t succeed. A strong fit means you could describe your work and their priorities in the same sentence without reaching.',
     options: [
       { label: 'Strong fit — this is exactly what we do', value: 2, cls: 'sel-yes' },
       { label: 'Partial fit — adjacent to our work', value: 1, cls: 'sel-maybe' },
-      { label: 'Weak fit — we'd need to stretch', value: 0, cls: 'sel-no' },
+      { label: 'Weak fit — we\'d need to stretch', value: 0, cls: 'sel-no' },
     ]
   },
   {
     id: 'q1',
     text: 'Do you meet all stated eligibility requirements?',
-    why: 'Eligibility is binary — you either qualify or you don't. Check for geographic restrictions, budget minimums and maximums, 501(c)(3) requirements, years in operation, and population restrictions. If you're unsure about any requirement, contact the funder before investing time in an application.',
+    why: 'Eligibility is binary — you either qualify or you don\'t. Check for geographic restrictions, budget minimums and maximums, 501(c)(3) requirements, years in operation, and population restrictions. If you\'re unsure about any requirement, contact the funder before investing time in an application.',
     options: [
       { label: 'Yes — we meet every requirement', value: 2, cls: 'sel-yes' },
       { label: 'Mostly — one requirement is unclear', value: 1, cls: 'sel-maybe' },
-      { label: 'No — we don't meet a key requirement', value: 0, cls: 'sel-no' },
+      { label: 'No — we don\'t meet a key requirement', value: 0, cls: 'sel-no' },
     ]
   },
   {
     id: 'q2',
     text: 'Is there enough time to write a strong application before the deadline?',
-    why: 'A rushed application is worse than no application — it reflects poorly on your organization. Budget at least 3–4 weeks for a foundation grant, 6–8 weeks for anything requiring a full narrative, budget, and letters of support. If the deadline is in less than two weeks and you haven't started, consider passing.',
+    why: 'A rushed application is worse than no application — it reflects poorly on your organization. Budget at least 3–4 weeks for a foundation grant, 6–8 weeks for anything requiring a full narrative, budget, and letters of support. If the deadline is in less than two weeks and you haven\'t started, consider passing.',
     options: [
       { label: 'Yes — plenty of time (4+ weeks)', value: 2, cls: 'sel-yes' },
       { label: 'Tight but possible (2–4 weeks)', value: 1, cls: 'sel-maybe' },
@@ -49,7 +49,7 @@ const QUESTIONS = [
   {
     id: 'q3',
     text: 'Is the award amount appropriate for your organization and this project?',
-    why: 'Most funders won't award a grant that represents more than 25–30% of your total budget — it creates too much dependency. They also won't fund a $50,000 project with a $5,000 grant if it doesn't make sense programmatically. Know your ask-to-budget ratio before you apply.',
+    why: 'Most funders won\'t award a grant that represents more than 25–30% of your total budget — it creates too much dependency. They also won\'t fund a $50,000 project with a $5,000 grant if it doesn\'t make sense programmatically. Know your ask-to-budget ratio before you apply.',
     options: [
       { label: 'Yes — amount is a good fit', value: 2, cls: 'sel-yes' },
       { label: 'Somewhat — amount is high or low but workable', value: 1, cls: 'sel-maybe' },
@@ -59,27 +59,27 @@ const QUESTIONS = [
   {
     id: 'q4',
     text: 'Does your organization have the capacity to write, manage, and report on this grant?',
-    why: 'Winning a grant creates obligations. You'll need to deliver on what you promise, track data, and submit reports — often for 1–3 years. If your team is already stretched thin, a new grant can cause more harm than good. Be honest about what you can actually take on.',
+    why: 'Winning a grant creates obligations. You\'ll need to deliver on what you promise, track data, and submit reports — often for 1–3 years. If your team is already stretched thin, a new grant can cause more harm than good. Be honest about what you can actually take on.',
     options: [
       { label: 'Yes — we have the bandwidth', value: 2, cls: 'sel-yes' },
       { label: 'Maybe — it would be a stretch', value: 1, cls: 'sel-maybe' },
-      { label: 'No — we don't have capacity right now', value: 0, cls: 'sel-no' },
+      { label: 'No — we don\'t have capacity right now', value: 0, cls: 'sel-no' },
     ]
   },
   {
     id: 'q5',
     text: 'What is your relationship with this funder?',
-    why: 'Funder relationships matter enormously. First-time applicants to a funder have a much lower success rate than returning grantees. If you've never interacted with this funder, consider requesting an introductory call before applying. Many funders fund organizations they already know.',
+    why: 'Funder relationships matter enormously. First-time applicants to a funder have a much lower success rate than returning grantees. If you\'ve never interacted with this funder, consider requesting an introductory call before applying. Many funders fund organizations they already know.',
     options: [
-      { label: 'Strong — we've been funded by them or have a relationship', value: 2, cls: 'sel-yes' },
-      { label: 'Some — we've had contact or a warm introduction', value: 1, cls: 'sel-maybe' },
-      { label: 'None — we're coming in completely cold', value: 0, cls: 'sel-no' },
+      { label: 'Strong — we\'ve been funded by them or have a relationship', value: 2, cls: 'sel-yes' },
+      { label: 'Some — we\'ve had contact or a warm introduction', value: 1, cls: 'sel-maybe' },
+      { label: 'None — we\'re coming in completely cold', value: 0, cls: 'sel-no' },
     ]
   },
   {
     id: 'q6',
     text: 'Are the reporting and compliance requirements manageable?',
-    why: 'Some grants require quarterly reports, audited financials, site visits, or complex data collection. If the reporting requirements are more burdensome than the grant is worth, that's a real cost. Read the full requirements — including what happens after the grant — before you decide to apply.',
+    why: 'Some grants require quarterly reports, audited financials, site visits, or complex data collection. If the reporting requirements are more burdensome than the grant is worth, that\'s a real cost. Read the full requirements — including what happens after the grant — before you decide to apply.',
     options: [
       { label: 'Yes — requirements are straightforward', value: 2, cls: 'sel-yes' },
       { label: 'Manageable but significant', value: 1, cls: 'sel-maybe' },
@@ -89,11 +89,11 @@ const QUESTIONS = [
   {
     id: 'q7',
     text: 'If funded, can you sustain this work when the grant ends?',
-    why: 'Most funders don't want to be your permanent source of funding for a program. They expect you to have a plan for what happens when the grant period ends. If you can't answer this question, it will show in your application — and it's a sign the project may not be ready to propose.',
+    why: 'Most funders don\'t want to be your permanent source of funding for a program. They expect you to have a plan for what happens when the grant period ends. If you can\'t answer this question, it will show in your application — and it\'s a sign the project may not be ready to propose.',
     options: [
       { label: 'Yes — we have a sustainability plan', value: 2, cls: 'sel-yes' },
-      { label: 'Possibly — we're working on it', value: 1, cls: 'sel-maybe' },
-      { label: 'No — we haven't thought this through yet', value: 0, cls: 'sel-no' },
+      { label: 'Possibly — we\'re working on it', value: 1, cls: 'sel-maybe' },
+      { label: 'No — we haven\'t thought this through yet', value: 0, cls: 'sel-no' },
     ]
   },
 ];
