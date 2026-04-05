@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Definitions & Resources — Groundwork</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .page-title {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 32px;
+      color: var(--body);
+      margin-bottom: 10px;
+      font-weight: 400;
+    }
+    .page-intro { font-size: 16px; line-height: 1.7; margin-bottom: 32px; max-width: 100%; }
+    .section-tag { color: var(--muted-2); }
+
+    /* Tabs */
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid var(--linen-border);
+      margin-bottom: 28px;
+    }
+    .tab-btn {
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      cursor: pointer;
+      font-family: var(--sans);
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: var(--body); }
+    .tab-btn.active { color: var(--green-dark); border-bottom-color: var(--green-dark); }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Glossary */
+    .glossary-search {
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 20px;
+    }
+    .alpha-index {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 20px;
+    }
+    .alpha-btn {
+      width: 28px; height: 28px;
+      font-size: 12px;
+      font-weight: 500;
+      background: var(--linen-card);
+      border: 1px solid var(--linen-border);
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: var(--sans);
+      color: var(--muted);
+      transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .alpha-btn:hover, .alpha-btn.active { background: var(--green-dark); color: #EDE5D4; border-color: var(--green-dark); }
+
+    .term-group { margin-bottom: 8px; }
+    .term-letter {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted-2);
+      padding: 16px 0 8px;
+      border-top: 1px solid var(--linen-border);
+      margin-top: 8px;
+    }
+    .term-letter:first-child { border-top: none; margin-top: 0; }
+
+    .term-item {
+      background: var(--linen-card);
+      border: 1px solid var(--linen-border);
+      border-left: 3px solid var(--accent-3);
+      border-radius: 0 7px 7px 0;
+      margin-bottom: 6px;
+      overflow: hidden;
+    }
+    .term-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      cursor: pointer;
+      gap: 12px;
+    }
+    .term-header:hover { background: #F4F8FA; }
+    .term-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--body);
+    }
+    .term-short {
+      font-size: 13px;
+      color: var(--muted);
+      flex: 1;
+    }
+    .term-arrow {
+      font-size: 10px;
+      color: var(--accent-3);
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+    .term-item.open .term-arrow { transform: rotate(90deg); }
+    .term-body {
+      display: none;
+      padding: 0 16px 14px;
+      font-size: 14px;
+      color: var(--body);
+      line-height: 1.7;
+      border-top: 1px solid var(--linen-border);
+      background: #F4F8FA;
+    }
+    .term-item.open .term-body { display: block; }
+    .term-see {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--accent-3);
+    }
+
+    /* Resources */
+    .resource-category {
+      margin-bottom: 32px;
+    }
+    .resource-category-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--muted-2);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--linen-border);
+    }
+    .resource-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 14px 16px;
+      background: var(--linen-card);
+      border: 1px solid var(--linen-border);
+      border-radius: 7px;
+      margin-bottom: 8px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .resource-item:hover { border-color: var(--accent-3); background: #F4F8FA; }
+    .resource-item-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .resource-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--body);
+    }
+    .resource-tag {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+    .tag-free { background: #D0EAC8; color: #2E5020; }
+    .tag-paid { background: #F8E0B0; color: #7A5000; }
+    .tag-freemium { background: #C8E4EE; color: #1E4858; }
+    .resource-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .resource-url {
+      font-size: 11px;
+      color: var(--accent-3);
+    }
+  </style>
+</head>
+<body>
+<div class="page-shell">
+
+  <aside class="sidebar">
+    <div class="sidebar-dots">
+      <div class="dot dot-1" id="dot-1"></div>
+      <div class="dot dot-2" id="dot-2"></div>
+      <div class="dot dot-3" id="dot-3"></div>
+      <div class="dot dot-4" id="dot-4"></div>
+      <div class="dot dot-5" id="dot-5"></div>
+    </div>
+    <div class="sidebar-wordmark">
+      <p class="wordmark">Groundwork</p>
+      <div class="wordmark-rule"></div>
+      <p class="wordmark-sub">Grant Writing Toolkit</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="org.html"      class="nav-item" data-section="1"><span class="nav-num">01</span><span class="nav-label">Know Your Organization</span></a>
+      <a href="evaluate.html" class="nav-item" data-section="2"><span class="nav-num">02</span><span class="nav-label">Evaluate This Opportunity</span></a>
+      <a href="prepare.html"  class="nav-item" data-section="3"><span class="nav-num">03</span><span class="nav-label">Prepare Your Application</span></a>
+      <a href="library.html"  class="nav-item" data-section="4"><span class="nav-num">04</span><span class="nav-label">Build Your Language Library</span></a>
+      <a href="pipeline.html" class="nav-item" data-section="5"><span class="nav-num">05</span><span class="nav-label">Track Your Pipeline</span></a>
+    </nav>
+    <div style="height:0.5px;background:rgba(255,255,255,0.1);margin:8px 0;"></div>
+    <a href="resources.html" class="nav-item active" style="padding:8px 16px 8px 18px;">
+      <span class="nav-num" style="opacity:1;">?</span>
+      <span class="nav-label" style="color:#E8E0D0;font-weight:500;font-size:11.5px;">Definitions &amp; Resources</span>
+    </a>
+    <div class="sidebar-footer">
+      <div class="org-name" id="org-name">—</div>
+      <div class="org-full" id="org-full"></div>
+    </div>
+  </aside>
+
+  <div class="page-main">
+    <header class="main-header">
+      <div class="header-left">
+        <h1 class="greeting" id="greeting">Good morning.</h1>
+        <p class="greeting-sub">Reference</p>
+      </div>
+      <div class="header-right">
+        <button class="ctrl-btn" id="settings-btn" title="Settings" aria-label="Settings">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="2.2" stroke="currentColor" stroke-width="1.2" fill="none"/>
+            <path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.93 2.93l1.06 1.06M10.01 10.01l1.06 1.06M2.93 11.07l1.06-1.06M10.01 3.99l1.06-1.06" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button class="avatar-btn" id="avatar-btn" title="Account" aria-label="Account">
+          <span id="avatar-initial">?</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <p class="section-tag">Reference</p>
+      <h2 class="page-title">Definitions &amp; Resources</h2>
+      <p class="page-intro">Plain-language definitions of grant writing terms, and a curated list of free and low-cost resources for going deeper. Every link has been verified.</p>
+
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="glossary">Glossary</button>
+        <button class="tab-btn" data-tab="resources">Resources</button>
+      </div>
+
+      <!-- ── GLOSSARY ── -->
+      <div class="tab-panel active" id="tab-glossary">
+
+        <input class="form-input glossary-search" type="search" id="glossary-search" placeholder="Search terms…">
+
+        <div id="glossary-list">
+
+          <!-- C -->
+          <div class="term-letter">C</div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">Capacity building</span>
+              <span class="term-short">Strengthening your org's ability to do its work</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              Funding or activities aimed at improving an organization's infrastructure, systems, staff skills, or leadership rather than funding direct programs. Examples include technology upgrades, staff training, strategic planning, and board development. Some funders specifically offer capacity building grants. Applying for one usually requires demonstrating a specific gap and a plan to address it.
+            </div>
+          </div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">Community foundation</span>
+              <span class="term-short">A local grantmaking foundation serving a specific region</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              A type of public charity that pools donations from many local donors and distributes grants to nonprofits in a defined geographic area — typically a city, county, or region. Community foundations are often a strong starting point for small local nonprofits because they prioritize geographic fit. Most publish annual reports and grant guidelines on their websites.
+            </div>
+          </div>
+
+          <!-- D -->
+          <div class="term-letter">D</div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">Direct costs</span>
+              <span class="term-short">Expenses tied specifically to a funded project</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              Costs that can be directly attributed to a specific grant-funded project — for example, program staff salaries, supplies, participant stipends, or contracted services. Funders generally expect direct costs to make up the majority of a grant budget. Contrast with indirect costs (overhead).
+              <div class="term-see">See also: Indirect costs</div>
+            </div>
+          </div>
+
+          <!-- F -->
+          <div class="term-letter">F</div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">Fiscal sponsor</span>
+              <span class="term-short">A nonprofit that receives grants on behalf of a project without 501(c)(3) status</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              A legally recognized 501(c)(3) organization that agrees to accept grant funds and provide administrative oversight on behalf of a project or organization that doesn't yet have its own tax-exempt status. The fiscal sponsor takes legal responsibility for the funds, usually in exchange for an administrative fee (typically 5–15% of the grant). Fiscal sponsorship is common for new organizations, grassroots projects, and community groups that want to pursue grant funding before incorporating.
+            </div>
+          </div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">FOA — Funding Opportunity Announcement</span>
+              <span class="term-short">Federal government's term for a grant solicitation</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              The official document published by a federal agency describing a grant competition — including eligibility requirements, program goals, application instructions, evaluation criteria, and deadlines. FOAs are posted on Grants.gov and are the primary source of truth for any federal grant application. Also referred to as a Notice of Funding Opportunity (NOFO) or Notice of Funding Availability (NOFA) depending on the agency.
+              <div class="term-see">See also: RFP, RFA</div>
+            </div>
+          </div>
+
+          <!-- G -->
+          <div class="term-letter">G</div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">General operating support (GOS)</span>
+              <span class="term-short">Unrestricted funding for your organization's overall work</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              A grant that supports the general operations of a nonprofit rather than a specific project. GOS is considered the most flexible and valuable type of grant because it can be used for salaries, overhead, and any organizational need. It is also among the hardest to obtain — many funders prefer to fund specific programs. When you find a funder that offers GOS, it is worth cultivating that relationship carefully.
+              <div class="term-see">See also: Restricted funds, Unrestricted funds</div>
+            </div>
+          </div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">Go/no-go decision</span>
+              <span class="term-short">A structured decision about whether to pursue a grant</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              A formal or informal assessment of whether an organization should invest time in applying for a particular grant opportunity. A go/no-go process evaluates factors like mission fit, eligibility, deadline feasibility, organizational capacity, and funder relationship. Making this decision deliberately — before investing significant writing time — is one of the most important habits a small nonprofit can develop. This is what Section 2 of Groundwork helps you do.
+            </div>
+          </div>
+
+          <!-- I -->
+          <div class="term-letter">I</div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">Indirect costs (overhead)</span>
+              <span class="term-short">Organizational expenses not tied to a specific project</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              Costs that support an organization's overall operations but can't be directly attributed to a single program — rent, utilities, accounting, executive staff time, insurance. Also called overhead or administrative costs. Many funders cap how much of a grant can cover indirect costs (commonly 10–20%). Federal grants often use a negotiated indirect cost rate. Small nonprofits without a negotiated rate may use a de minimis rate of 10% under the federal Uniform Guidance.
+              <div class="term-see">See also: Direct costs</div>
+            </div>
+          </div>
+
+          <!-- L -->
+          <div class="term-letter">L</div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">Letter of inquiry (LOI)</span>
+              <span class="term-short">A short pre-proposal sent to gauge funder interest</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              A brief document — typically 1–3 pages — that introduces your organization and project to a funder before submitting a full proposal. Many foundations require an LOI as the first step in their application process. A strong LOI describes your mission, the problem you're addressing, your proposed solution, the amount requested, and why your organization is the right fit. If the funder expresses interest, they'll invite a full proposal.
+            </div>
+          </div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">Logic model</span>
+              <span class="term-short">A visual framework linking resources to outcomes</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              A diagram or table that maps the relationships between a program's inputs (resources), activities, outputs (what you produce), and outcomes (what changes as a result). Logic models are commonly required in federal grant applications and increasingly common in foundation proposals. They force you to articulate your program's theory of change in a structured way. Think of it as the visual counterpart to your narrative.
+              <div class="term-see">See also: Theory of change, Outputs, Outcomes</div>
+            </div>
+          </div>
+
+          <!-- M -->
+          <div class="term-letter">M</div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">Matching funds / match requirement</span>
+              <span class="term-short">Funding you must raise to receive a grant</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              Some grants require the applicant to provide a portion of the total project cost from other sources — this is called a match. Matches can be cash (actual dollars) or in-kind (volunteer time, donated goods, or services). For example, a grant requiring a 1:1 match on a $50,000 award means you must raise or contribute $50,000 from other sources. Match requirements are a common reason small nonprofits pass on grants — always check before investing in an application.
+            </div>
+          </div>
+
+          <!-- N -->
+          <div class="term-letter">N</div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">Needs statement</span>
+              <span class="term-short">The section of a proposal that defines the problem you're solving</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              Also called a problem statement or statement of need. This is the section of a grant proposal that makes the case for why your work is necessary — documenting the problem, the population affected, and the gap in existing services. A strong needs statement uses data to quantify the problem and connects it directly to the funder's priorities. It answers the question: "Why does this matter, and why does it matter here?"
+            </div>
+          </div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">NTEE code</span>
+              <span class="term-short">A classification code for nonprofits by mission area</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              National Taxonomy of Exempt Entities — a system used by the IRS and Candid to categorize nonprofits by their primary mission. NTEE codes are used by grant databases to help funders find nonprofits in relevant subject areas, and by researchers to analyze the sector. Your organization's NTEE code is assigned when you apply for 501(c)(3) status and can be found on your IRS determination letter.
+            </div>
+          </div>
+
+          <!-- O -->
+          <div class="term-letter">O</div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">Outcomes vs. outputs</span>
+              <span class="term-short">The difference between what you do and what changes</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              Outputs are the direct, countable products of your activities — the number of people served, meals provided, classes taught, or materials distributed. Outcomes are the changes that result — improved skills, increased income, better health. Funders care about outcomes far more than outputs. "We served 200 people" is an output. "85% of participants improved their reading scores by at least one grade level" is an outcome. Both matter, but outcomes demonstrate impact.
+              <div class="term-see">See also: Logic model, Theory of change</div>
+            </div>
+          </div>
+
+          <!-- P -->
+          <div class="term-letter">P</div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">Program officer</span>
+              <span class="term-short">The funder staff person who manages your grant relationship</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              The person at a foundation or government agency who oversees a grant program — reviewing applications, making recommendations to decision-makers, and managing relationships with grantees. Building a relationship with a program officer before you apply is one of the most effective things you can do. Many foundations encourage prospective applicants to reach out before submitting. Program officers can tell you whether your project is a fit and what the funder is prioritizing this cycle.
+            </div>
+          </div>
+
+          <!-- R -->
+          <div class="term-letter">R</div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">Restricted vs. unrestricted funds</span>
+              <span class="term-short">Whether grant money can only be used for specific purposes</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              Restricted funds must be used for the specific purpose stated in the grant — a particular program, project, or budget line. Unrestricted funds can be used for any organizational purpose. Most grants are restricted. When a funder awards unrestricted general operating support, it signals a high level of trust in your organization. Restricted grants require careful tracking to ensure you spend funds only as specified, and to report accurately to the funder.
+              <div class="term-see">See also: General operating support</div>
+            </div>
+          </div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">RFP / RFA</span>
+              <span class="term-short">The document describing a grant opportunity and how to apply</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              Request for Proposals (RFP) or Request for Applications (RFA) — the formal document a funder publishes when soliciting grant applications. An RFP describes the funder's priorities, what they will and won't fund, eligibility requirements, application instructions, evaluation criteria, budget limits, and deadlines. Reading the RFP thoroughly before writing a single word is non-negotiable. Proposals that don't follow RFP instructions are routinely disqualified.
+              <div class="term-see">See also: FOA</div>
+            </div>
+          </div>
+
+          <!-- S -->
+          <div class="term-letter">S</div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">SAM.gov / UEI</span>
+              <span class="term-short">Federal registration required for government grants</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              The System for Award Management (SAM.gov) is the federal government's registration database for entities that want to do business with the federal government, including receiving grants. The Unique Entity Identifier (UEI) is a 12-character alphanumeric code assigned to each registered entity. Registration is free and required for all federal grant applications. It must be renewed annually. The UEI replaced the former DUNS number system in 2022.
+            </div>
+          </div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">Sustainability plan</span>
+              <span class="term-short">How your program continues after the grant period ends</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              Most funders expect grant-funded programs to continue beyond the grant period — and will ask how you plan to sustain the work. A sustainability plan addresses where future funding will come from (other grants, earned income, individual donors, government contracts), what the program looks like when scaled back if needed, and how you'll maintain outcomes. A vague or absent sustainability plan is a common reason proposals are declined.
+            </div>
+          </div>
+
+          <!-- T -->
+          <div class="term-letter">T</div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">Theory of change</span>
+              <span class="term-short">The logic linking your activities to long-term outcomes</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              An explanation of why you believe your activities will produce the outcomes you claim — the "if/then" logic behind your program. A theory of change answers: if we do X, then Y will happen, because Z. Funders use it to assess whether your approach is evidence-based and logically sound. It is distinct from a logic model (which is typically a visual diagram) but closely related. You don't need jargon — a clear, honest statement of your program's logic is enough.
+              <div class="term-see">See also: Logic model, Outcomes vs. outputs</div>
+            </div>
+          </div>
+
+          <!-- U -->
+          <div class="term-letter">U</div>
+
+          <div class="term-item">
+            <div class="term-header">
+              <span class="term-name">Uniform Guidance (2 CFR 200)</span>
+              <span class="term-short">The federal rulebook for grants management</span>
+              <span class="term-arrow">▶</span>
+            </div>
+            <div class="term-body">
+              A set of federal regulations (found at 2 CFR Part 200) that establishes the rules for how federal grant funds must be managed, accounted for, and reported by recipients. If your organization receives federal grant funds — directly or as a subrecipient through a state or local government — you are subject to the Uniform Guidance. Key areas include allowable costs, procurement, financial management, and audit requirements. Organizations spending $750,000 or more in federal funds in a year must undergo a Single Audit.
+            </div>
+          </div>
+
+        </div><!-- /glossary-list -->
+      </div><!-- /tab-glossary -->
+
+      <!-- ── RESOURCES ── -->
+      <div class="tab-panel" id="tab-resources">
+
+        <!-- Finding Funders -->
+        <div class="resource-category">
+          <div class="resource-category-title">Finding Funders</div>
+
+          <a class="resource-item" href="https://candid.org/candid-search/" target="_blank" rel="noopener">
+            <div class="resource-item-top">
+              <span class="resource-name">Candid Search</span>
+              <span class="resource-tag tag-freemium">Free / Paid</span>
+            </div>
+            <span class="resource-desc">The most comprehensive database of U.S. foundation funders and their grants. Free accounts can search basic profiles; paid tiers unlock full giving histories. Access the full database for free at many public libraries through Candid's Funding Information Network.</span>
+            <span class="resource-url">candid.org/candid-search</span>
+          </a>
+
+          <a class="resource-item" href="https://www.grants.gov/" target="_blank" rel="noopener">
+            <div class="resource-item-top">
+              <span class="resource-name">Grants.gov</span>
+              <span class="resource-tag tag-free">Free</span>
+            </div>
+            <span class="resource-desc">The official U.S. government portal for federal grant opportunities. Every discretionary federal grant must be posted here. Free to search and apply. Registration is required to submit applications.</span>
+            <span class="resource-url">grants.gov</span>
+          </a>
+
+          <a class="resource-item" href="https://www.councilofnonprofits.org/running-nonprofit/fundraising-and-resource-development/grant-research-tools" target="_blank" rel="noopener">
+            <div class="resource-item-top">
+              <span class="resource-name">Grant Research Tools Comparison — National Council of Nonprofits</span>
+              <span class="resource-tag tag-free">Free</span>
+            </div>
+            <span class="resource-desc">A side-by-side comparison of major grant research databases — what they include, what they cost, and who they're best suited for. A good starting point before committing to a paid tool.</span>
+            <span class="resource-url">councilofnonprofits.org</span>
+          </a>
+
+        </div>
+
+        <!-- Writing & Craft -->
+        <div class="resource-category">
+          <div class="resource-category-title">Writing &amp; Craft</div>
+
+          <a class="resource-item" href="https://learning.candid.org/training/courses/crafting-compelling-grant-proposals/" target="_blank" rel="noopener">
+            <div class="resource-item-top">
+              <span class="resource-name">Crafting Compelling Grant Proposals — Candid Learning</span>
+              <span class="resource-tag tag-free">Free</span>
+            </div>
+            <span class="resource-desc">A free, self-paced online course that walks through each component of a grant proposal — executive summary, needs statement, program description, budget narrative, and evaluation plan. Includes activities and examples. Requires a free account.</span>
+            <span class="resource-url">learning.candid.org</span>
+          </a>
+
+          <a class="resource-item" href="https://learning.candid.org/page/sample-documents" target="_blank" rel="noopener">
+            <div class="resource-item-top">
+              <span class="resource-name">Sample Grant Proposals & LOIs — Candid</span>
+              <span class="resource-tag tag-free">Free</span>
+            </div>
+            <span class="resource-desc">A collection of actual funded proposals, letters of inquiry, cover letters, and budget templates, each with commentary from the funder who awarded the grant. One of the most useful free resources available for first-time grant writers.</span>
+            <span class="resource-url">learning.candid.org/page/sample-documents</span>
+          </a>
+
+          <a class="resource-item" href="https://www.nonprofitready.org/grant-writing-classes" target="_blank" rel="noopener">
+            <div class="resource-item-top">
+              <span class="resource-name">Grant Writing Classes — NonprofitReady</span>
+              <span class="resource-tag tag-free">Free</span>
+            </div>
+            <span class="resource-desc">Free online courses covering grant writing fundamentals, finding the right grants, and writing compelling proposals. NonprofitReady is a project of a coalition of foundations and offers professional-level training at no cost. Requires a free account.</span>
+            <span class="resource-url">nonprofitready.org/grant-writing-classes</span>
+          </a>
+
+          <a class="resource-item" href="https://learning.candid.org/resources/knowledge-base/grant-proposals/" target="_blank" rel="noopener">
+            <div class="resource-item-top">
+              <span class="resource-name">How Do I Write a Grant Proposal? — Candid Knowledge Base</span>
+              <span class="resource-tag tag-free">Free</span>
+            </div>
+            <span class="resource-desc">A comprehensive plain-language guide to the components of a grant proposal, common mistakes, and five tips for writing success. Part of Candid's free knowledge base for nonprofits.</span>
+            <span class="resource-url">learning.candid.org</span>
+          </a>
+
+        </div>
+
+        <!-- Theory of Change -->
+        <div class="resource-category">
+          <div class="resource-category-title">Theory of Change</div>
+
+          <a class="resource-item" href="https://www.aecf.org/resources/theory-of-change" target="_blank" rel="noopener">
+            <div class="resource-item-top">
+              <span class="resource-name">How to Develop a Theory of Change — Annie E. Casey Foundation</span>
+              <span class="resource-tag tag-free">Free</span>
+            </div>
+            <span class="resource-desc">A comprehensive, practical guide developed by the Annie E. Casey Foundation — one of the sector's most trusted sources on program evaluation and theory of change. Includes step-by-step guidance with an emphasis on equity and community engagement.</span>
+            <span class="resource-url">aecf.org/resources/theory-of-change</span>
+          </a>
+
+          <a class="resource-item" href="https://prosper-strategies.com/what-is-a-theory-of-change-and-when-does-your-nonprofit-need-one/" target="_blank" rel="noopener">
+            <div class="resource-item-top">
+              <span class="resource-name">Theory of Change: Everything Your Nonprofit Needs to Know — Prosper Strategies</span>
+              <span class="resource-tag tag-free">Free</span>
+            </div>
+            <span class="resource-desc">An accessible, nonprofit-focused guide to what a theory of change is, when you need one, and how to build one from scratch. Good for organizations that are new to the concept and want a practical starting point.</span>
+            <span class="resource-url">prosper-strategies.com</span>
+          </a>
+
+        </div>
+
+        <!-- Federal Grants -->
+        <div class="resource-category">
+          <div class="resource-category-title">Federal Grants</div>
+
+          <a class="resource-item" href="https://www.grants.gov/learn-grants" target="_blank" rel="noopener">
+            <div class="resource-item-top">
+              <span class="resource-name">Grants Learning Center — Grants.gov</span>
+              <span class="resource-tag tag-free">Free</span>
+            </div>
+            <span class="resource-desc">The official federal resource for understanding how federal grants work — from finding opportunities to applying, managing awards, and reporting. Includes articles, videos, and a blog series on grant writing basics. Essential if you plan to pursue any federal funding.</span>
+            <span class="resource-url">grants.gov/learn-grants</span>
+          </a>
+
+          <a class="resource-item" href="https://www.councilofnonprofits.org/trends-and-policy-issues/federal-policy-tax-law/resources-understanding-government-grants" target="_blank" rel="noopener">
+            <div class="resource-item-top">
+              <span class="resource-name">Resources for Understanding Government Grants — National Council of Nonprofits</span>
+              <span class="resource-tag tag-free">Free</span>
+            </div>
+            <span class="resource-desc">An overview of federal grant terminology, the Uniform Guidance, and what nonprofits need to know before pursuing government funding. Especially useful for organizations new to federal grants or subrecipient relationships.</span>
+            <span class="resource-url">councilofnonprofits.org</span>
+          </a>
+
+          <a class="resource-item" href="https://sam.gov/" target="_blank" rel="noopener">
+            <div class="resource-item-top">
+              <span class="resource-name">SAM.gov — System for Award Management</span>
+              <span class="resource-tag tag-free">Free</span>
+            </div>
+            <span class="resource-desc">The federal registration portal required for any organization seeking federal grants. Registration is free and must be renewed annually. Your Unique Entity Identifier (UEI) is assigned here. Allow at least 2–3 weeks for registration to process before a federal application deadline.</span>
+            <span class="resource-url">sam.gov</span>
+          </a>
+
+        </div>
+
+        <!-- Nonprofit Operations -->
+        <div class="resource-category">
+          <div class="resource-category-title">Nonprofit Operations</div>
+
+          <a class="resource-item" href="https://councilofnonprofits.org/tools-resources" target="_blank" rel="noopener">
+            <div class="resource-item-top">
+              <span class="resource-name">Nonprofit Resource Library — National Council of Nonprofits</span>
+              <span class="resource-tag tag-free">Free</span>
+            </div>
+            <span class="resource-desc">Hundreds of free guides, templates, and articles covering every aspect of nonprofit management — financial management, board governance, HR, compliance, fundraising, and more. One of the most comprehensive free resources available to nonprofits of any size.</span>
+            <span class="resource-url">councilofnonprofits.org/tools-resources</span>
+          </a>
+
+          <a class="resource-item" href="https://candid.org/blogs/nonprofit-grant-writing-tips-free-proposal-resources-expert-how-tos/" target="_blank" rel="noopener">
+            <div class="resource-item-top">
+              <span class="resource-name">Grant Writing Tips & Free Resources — Candid</span>
+              <span class="resource-tag tag-free">Free</span>
+            </div>
+            <span class="resource-desc">A curated hub of grant writing tips, expert articles, and free proposal resources from Candid — including how to research funders, tailor proposals, and avoid common mistakes. Updated regularly.</span>
+            <span class="resource-url">candid.org</span>
+          </a>
+
+        </div>
+
+      </div><!-- /tab-resources -->
+
+    </div><!-- /page-content -->
+  </div><!-- /page-main -->
+
+</div><!-- /page-shell -->
+
+<script>
+  // Tabs
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // Glossary expand/collapse
+  document.querySelectorAll('.term-header').forEach(header => {
+    header.addEventListener('click', () => {
+      header.closest('.term-item').classList.toggle('open');
+    });
+  });
+
+  // Glossary search
+  document.getElementById('glossary-search')?.addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    document.querySelectorAll('.term-item').forEach(item => {
+      const text = item.textContent.toLowerCase();
+      item.style.display = (!q || text.includes(q)) ? '' : 'none';
+    });
+    document.querySelectorAll('.term-letter').forEach(letter => {
+      const next = letter.nextElementSibling;
+      letter.style.display = (next && next.style.display !== 'none') ? '' : 'none';
+    });
+  });
+</script>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { firebaseConfig } from '../js/firebase-config.js';
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = '../index.html'; return; }
+    const hour = new Date().getHours();
+    const tod  = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+    const name = user.displayName?.split(' ')[0] || '';
+    const g = document.getElementById('greeting');
+    if (g) g.textContent = `Good ${tod}${name ? ', ' + name : ''}.`;
+    const av = document.getElementById('avatar-initial');
+    if (av) av.textContent = (user.displayName || user.email || '?')[0].toUpperCase();
+
+    const orgRef  = doc(db, 'users', user.uid, 'data', 'org');
+    const orgSnap = await getDoc(orgRef);
+    if (orgSnap.exists()) {
+      const org = orgSnap.data();
+      const nameEl = document.getElementById('org-name');
+      const fullEl = document.getElementById('org-full');
+      if (nameEl) nameEl.textContent = org.abbreviation || org.name || '—';
+      if (fullEl) fullEl.textContent = org.name || '';
+      const checks = [org?.name, org?.evaluations?.length, org?.applications?.length,
+                      org?.library?.length, org?.pipeline?.length];
+      checks.forEach((val, i) => {
+        const dot = document.getElementById(`dot-${i+1}`);
+        if (dot && val) dot.classList.add('active');
+      });
+    }
+  });
+
+  document.getElementById('avatar-btn')?.addEventListener('click', () => {
+    if (confirm('Sign out?')) signOut(auth).then(() => window.location.href = '../index.html');
+  });
+</script>
+</body>
+</html>
