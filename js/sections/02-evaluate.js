@@ -204,26 +204,39 @@ function showResult() {
   // Build prose summary
   const oppRef    = funder ? `${name} from ${funder}` : name;
   const dateNote  = deadline ? ` The application deadline is ${new Date(deadline + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.` : '';
-  const weakLabels    = QUESTIONS.filter(q => answers[q.id]?.value === 0).map(q => q.text.replace('?',''));
-  const cautionLabels = QUESTIONS.filter(q => answers[q.id]?.value === 1).map(q => q.text.replace('?',''));
+  // Human-readable labels for prose (not question text)
+  const proseLabels = {
+    q0: 'mission alignment',
+    q1: 'eligibility',
+    q2: 'deadline feasibility',
+    q3: 'award amount fit',
+    q4: 'organizational capacity',
+    q5: 'funder relationship',
+    q6: 'reporting requirements',
+    q7: 'sustainability planning',
+  };
+
+  const weakLabels    = QUESTIONS.filter(q => answers[q.id]?.value === 0).map(q => proseLabels[q.id]);
+  const cautionLabels = QUESTIONS.filter(q => answers[q.id]?.value === 1).map(q => proseLabels[q.id]);
 
   let prose = '';
   if (tier === 'apply') {
     prose = `Groundwork Go/No-Go Evaluation\nOpportunity: ${oppRef}\nScore: ${score} / ${maxScore} — Recommendation: Apply\n\n`;
     prose += `This opportunity scored ${score} out of ${maxScore} and is recommended for application.${dateNote} The evaluation found strong mission alignment, eligibility, and organizational capacity.`;
-    if (cautionLabels.length) prose += ` A few areas warrant attention during proposal development: ${cautionLabels.join('; ')}.`;
+    if (cautionLabels.length) prose += ` A few areas warrant attention during proposal development: ${cautionLabels.join(', ')}.`;
     prose += `\n\nNext step: Proceed with the application.`;
   } else if (tier === 'caution') {
     prose = `Groundwork Go/No-Go Evaluation\nOpportunity: ${oppRef}\nScore: ${score} / ${maxScore} — Recommendation: Proceed with Caution\n\n`;
     prose += `This opportunity scored ${score} out of ${maxScore}.${dateNote} The evaluation found genuine potential alongside meaningful concerns that should be resolved before committing to a full application.`;
-    if (weakLabels.length) prose += `\n\nAreas of concern: ${weakLabels.map(l => l.charAt(0).toUpperCase() + l.slice(1)).join('. ')}.`;
-    if (cautionLabels.length) prose += `\n\nAreas requiring attention: ${cautionLabels.map(l => l.charAt(0).toUpperCase() + l.slice(1)).join('. ')}.`;
+    if (weakLabels.length) prose += `\n\nSignificant concerns: ${weakLabels.join(', ')}.`;
+    if (cautionLabels.length) prose += `\n\nAreas requiring attention: ${cautionLabels.join(', ')}.`;
     prose += `\n\nNext step: Consider a pre-application conversation with the funder to clarify fit before investing time in a full proposal.`;
   } else {
     prose = `Groundwork Go/No-Go Evaluation\nOpportunity: ${oppRef}\nScore: ${score} / ${maxScore} — Recommendation: Pass\n\n`;
     prose += `This opportunity scored ${score} out of ${maxScore} and is not recommended for application at this time.${dateNote} The evaluation identified significant barriers that make a successful application unlikely.`;
-    if (weakLabels.length) prose += `\n\nPrimary concerns: ${weakLabels.map(l => l.charAt(0).toUpperCase() + l.slice(1)).join('. ')}.`;
-    prose += `\n\nNext step: Pass on this cycle. Revisit when the barriers above have been addressed.`;
+    if (weakLabels.length) prose += `\n\nPrimary concerns: ${weakLabels.join(', ')}.`;
+    if (cautionLabels.length) prose += `\n\nSecondary concerns: ${cautionLabels.join(', ')}.`;
+    prose += `\n\nNext step: Pass on this cycle. Revisit when the concerns above have been addressed.`;
   }
 
   // Build flags
