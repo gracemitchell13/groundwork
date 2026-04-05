@@ -442,7 +442,7 @@ async function loadPreviousEvals() {
       <span class="prev-eval-badge ${badgeClass}">${badgeText}</span>
       <span class="prev-eval-name">${ev.name}${ev.funder ? ' — ' + ev.funder : ''}</span>
       <span class="prev-eval-date">${date}</span>
-      <button class="eval-delete-btn" data-idx="${idx}" style="font-size:12px;color:#A04830;background:none;border:1px solid #A04830;border-radius:4px;padding:3px 10px;cursor:pointer;flex-shrink:0;" onclick="event.stopPropagation();">Delete</button>
+      <button class="eval-delete-btn" data-idx="${idx}" style="font-size:12px;color:#A04830;background:none;border:1px solid #A04830;border-radius:4px;padding:3px 10px;cursor:pointer;flex-shrink:0;" onclick="event.stopPropagation();window._deleteEval(${idx});">Delete</button>
       <span class="eval-arrow" style="font-size:11px;color:#3A7080;flex-shrink:0;">▶ View</span>`;
 
     const detail = document.createElement('div');
@@ -457,8 +457,16 @@ async function loadPreviousEvals() {
     list.appendChild(wrapper);
   });
 
-  // Store for load button
+  // Store for buttons
   window._recentEvals = recentEvals;
+  window._deleteEval  = (idx) => {
+    const ev = window._recentEvals[idx];
+    if (!confirm(`Delete evaluation for "${ev.name}"? This cannot be undone.`)) return;
+    const orgRef = doc(db, 'users', currentUser.uid, 'data', 'org');
+    updateDoc(orgRef, { evaluations: arrayRemove(ev) })
+      .then(() => loadPreviousEvals())
+      .catch(err => { console.error('Delete error:', err); alert('Error deleting — please try again.'); });
+  };
 
   // Event delegation on the list
   list.addEventListener('click', e => {
@@ -471,19 +479,6 @@ async function loadPreviousEvals() {
       const open = detail.style.display !== 'none';
       detail.style.display = open ? 'none' : 'block';
       arrow.textContent = open ? '▶ View' : '▼ Hide';
-      return;
-    }
-
-    // Delete evaluation
-    const deleteBtn = e.target.closest('.eval-delete-btn');
-    if (deleteBtn) {
-      const idx = parseInt(deleteBtn.dataset.idx);
-      const ev  = window._recentEvals[idx];
-      if (!confirm(`Delete evaluation for "${ev.name}"? This cannot be undone.`)) return;
-      const orgRef = doc(db, 'users', currentUser.uid, 'data', 'org');
-      updateDoc(orgRef, { evaluations: arrayRemove(ev) })
-        .then(() => loadPreviousEvals())
-        .catch(err => { console.error('Delete error:', err); alert('Error deleting — please try again.'); });
       return;
     }
 
