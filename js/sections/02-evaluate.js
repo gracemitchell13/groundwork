@@ -211,18 +211,18 @@ function showResult() {
   if (tier === 'apply') {
     prose = `Groundwork Go/No-Go Evaluation\nOpportunity: ${oppRef}\nScore: ${score} / ${maxScore} — Recommendation: Apply\n\n`;
     prose += `This opportunity scored ${score} out of ${maxScore} and is recommended for application.${dateNote} The evaluation found strong mission alignment, eligibility, and organizational capacity.`;
-    if (cautionAreas.length) prose += ` A few areas warrant attention during proposal development: ${cautionLabels.join('; ')}.`;
+    if (cautionLabels.length) prose += ` A few areas warrant attention during proposal development: ${cautionLabels.join('; ')}.`;
     prose += `\n\nNext step: Proceed with the application.`;
   } else if (tier === 'caution') {
     prose = `Groundwork Go/No-Go Evaluation\nOpportunity: ${oppRef}\nScore: ${score} / ${maxScore} — Recommendation: Proceed with Caution\n\n`;
     prose += `This opportunity scored ${score} out of ${maxScore}.${dateNote} The evaluation found genuine potential alongside meaningful concerns that should be resolved before committing to a full application.`;
-    if (weakLabels.length) prose += ` The following areas scored poorly: ${weakLabels.join('; ')}.`;
-    if (cautionLabels.length) prose += ` Areas requiring attention: ${cautionLabels.join('; ')}.`;
+    if (weakLabels.length) prose += `\n\nAreas of concern: ${weakLabels.map(l => l.charAt(0).toUpperCase() + l.slice(1)).join('. ')}.`;
+    if (cautionLabels.length) prose += `\n\nAreas requiring attention: ${cautionLabels.map(l => l.charAt(0).toUpperCase() + l.slice(1)).join('. ')}.`;
     prose += `\n\nNext step: Consider a pre-application conversation with the funder to clarify fit before investing time in a full proposal.`;
   } else {
     prose = `Groundwork Go/No-Go Evaluation\nOpportunity: ${oppRef}\nScore: ${score} / ${maxScore} — Recommendation: Pass\n\n`;
     prose += `This opportunity scored ${score} out of ${maxScore} and is not recommended for application at this time.${dateNote} The evaluation identified significant barriers that make a successful application unlikely.`;
-    if (weakLabels.length) prose += ` The primary concerns are: ${weakLabels.join('; ')}.`;
+    if (weakLabels.length) prose += `\n\nPrimary concerns: ${weakLabels.map(l => l.charAt(0).toUpperCase() + l.slice(1)).join('. ')}.`;
     prose += `\n\nNext step: Pass on this cycle. Revisit when the barriers above have been addressed.`;
   }
 
@@ -260,10 +260,10 @@ function showResult() {
   document.getElementById('result-headline').textContent = headline;
   document.getElementById('result-score').textContent    = `Score: ${score} / ${maxScore}`;
 
-  // Set prose — use innerHTML with line breaks for reliable rendering
+  // Set prose — use textContent; CSS white-space:pre-wrap handles line breaks
   const proseEl = document.getElementById('result-prose');
-  proseEl.innerHTML = prose.replace(/\n/g, '<br>');
-  proseEl.dataset.plain = prose; // store plain text for copy
+  proseEl.textContent  = prose;
+  proseEl.dataset.plain = prose;
 
   // Wire copy button
   document.getElementById('copy-btn').onclick = () => {
