@@ -427,12 +427,9 @@ async function loadPreviousEvals() {
         <span><strong style="color:#1A1510;">Score:</strong> ${ev.score ?? '—'} / 16</span>
       </div>
       ${ev.description ? `<p style="font-size:13px;color:#5A5248;margin-bottom:12px;line-height:1.6;border-left:2px solid #C8C0AE;padding-left:10px;">${ev.description}</p>` : ''}
+      ${ev.prose ? `<div style="font-size:14px;color:#1A1510;line-height:1.75;margin-bottom:16px;padding:14px 16px;background:#F2EDE2;border-radius:6px;border:1px solid #C8C0AE;white-space:pre-wrap;">${ev.prose}</div>` : ''}
       ${flagsHTML ? `<ul style="list-style:none;display:flex;flex-direction:column;gap:4px;margin-bottom:16px;">${flagsHTML}</ul>` : ''}
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn-primary eval-load-btn" data-idx="${idx}" style="font-size:13px;padding:7px 16px;">Load into evaluator</button>
-        <button class="copy-btn eval-copy-btn" data-idx="${idx}" style="font-size:13px;padding:7px 16px;">Copy summary</button>
-        <button class="copy-btn eval-delete-btn" data-idx="${idx}" style="font-size:13px;padding:7px 16px;color:#A04830;border-color:#A04830;">Delete</button>
-      </div>`;
+      <button class="copy-btn eval-copy-btn" data-idx="${idx}" style="font-size:13px;padding:7px 16px;">Copy summary</button>`;
 
     const wrapper = document.createElement('div');
     wrapper.style.marginBottom = '8px';
@@ -445,6 +442,7 @@ async function loadPreviousEvals() {
       <span class="prev-eval-badge ${badgeClass}">${badgeText}</span>
       <span class="prev-eval-name">${ev.name}${ev.funder ? ' — ' + ev.funder : ''}</span>
       <span class="prev-eval-date">${date}</span>
+      <button class="eval-delete-btn" data-idx="${idx}" style="font-size:12px;color:#A04830;background:none;border:1px solid #A04830;border-radius:4px;padding:3px 10px;cursor:pointer;flex-shrink:0;" onclick="event.stopPropagation();">Delete</button>
       <span class="eval-arrow" style="font-size:11px;color:#3A7080;flex-shrink:0;">▶ View</span>`;
 
     const detail = document.createElement('div');
@@ -473,14 +471,6 @@ async function loadPreviousEvals() {
       const open = detail.style.display !== 'none';
       detail.style.display = open ? 'none' : 'block';
       arrow.textContent = open ? '▶ View' : '▼ Hide';
-      return;
-    }
-
-    // Load into evaluator
-    const loadBtn = e.target.closest('.eval-load-btn');
-    if (loadBtn) {
-      const idx = parseInt(loadBtn.dataset.idx);
-      loadEvaluation(window._recentEvals[idx]);
       return;
     }
 
