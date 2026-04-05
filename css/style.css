@@ -159,7 +159,7 @@ button { cursor: pointer; border: none; background: none; font-family: var(--san
 .wordmark {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 26px;
+  font-size: 28px;
   color: #EDE5D4;
   letter-spacing: 0.01em;
 }
