@@ -277,14 +277,10 @@
         <div class="form-group form-group-full">
           <label class="form-label" for="org-toc">Theory of change</label>
           <textarea class="form-textarea" id="org-toc" placeholder="If we do [activities], then [population] will experience [outcomes], because [rationale]." style="min-height:110px;"></textarea>
-<<<<<<< Updated upstream
-          <button class="why-toggle" type="button"><span class="why-arrow">▶</span> Why this matters</button>
-=======
           <div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;">
             <button class="why-toggle" type="button"><span class="why-arrow">▶</span> Why this matters</button>
             <button class="why-toggle" type="button" data-target="toc-explainer"><span class="why-arrow">▶</span> Show me an example</button>
           </div>
->>>>>>> Stashed changes
           <p class="field-why">A theory of change explains the logic behind your work — why you believe your activities lead to the outcomes you claim. Funders use it to evaluate whether your approach makes sense. You don't need jargon. A clear "if/then" statement is enough: "If we provide weekly tutoring to struggling readers in grades 1–3, then those students will improve their reading levels, because research shows early intervention has the highest impact."</p>
           <div class="toc-explainer field-why" id="toc-explainer" style="display:none;">
             <p style="font-weight:600;margin-bottom:12px;color:var(--body);">How a theory of change works</p>
@@ -363,16 +359,10 @@
 
 </div>
 <script>
-<<<<<<< Updated upstream
-  // Why-this toggles — pure JS, no module needed
-=======
->>>>>>> Stashed changes
   document.addEventListener('click', e => {
     const btn = e.target.closest('.why-toggle');
     if (!btn) return;
     btn.classList.toggle('open');
-<<<<<<< Updated upstream
-=======
 
     // If button has a data-target, toggle that specific element
     const targetId = btn.dataset.target;
@@ -383,7 +373,6 @@
     }
 
     // Otherwise toggle the immediately following field-why
->>>>>>> Stashed changes
     const panel = btn.nextElementSibling;
     if (panel?.classList.contains('field-why')) {
       panel.classList.toggle('open');
