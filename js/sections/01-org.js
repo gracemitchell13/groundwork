@@ -7,6 +7,7 @@ import { getAuth, onAuthStateChanged, signOut }
 import { getFirestore, doc, getDoc, setDoc }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { firebaseConfig } from '../firebase-config.js';
+import { populateSidebarCard } from '../sidebar-org-card.js';
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -58,6 +59,7 @@ async function loadDots(user) {
     const fullEl = document.getElementById('org-full');
     if (nameEl) nameEl.textContent = org.abbreviation || org.name || '—';
     if (fullEl) fullEl.textContent = org.name || '';
+    populateSidebarCard(org);
   }
 }
 

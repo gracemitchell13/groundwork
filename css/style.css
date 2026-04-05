@@ -243,6 +243,44 @@ button { cursor: pointer; border: none; background: none; font-family: var(--san
   line-height: 1.4;
 }
 
+/* ── Org profile card in sidebar ───────────────────────── */
+.sidebar-org-card {
+  display: none;
+  margin: 0 12px 10px;
+  background: rgba(255,255,255,0.06);
+  border: 0.5px solid rgba(255,255,255,0.12);
+  border-radius: 7px;
+  padding: 11px 13px;
+  font-size: 12px;
+}
+.sidebar-org-card.visible { display: block; }
+.sidebar-org-card-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6A7E5A;
+  margin-bottom: 5px;
+}
+.sidebar-org-card-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #EDE5D4;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+.sidebar-org-card-mission {
+  font-size: 11px;
+  color: #8A9E7A;
+  line-height: 1.5;
+  margin-bottom: 5px;
+}
+.sidebar-org-card-budget {
+  font-size: 10px;
+  color: #6A7E5A;
+  font-weight: 500;
+}
+
 /* ── Main content ──────────────────────────────────────── */
 .main {
   flex: 1;

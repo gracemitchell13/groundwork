@@ -324,11 +324,23 @@
     </nav>
       <div style="height:0.5px;background:rgba(255,255,255,0.1);margin:8px 0;"></div>
       <a href="resources.html" class="nav-item" style="padding:8px 16px 8px 18px;">
-        <span class="nav-num" style="opacity:0.8;">?</span>
+        <span class="nav-num" style="opacity:0.7;font-size:11px;letter-spacing:0;">REF</span>
         <span class="nav-label" style="font-size:13px;color:#A8B898;">Definitions &amp; Resources</span>
       </a>
+    <div class="sidebar-org-card" id="sidebar-org-card">
+      <div class="sidebar-org-card-label">Your organization</div>
+      <div class="sidebar-org-card-name" id="card-org-name"></div>
+      <div class="sidebar-org-card-mission" id="card-org-mission"></div>
+      <div class="sidebar-org-card-budget" id="card-org-budget"></div>
+    </div>
     <div class="sidebar-footer">
-      <div class="org-name" id="org-name">—</div>
+      <div id="org-profile-card" style="display:none;background:rgba(255,255,255,0.07);border-radius:7px;padding:10px 12px;margin-bottom:12px;">
+        <div style="font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;">Your Organization</div>
+        <div class="org-name" id="org-name" style="font-size:14px;font-weight:600;color:#EDE5D4;margin-bottom:3px;">—</div>
+        <div id="org-budget-pill" style="display:none;font-size:10px;padding:2px 7px;background:rgba(255,255,255,0.1);border-radius:3px;color:rgba(255,255,255,0.6);margin-bottom:5px;display:inline-block;"></div>
+        <div class="org-full" id="org-mission-snippet" style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.5;margin-top:4px;"></div>
+      </div>
+      <div id="org-name-fallback" class="org-name" style="display:none;">—</div>
       <div class="org-full" id="org-full"></div>
     </div>
   </aside>
@@ -404,6 +416,9 @@
       <div id="questions-section" style="display:none;">
         <p style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);margin-bottom:14px;">The evaluation</p>
         <div id="questions-wrap"></div>
+        <div id="evaluate-btn-wrap" style="display:none;margin-top:8px;margin-bottom:24px;">
+          <button class="btn-primary" id="evaluate-btn">See my recommendation →</button>
+        </div>
       </div>
 
       <!-- Result -->
@@ -428,7 +443,6 @@
     </div>
 
     <div class="save-bar">
-      <button class="btn-primary" id="evaluate-btn">See my recommendation</button>
       <span class="save-status" id="save-status"></span>
       <a href="../index.html" style="margin-left:auto;font-size:13px;color:var(--muted);">← Back to dashboard</a>
     </div>

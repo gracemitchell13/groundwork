@@ -6,6 +6,7 @@ import { getAuth, onAuthStateChanged, signOut }
 import { getFirestore, doc, getDoc, updateDoc, arrayUnion, arrayRemove }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { firebaseConfig } from '../firebase-config.js';
+import { populateSidebarCard } from '../sidebar-org-card.js';
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -188,9 +189,23 @@ function showResult() {
   const funder   = document.getElementById('opp-funder')?.value.trim();
   const deadline = document.getElementById('opp-deadline')?.value;
 
-  let tier, headline;
+  // ── Hard stops ──────────────────────────────────────────
+  // Eligibility (q1 = 0): automatic Pass, no score matters
+  const eligibilityFailed = answers['q1']?.value === 0;
+  // Mission fit (q0 = 0): automatic Pass regardless of score
+  const missionFailed     = answers['q0']?.value === 0;
 
-  if (score >= 13) {
+  let tier, headline, hardStopReason = null;
+
+  if (eligibilityFailed) {
+    tier            = 'pass';
+    headline        = 'Do not apply to this opportunity.';
+    hardStopReason  = 'You don\'t meet one or more eligibility requirements. Submitting an application you\'re not eligible for wastes your time and damages your relationship with the funder. Confirm the requirements and consider reaching out to ask if there are exceptions before investing any writing time.';
+  } else if (missionFailed) {
+    tier            = 'pass';
+    headline        = 'This opportunity is not a mission fit.';
+    hardStopReason  = 'A weak mission fit is a fundamental barrier. Funders can tell when an organization is stretching to fit their priorities, and applications that feel forced rarely succeed. Pass on this one and look for opportunities where the alignment is genuine.';
+  } else if (score >= 13) {
     tier     = 'apply';
     headline = 'This opportunity is worth pursuing.';
   } else if (score >= 9) {
@@ -204,23 +219,22 @@ function showResult() {
   // Build prose summary
   const oppRef    = funder ? `${name} from ${funder}` : name;
   const dateNote  = deadline ? ` The application deadline is ${new Date(deadline + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.` : '';
-  // Human-readable labels for prose (not question text)
   const proseLabels = {
-    q0: 'mission alignment',
-    q1: 'eligibility',
-    q2: 'deadline feasibility',
-    q3: 'award amount fit',
-    q4: 'organizational capacity',
-    q5: 'funder relationship',
-    q6: 'reporting requirements',
-    q7: 'sustainability planning',
+    q0: 'mission alignment', q1: 'eligibility', q2: 'deadline feasibility',
+    q3: 'award amount fit',  q4: 'organizational capacity', q5: 'funder relationship',
+    q6: 'reporting requirements', q7: 'sustainability planning',
   };
 
   const weakLabels    = QUESTIONS.filter(q => answers[q.id]?.value === 0).map(q => proseLabels[q.id]);
   const cautionLabels = QUESTIONS.filter(q => answers[q.id]?.value === 1).map(q => proseLabels[q.id]);
 
   let prose = '';
-  if (tier === 'apply') {
+  if (hardStopReason) {
+    const stopType = eligibilityFailed ? 'Eligibility — Hard Stop' : 'Mission Fit — Hard Stop';
+    prose = `Groundwork Go/No-Go Evaluation\nOpportunity: ${oppRef}\nScore: ${score} / ${maxScore} — Recommendation: Pass (${stopType})\n\n`;
+    prose += hardStopReason;
+    prose += `\n\nNext step: Do not apply. Address the issue above before pursuing this or similar opportunities.`;
+  } else if (tier === 'apply') {
     prose = `Groundwork Go/No-Go Evaluation\nOpportunity: ${oppRef}\nScore: ${score} / ${maxScore} — Recommendation: Apply\n\n`;
     prose += `This opportunity scored ${score} out of ${maxScore} and is recommended for application.${dateNote} The evaluation found strong mission alignment, eligibility, and organizational capacity.`;
     if (cautionLabels.length) prose += ` A few areas warrant attention during proposal development: ${cautionLabels.join(', ')}.`;
@@ -239,10 +253,10 @@ function showResult() {
     prose += `\n\nNext step: Pass on this cycle. Revisit when the concerns above have been addressed.`;
   }
 
-  // Build flags
+  // Build flags — for hard stops, highlight the trigger question prominently
   const flagMap = {
-    q0: { good: 'Strong mission alignment', caution: 'Partial mission alignment — clarify the connection in your narrative', bad: 'Weak mission fit — application likely to be unsuccessful' },
-    q1: { good: 'You meet all eligibility requirements', caution: 'One eligibility requirement is unclear — confirm before applying', bad: 'You don\'t meet a key requirement — do not apply' },
+    q0: { good: 'Strong mission alignment', caution: 'Partial mission alignment — clarify the connection in your narrative', bad: '⛔ Hard stop: Weak mission fit — do not apply' },
+    q1: { good: 'You meet all eligibility requirements', caution: 'One eligibility requirement is unclear — confirm before applying', bad: '⛔ Hard stop: You don\'t meet a key requirement — do not apply' },
     q2: { good: 'Sufficient time to write a strong application', caution: 'Timeline is tight — prioritize ruthlessly', bad: 'Not enough time — consider waiting for the next cycle' },
     q3: { good: 'Award amount is well-matched to your budget and project', caution: 'Award amount may need explanation in your budget narrative', bad: 'Amount mismatch — reconsider the ask or the opportunity' },
     q4: { good: 'Your team has the capacity to manage this grant', caution: 'Capacity is stretched — identify who will own this before applying', bad: 'Insufficient capacity — do not overcommit your team' },
@@ -267,15 +281,20 @@ function showResult() {
   // Update result panel
   const panel = document.getElementById('result-panel');
   panel.className = `result-panel show result-${tier}`;
-  document.getElementById('result-label').textContent   =
-    tier === 'apply' ? 'Recommendation: Apply' :
-    tier === 'caution' ? 'Recommendation: Proceed with Caution' : 'Recommendation: Pass';
-  document.getElementById('result-headline').textContent = headline;
-  document.getElementById('result-score').textContent    = `Score: ${score} / ${maxScore}`;
 
-  // Set prose — use textContent; CSS white-space:pre-wrap handles line breaks
+  const labelEl = document.getElementById('result-label');
+  if (hardStopReason) {
+    labelEl.textContent = eligibilityFailed ? 'Hard Stop — Eligibility' : 'Hard Stop — Mission Fit';
+  } else {
+    labelEl.textContent = tier === 'apply' ? 'Recommendation: Apply' :
+                          tier === 'caution' ? 'Recommendation: Proceed with Caution' : 'Recommendation: Pass';
+  }
+
+  document.getElementById('result-headline').textContent = headline;
+  document.getElementById('result-score').textContent    = hardStopReason ? `Score: ${score} / ${maxScore} — overridden by hard stop` : `Score: ${score} / ${maxScore}`;
+
   const proseEl = document.getElementById('result-prose');
-  proseEl.textContent  = prose;
+  proseEl.textContent   = prose;
   proseEl.dataset.plain = prose;
 
   // Wire copy button
@@ -316,10 +335,10 @@ if (evaluateBtn) {
 }
 
 function enableEvaluateBtn() {
-  if (!evaluateBtn) return;
-  evaluateBtn.disabled = false;
-  evaluateBtn.style.opacity = '1';
-  evaluateBtn.style.cursor  = 'pointer';
+  const btn  = document.getElementById('evaluate-btn');
+  const wrap = document.getElementById('evaluate-btn-wrap');
+  if (btn)  { btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; }
+  if (wrap) wrap.style.display = 'block';
 }
 
 // Enable if all questions already auto-answered (e.g. deadline pre-selected)
@@ -405,6 +424,7 @@ function resetForm() {
   document.getElementById('opp-summary').classList.remove('visible');
   document.getElementById('opp-form').style.display = 'block';
   document.getElementById('questions-wrap').innerHTML = '';
+  document.getElementById('evaluate-btn-wrap').style.display = 'none';
   if (evaluateBtn) {
     evaluateBtn.disabled      = true;
     evaluateBtn.style.opacity = '0.45';
@@ -604,7 +624,7 @@ onAuthStateChanged(auth, async (user) => {
   const av = document.getElementById('avatar-initial');
   if (av) av.textContent = (user.displayName || user.email || '?')[0].toUpperCase();
 
-  // Load org data for sidebar and dots
+  // Load org data for sidebar
   const orgRef  = doc(db, 'users', user.uid, 'data', 'org');
   const orgSnap = await getDoc(orgRef);
   if (orgSnap.exists()) {
@@ -612,7 +632,8 @@ onAuthStateChanged(auth, async (user) => {
     const nameEl = document.getElementById('org-name');
     const fullEl = document.getElementById('org-full');
     if (nameEl) nameEl.textContent = org.abbreviation || org.name || '—';
-    if (fullEl) fullEl.textContent = org.name || '';
+    if (fullEl) fullEl.textContent = '';
+    populateSidebarCard(org);
     const checks = [org?.name, org?.evaluations?.length, org?.applications?.length,
                     org?.library?.length, org?.pipeline?.length];
     checks.forEach((val, i) => {
