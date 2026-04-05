@@ -3,7 +3,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, updateDoc, arrayUnion }
+import { getFirestore, doc, getDoc, updateDoc, arrayUnion, arrayRemove }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { firebaseConfig } from '../firebase-config.js';
 
@@ -258,18 +258,34 @@ function showResult() {
     tier === 'caution' ? 'Recommendation: Proceed with Caution' : 'Recommendation: Pass';
   document.getElementById('result-headline').textContent = headline;
   document.getElementById('result-score').textContent    = `Score: ${score} / ${maxScore}`;
-  document.getElementById('result-prose').textContent    = prose;
+
+  // Set prose — use innerHTML with line breaks for reliable rendering
+  const proseEl = document.getElementById('result-prose');
+  proseEl.innerHTML = prose.replace(/\n/g, '<br>');
+  proseEl.dataset.plain = prose; // store plain text for copy
 
   // Wire copy button
-  const copyBtn = document.getElementById('copy-btn');
-  copyBtn.onclick = () => {
-    navigator.clipboard.writeText(prose).then(() => {
-      copyBtn.textContent = 'Copied ✓';
-      copyBtn.classList.add('copied');
+  document.getElementById('copy-btn').onclick = () => {
+    const text = document.getElementById('result-prose')?.dataset.plain || prose;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = 'Copied ✓';
+      btn.classList.add('copied');
       setTimeout(() => {
-        copyBtn.textContent = 'Copy summary to clipboard';
-        copyBtn.classList.remove('copied');
+        btn.textContent = 'Copy summary to clipboard';
+        btn.classList.remove('copied');
       }, 2500);
+    }).catch(() => {
+      // Fallback for browsers that block clipboard
+      const ta = document.createElement('textarea');
+      ta.value = prose;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = 'Copied ✓';
+      setTimeout(() => btn.textContent = 'Copy summary to clipboard', 2500);
     });
   };
 
@@ -379,7 +395,9 @@ async function loadPreviousEvals() {
     q7: { good: 'Has a sustainability plan', caution: 'Sustainability needs development', bad: 'No sustainability plan' },
   };
 
-  [...evals].reverse().slice(0, 10).forEach((ev, idx) => {
+  const recentEvals = [...evals].reverse().slice(0, 10);
+
+  recentEvals.forEach((ev, idx) => {
     const badgeClass = ev.tier === 'apply' ? 'badge-apply' :
                        ev.tier === 'caution' ? 'badge-caution' : 'badge-pass';
     const badgeText  = ev.tier === 'apply' ? 'Apply' :
@@ -387,64 +405,120 @@ async function loadPreviousEvals() {
     const date = ev.savedAt ? new Date(ev.savedAt).toLocaleDateString('en-US',
       { month: 'short', day: 'numeric', year: 'numeric' }) : '';
     const detailId = `eval-detail-${idx}`;
+    const borderColor = ev.tier === 'apply' ? '#5A8A48' :
+                        ev.tier === 'caution' ? '#B07820' : '#A04830';
 
-    // Build flag HTML
+    // Build flags
     let flagsHTML = '';
     if (ev.answers) {
       Object.entries(ev.answers).forEach(([qid, ans]) => {
-        const ft = ans.value === 2 ? 'good' : ans.value === 1 ? 'caution' : 'bad';
-        const fc = ans.value === 2 ? 'flag-good' : ans.value === 1 ? 'flag-caution' : 'flag-bad';
+        const ft   = ans.value === 2 ? 'good' : ans.value === 1 ? 'caution' : 'bad';
+        const fc   = ans.value === 2 ? 'flag-good' : ans.value === 1 ? 'flag-caution' : 'flag-bad';
         const text = flagMap[qid]?.[ft] || '';
-        if (text) flagsHTML += `<li class="result-flag ${fc}" style="margin-bottom:4px;">${text}</li>`;
+        if (text) flagsHTML += `<li class="result-flag ${fc}" style="margin-bottom:4px;font-size:13px;">${text}</li>`;
       });
     }
 
-    const borderColor = ev.tier === 'apply' ? 'var(--accent-1)' :
-                        ev.tier === 'caution' ? 'var(--accent-2)' : 'var(--accent-4)';
-
-    const item = document.createElement('div');
-    item.style.marginBottom = '8px';
-    item.innerHTML = `
-      <div class="prev-eval-item" style="cursor:pointer;" onclick="
-        const d = document.getElementById('${detailId}');
-        const arrow = this.querySelector('.eval-arrow');
-        if (d.style.display === 'none') {
-          d.style.display = 'block';
-          arrow.textContent = '▼';
-        } else {
-          d.style.display = 'none';
-          arrow.textContent = '▶';
-        }
-      ">
-        <span class="prev-eval-badge ${badgeClass}">${badgeText}</span>
-        <span class="prev-eval-name">${ev.name}${ev.funder ? ' — ' + ev.funder : ''}</span>
-        <span class="prev-eval-date">${date}</span>
-        <span class="eval-arrow" style="font-size:10px;color:var(--accent-3);flex-shrink:0;">▶</span>
+    const detailsHTML = `
+      <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:12px;font-size:13px;color:#5A5248;">
+        ${ev.funder ? `<span><strong style="color:#1A1510;">Funder:</strong> ${ev.funder}</span>` : ''}
+        ${ev.amount ? `<span><strong style="color:#1A1510;">Amount:</strong> ${ev.amount}</span>` : ''}
+        ${ev.deadline ? `<span><strong style="color:#1A1510;">Deadline:</strong> ${new Date(ev.deadline + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span>` : ''}
+        <span><strong style="color:#1A1510;">Score:</strong> ${ev.score ?? '—'} / 16</span>
       </div>
-      <div id="${detailId}" style="display:none;background:var(--linen-card);border:1px solid var(--linen-border);border-top:3px solid ${borderColor};border-radius:0 0 8px 8px;padding:18px 20px;margin-top:-2px;">
-        <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:14px;font-size:13px;color:var(--muted);">
-          ${ev.funder ? `<span><strong style="color:var(--body);">Funder:</strong> ${ev.funder}</span>` : ''}
-          ${ev.amount ? `<span><strong style="color:var(--body);">Amount:</strong> ${ev.amount}</span>` : ''}
-          ${ev.deadline ? `<span><strong style="color:var(--body);">Deadline:</strong> ${new Date(ev.deadline + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span>` : ''}
-          <span><strong style="color:var(--body);">Score:</strong> ${ev.score ?? '—'} / 16</span>
-        </div>
-        ${ev.description ? `<p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6;border-left:2px solid var(--linen-border);padding-left:10px;">${ev.description}</p>` : ''}
-        ${flagsHTML ? `<ul style="list-style:none;display:flex;flex-direction:column;gap:4px;margin-bottom:16px;">${flagsHTML}</ul>` : ''}
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <button class="btn-primary" style="font-size:13px;padding:7px 16px;" onclick="window._loadEval(${idx})">Load into evaluator</button>
-          <button class="copy-btn" style="font-size:13px;padding:7px 16px;" onclick="
-            const prose = document.getElementById('prose-${idx}')?.textContent;
-            if (prose) navigator.clipboard.writeText(prose).then(() => { this.textContent='Copied ✓'; setTimeout(()=>this.textContent='Copy summary',2000); });
-          ">Copy summary</button>
-        </div>
-        <pre id="prose-${idx}" style="display:none;">${ev.prose || ''}</pre>
+      ${ev.description ? `<p style="font-size:13px;color:#5A5248;margin-bottom:12px;line-height:1.6;border-left:2px solid #C8C0AE;padding-left:10px;">${ev.description}</p>` : ''}
+      ${flagsHTML ? `<ul style="list-style:none;display:flex;flex-direction:column;gap:4px;margin-bottom:16px;">${flagsHTML}</ul>` : ''}
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn-primary eval-load-btn" data-idx="${idx}" style="font-size:13px;padding:7px 16px;">Load into evaluator</button>
+        <button class="copy-btn eval-copy-btn" data-idx="${idx}" style="font-size:13px;padding:7px 16px;">Copy summary</button>
+        <button class="copy-btn eval-delete-btn" data-idx="${idx}" style="font-size:13px;padding:7px 16px;color:#A04830;border-color:#A04830;">Delete</button>
       </div>`;
-    list.appendChild(item);
+
+    const wrapper = document.createElement('div');
+    wrapper.style.marginBottom = '8px';
+
+    const header = document.createElement('div');
+    header.className = 'prev-eval-item';
+    header.style.cursor = 'pointer';
+    header.dataset.target = detailId;
+    header.innerHTML = `
+      <span class="prev-eval-badge ${badgeClass}">${badgeText}</span>
+      <span class="prev-eval-name">${ev.name}${ev.funder ? ' — ' + ev.funder : ''}</span>
+      <span class="prev-eval-date">${date}</span>
+      <span class="eval-arrow" style="font-size:11px;color:#3A7080;flex-shrink:0;">▶ View</span>`;
+
+    const detail = document.createElement('div');
+    detail.id = detailId;
+    detail.style.cssText = `display:none;background:#FDFAF2;border:1px solid #C8C0AE;border-top:3px solid ${borderColor};border-radius:0 0 8px 8px;padding:18px 20px;margin-top:0;`;
+    detail.innerHTML = detailsHTML;
+    detail.dataset.prose = ev.prose || '';
+    detail.dataset.idx   = idx;
+
+    wrapper.appendChild(header);
+    wrapper.appendChild(detail);
+    list.appendChild(wrapper);
   });
 
-  // Store evals on window for load button
-  window._evals = [...evals].reverse().slice(0, 10);
-  window._loadEval = (idx) => loadEvaluation(window._evals[idx]);
+  // Store for load button
+  window._recentEvals = recentEvals;
+
+  // Event delegation on the list
+  list.addEventListener('click', e => {
+    // Toggle header
+    const header = e.target.closest('.prev-eval-item[data-target]');
+    if (header) {
+      const detail = document.getElementById(header.dataset.target);
+      const arrow  = header.querySelector('.eval-arrow');
+      if (!detail) return;
+      const open = detail.style.display !== 'none';
+      detail.style.display = open ? 'none' : 'block';
+      arrow.textContent = open ? '▶ View' : '▼ Hide';
+      return;
+    }
+
+    // Load into evaluator
+    const loadBtn = e.target.closest('.eval-load-btn');
+    if (loadBtn) {
+      const idx = parseInt(loadBtn.dataset.idx);
+      loadEvaluation(window._recentEvals[idx]);
+      return;
+    }
+
+    // Delete evaluation
+    const deleteBtn = e.target.closest('.eval-delete-btn');
+    if (deleteBtn) {
+      const idx = parseInt(deleteBtn.dataset.idx);
+      const ev  = window._recentEvals[idx];
+      if (!confirm(`Delete evaluation for "${ev.name}"? This cannot be undone.`)) return;
+      const orgRef = doc(db, 'users', currentUser.uid, 'data', 'org');
+      updateDoc(orgRef, { evaluations: arrayRemove(ev) })
+        .then(() => loadPreviousEvals())
+        .catch(err => { console.error('Delete error:', err); alert('Error deleting — please try again.'); });
+      return;
+    }
+
+    // Copy summary
+    const copyBtn = e.target.closest('.eval-copy-btn');
+    if (copyBtn) {
+      const idx    = parseInt(copyBtn.dataset.idx);
+      const detail = document.querySelector(`[data-idx="${idx}"][data-prose]`);
+      const prose  = detail?.dataset.prose || window._recentEvals[idx]?.prose || '';
+      if (!prose) { copyBtn.textContent = 'No summary saved'; return; }
+      navigator.clipboard.writeText(prose).then(() => {
+        copyBtn.textContent = 'Copied ✓';
+        setTimeout(() => copyBtn.textContent = 'Copy summary', 2000);
+      }).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = prose;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        copyBtn.textContent = 'Copied ✓';
+        setTimeout(() => copyBtn.textContent = 'Copy summary', 2000);
+      });
+    }
+  });
 }
 
 function loadEvaluation(ev) {
