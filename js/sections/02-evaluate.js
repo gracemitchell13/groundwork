@@ -40,6 +40,7 @@ const QUESTIONS = [
     id: 'q2',
     text: 'Is there enough time to write a strong application before the deadline?',
     why: 'A rushed application is worse than no application — it reflects poorly on your organization. Budget at least 3–4 weeks for a foundation grant, 6–8 weeks for anything requiring a full narrative, budget, and letters of support. If the deadline is in less than two weeks and you haven\'t started, consider passing.',
+    deadlineAuto: true,
     options: [
       { label: 'Yes — plenty of time (4+ weeks)', value: 2, cls: 'sel-yes' },
       { label: 'Tight but possible (2–4 weeks)', value: 1, cls: 'sel-maybe' },
@@ -108,14 +109,37 @@ function renderQuestions() {
     card.className = 'q-card';
     card.id = `card-${q.id}`;
 
-    const optionsHTML = q.options.map(opt => `
-      <button class="q-option" data-qid="${q.id}" data-value="${opt.value}" data-cls="${opt.cls}">
-        ${opt.label}
-      </button>`).join('');
+    // For deadline question, add days-remaining note if available
+    let deadlineNote = '';
+    if (q.deadlineAuto && window.deadlineDays !== undefined) {
+      const days = window.deadlineDays;
+      const noteColor = days > 28 ? 'var(--accent-1)' : days > 14 ? 'var(--accent-2)' : 'var(--accent-4)';
+      const noteText  = days < 0  ? 'The deadline has already passed.' :
+                        days === 0 ? 'The deadline is today.' :
+                        `There are ${days} days until the deadline.`;
+      deadlineNote = `<div style="font-size:14px;font-weight:500;color:${noteColor};margin-bottom:12px;padding:8px 12px;background:rgba(0,0,0,0.04);border-radius:6px;">${noteText}</div>`;
+
+      // Auto-select the appropriate answer
+      const autoValue = days > 28 ? 2 : days > 14 ? 1 : 0;
+      const autoCls   = days > 28 ? 'sel-yes' : days > 14 ? 'sel-maybe' : 'sel-no';
+      answers[q.id]   = { value: autoValue, cls: autoCls };
+    }
+
+    const optionsHTML = q.options.map(opt => {
+      const preSelected = answers[q.id]?.cls === opt.cls ? ` ${opt.cls}` : '';
+      return `<button class="q-option${preSelected}" data-qid="${q.id}" data-value="${opt.value}" data-cls="${opt.cls}">${opt.label}</button>`;
+    }).join('');
+
+    // Pre-color the card if auto-answered
+    if (answers[q.id]) {
+      const cls = answers[q.id].cls;
+      card.classList.add(cls === 'sel-yes' ? 'answered' : cls === 'sel-maybe' ? 'answered-caution' : 'answered-no');
+    }
 
     card.innerHTML = `
       <div class="q-number">Question ${idx + 1} of ${QUESTIONS.length}</div>
       <div class="q-text">${q.text}</div>
+      ${deadlineNote}
       <div class="q-options">${optionsHTML}</div>
       <button class="q-why-toggle" type="button">
         <span class="arrow">▶</span> Why this matters

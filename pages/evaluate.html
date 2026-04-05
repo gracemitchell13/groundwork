@@ -19,16 +19,72 @@
     .form-label { font-size: 16px; }
     .form-input, .form-textarea { font-size: 15px; padding: 11px 14px; }
 
-    /* Opportunity header fields */
+    /* Opportunity entry form */
+    .opp-form {
+      margin-bottom: 28px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--linen-border);
+    }
     .opp-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 0 28px;
-      margin-bottom: 32px;
-      padding-bottom: 28px;
-      border-bottom: 1px solid var(--linen-border);
     }
     .opp-grid .full { grid-column: 1 / -1; }
+
+    .start-eval-btn {
+      margin-top: 8px;
+    }
+
+    /* Collapsed summary card */
+    .opp-summary {
+      display: none;
+      background: var(--linen-card);
+      border: 1.5px solid var(--linen-border);
+      border-left: 5px solid var(--accent-2);
+      border-radius: 9px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .opp-summary.visible { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .opp-summary-main { flex: 1; }
+    .opp-summary-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--body);
+      margin-bottom: 3px;
+    }
+    .opp-summary-meta {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .opp-summary-deadline {
+      font-size: 13px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 99px;
+      flex-shrink: 0;
+    }
+    .deadline-ok     { background: #D0EAC8; color: #2E5020; }
+    .deadline-tight  { background: #F8E0B0; color: #7A5000; }
+    .deadline-urgent { background: #EED0C4; color: #6A2C18; }
+    .opp-edit-btn {
+      font-size: 12px;
+      color: var(--accent-3);
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      flex-shrink: 0;
+      padding: 2px 0;
+    }
 
     /* Question cards */
     .q-card {
@@ -282,35 +338,54 @@
         <div class="prev-evals" id="prev-evals-list"></div>
       </div>
 
-      <!-- Opportunity info -->
-      <p style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);margin-bottom:14px;">About this opportunity</p>
-      <div class="opp-grid">
-        <div class="form-group">
-          <label class="form-label" for="opp-name">Grant / opportunity name</label>
-          <input class="form-input" type="text" id="opp-name" placeholder="e.g. Meyer Memorial Trust — Education">
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="opp-funder">Funder name</label>
-          <input class="form-input" type="text" id="opp-funder" placeholder="e.g. Meyer Memorial Trust">
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="opp-amount">Award amount (approximate)</label>
-          <input class="form-input" type="text" id="opp-amount" placeholder="e.g. $25,000">
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="opp-deadline">Application deadline</label>
-          <input class="form-input" type="date" id="opp-deadline">
-        </div>
-        <div class="form-group full">
-          <label class="form-label" for="opp-desc">Brief description of the opportunity</label>
-          <textarea class="form-textarea" id="opp-desc" placeholder="What is this grant for? Who does the funder typically support? Paste key details from the RFP here." style="min-height:90px;"></textarea>
+      <!-- Opportunity info form -->
+      <div class="opp-form" id="opp-form">
+        <p style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);margin-bottom:14px;">About this opportunity</p>
+        <div class="opp-grid">
+          <div class="form-group">
+            <label class="form-label" for="opp-name">Grant / opportunity name</label>
+            <input class="form-input" type="text" id="opp-name" placeholder="e.g. Meyer Memorial Trust — Education">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="opp-funder">Funder name</label>
+            <input class="form-input" type="text" id="opp-funder" placeholder="e.g. Meyer Memorial Trust">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="opp-amount">Award amount (approximate)</label>
+            <input class="form-input" type="text" id="opp-amount" placeholder="e.g. $25,000">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="opp-deadline">Application deadline</label>
+            <input class="form-input" type="date" id="opp-deadline">
+          </div>
+          <div class="form-group full">
+            <label class="form-label" for="opp-desc">Brief description of the opportunity</label>
+            <textarea class="form-textarea" id="opp-desc" placeholder="What is this grant for? Who does the funder typically support? Paste key details from the RFP here." style="min-height:90px;"></textarea>
+          </div>
+          <div class="form-group full">
+            <button class="btn-primary start-eval-btn" id="start-eval-btn">Start the evaluation →</button>
+          </div>
         </div>
       </div>
 
-      <!-- Questions -->
-      <p style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);margin-bottom:14px;">The evaluation</p>
+      <!-- Sticky summary card — shown after form is submitted -->
+      <div class="opp-summary" id="opp-summary">
+        <div class="opp-summary-main">
+          <div class="opp-summary-name" id="summary-name">—</div>
+          <div class="opp-summary-meta">
+            <span id="summary-funder"></span>
+            <span id="summary-amount"></span>
+          </div>
+        </div>
+        <span class="opp-summary-deadline" id="summary-deadline"></span>
+        <button class="opp-edit-btn" id="opp-edit-btn">Edit details</button>
+      </div>
 
-      <div id="questions-wrap"></div>
+      <!-- Questions -->
+      <div id="questions-section" style="display:none;">
+        <p style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);margin-bottom:14px;">The evaluation</p>
+        <div id="questions-wrap"></div>
+      </div>
 
       <!-- Result -->
       <div class="result-panel" id="result-panel">
@@ -341,6 +416,57 @@
     btn.classList.toggle('open');
     const panel = btn.nextElementSibling;
     if (panel?.classList.contains('q-why')) panel.classList.toggle('open');
+  });
+
+  // Start evaluation — collapse form, show summary card + questions
+  document.getElementById('start-eval-btn')?.addEventListener('click', () => {
+    const name     = document.getElementById('opp-name')?.value.trim();
+    const funder   = document.getElementById('opp-funder')?.value.trim();
+    const amount   = document.getElementById('opp-amount')?.value.trim();
+    const deadline = document.getElementById('opp-deadline')?.value;
+
+    if (!name) {
+      document.getElementById('opp-name').focus();
+      return;
+    }
+
+    // Populate summary card
+    document.getElementById('summary-name').textContent   = name;
+    document.getElementById('summary-funder').textContent = funder || '';
+    document.getElementById('summary-amount').textContent = amount ? '· ' + amount : '';
+
+    // Deadline pill with days remaining
+    const deadlineEl = document.getElementById('summary-deadline');
+    if (deadline) {
+      const days = Math.ceil((new Date(deadline + 'T00:00:00') - new Date()) / 86400000);
+      const label = days < 0  ? 'Deadline passed' :
+                    days === 0 ? 'Due today' :
+                    days === 1 ? '1 day left' : days + ' days left';
+      const cls   = days > 28 ? 'deadline-ok' : days > 14 ? 'deadline-tight' : 'deadline-urgent';
+      deadlineEl.textContent = label;
+      deadlineEl.className   = 'opp-summary-deadline ' + cls;
+
+      // Pre-answer question 3 based on days remaining
+      window.deadlineDays = days;
+    } else {
+      deadlineEl.style.display = 'none';
+    }
+
+    // Collapse form, show summary + questions
+    document.getElementById('opp-form').style.display = 'none';
+    document.getElementById('opp-summary').classList.add('visible');
+    document.getElementById('questions-section').style.display = 'block';
+
+    // Scroll to questions
+    document.getElementById('questions-section').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  // Edit button — expand form again
+  document.getElementById('opp-edit-btn')?.addEventListener('click', () => {
+    document.getElementById('opp-form').style.display = 'block';
+    document.getElementById('opp-summary').classList.remove('visible');
+    document.getElementById('questions-section').style.display = 'none';
+    document.getElementById('opp-form').scrollIntoView({ behavior: 'smooth' });
   });
 </script>
 <script type="module" src="../js/sections/02-evaluate.js"></script>
