@@ -174,6 +174,7 @@ function renderQuestions() {
 
     // Auto-show result if all answered
     if (Object.keys(answers).length === QUESTIONS.length) {
+      enableEvaluateBtn();
       showResult();
     }
   });
@@ -201,28 +202,28 @@ function showResult() {
   }
 
   // Build prose summary
-  const oppRef   = funder ? `${name} (${funder})` : name;
-  const dateNote = deadline ? ` The deadline is ${new Date(deadline + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.` : '';
-  const weakAreas = QUESTIONS.filter(q => answers[q.id]?.value === 0).map(q => q.text.replace('?','').toLowerCase());
-  const cautionAreas = QUESTIONS.filter(q => answers[q.id]?.value === 1).map(q => q.text.replace('?','').toLowerCase());
+  const oppRef    = funder ? `${name} from ${funder}` : name;
+  const dateNote  = deadline ? ` The application deadline is ${new Date(deadline + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.` : '';
+  const weakLabels    = QUESTIONS.filter(q => answers[q.id]?.value === 0).map(q => q.text.replace('?',''));
+  const cautionLabels = QUESTIONS.filter(q => answers[q.id]?.value === 1).map(q => q.text.replace('?',''));
 
   let prose = '';
   if (tier === 'apply') {
-    prose = `Groundwork evaluation for: ${oppRef}\nScore: ${score} / ${maxScore} — Recommendation: Apply\n\n`;
-    prose += `This opportunity is a strong match. With a score of ${score} out of ${maxScore}, the evaluation indicates good mission alignment, eligibility, and organizational capacity.${dateNote}`;
-    if (cautionAreas.length) prose += ` There are a few areas to watch: ${cautionAreas.join('; ')}. Address these in your narrative.`;
-    prose += `\n\nRecommendation: Move forward with the application.`;
+    prose = `Groundwork Go/No-Go Evaluation\nOpportunity: ${oppRef}\nScore: ${score} / ${maxScore} — Recommendation: Apply\n\n`;
+    prose += `This opportunity scored ${score} out of ${maxScore} and is recommended for application.${dateNote} The evaluation found strong mission alignment, eligibility, and organizational capacity.`;
+    if (cautionAreas.length) prose += ` A few areas warrant attention during proposal development: ${cautionLabels.join('; ')}.`;
+    prose += `\n\nNext step: Proceed with the application.`;
   } else if (tier === 'caution') {
-    prose = `Groundwork evaluation for: ${oppRef}\nScore: ${score} / ${maxScore} — Recommendation: Proceed with Caution\n\n`;
-    prose += `This opportunity has potential but meaningful concerns.${dateNote}`;
-    if (weakAreas.length) prose += ` The following areas scored poorly and should be addressed before applying: ${weakAreas.join('; ')}.`;
-    if (cautionAreas.length) prose += ` Areas requiring attention: ${cautionAreas.join('; ')}.`;
-    prose += `\n\nRecommendation: Consider a pre-application call with the funder before committing to a full application.`;
+    prose = `Groundwork Go/No-Go Evaluation\nOpportunity: ${oppRef}\nScore: ${score} / ${maxScore} — Recommendation: Proceed with Caution\n\n`;
+    prose += `This opportunity scored ${score} out of ${maxScore}.${dateNote} The evaluation found genuine potential alongside meaningful concerns that should be resolved before committing to a full application.`;
+    if (weakLabels.length) prose += ` The following areas scored poorly: ${weakLabels.join('; ')}.`;
+    if (cautionLabels.length) prose += ` Areas requiring attention: ${cautionLabels.join('; ')}.`;
+    prose += `\n\nNext step: Consider a pre-application conversation with the funder to clarify fit before investing time in a full proposal.`;
   } else {
-    prose = `Groundwork evaluation for: ${oppRef}\nScore: ${score} / ${maxScore} — Recommendation: Pass\n\n`;
-    prose += `This opportunity is not a strong fit at this time.${dateNote}`;
-    if (weakAreas.length) prose += ` The following areas are significant barriers: ${weakAreas.join('; ')}.`;
-    prose += `\n\nRecommendation: Pass on this cycle and revisit when the barriers above have been addressed.`;
+    prose = `Groundwork Go/No-Go Evaluation\nOpportunity: ${oppRef}\nScore: ${score} / ${maxScore} — Recommendation: Pass\n\n`;
+    prose += `This opportunity scored ${score} out of ${maxScore} and is not recommended for application at this time.${dateNote} The evaluation identified significant barriers that make a successful application unlikely.`;
+    if (weakLabels.length) prose += ` The primary concerns are: ${weakLabels.join('; ')}.`;
+    prose += `\n\nNext step: Pass on this cycle. Revisit when the barriers above have been addressed.`;
   }
 
   // Build flags
@@ -293,11 +294,32 @@ function showResult() {
 }
 
 // ── Save evaluation ─────────────────────────────────────────
-document.getElementById('evaluate-btn')?.addEventListener('click', () => {
+// ── Evaluate button — disabled until questions are up ───────
+const evaluateBtn = document.getElementById('evaluate-btn');
+if (evaluateBtn) {
+  evaluateBtn.disabled = true;
+  evaluateBtn.style.opacity = '0.45';
+  evaluateBtn.style.cursor  = 'not-allowed';
+}
+
+function enableEvaluateBtn() {
+  if (!evaluateBtn) return;
+  evaluateBtn.disabled = false;
+  evaluateBtn.style.opacity = '1';
+  evaluateBtn.style.cursor  = 'pointer';
+}
+
+// Enable if all questions already auto-answered (e.g. deadline pre-selected)
+document.addEventListener('questionsReady', () => {
+  if (Object.keys(answers).length === QUESTIONS.length) enableEvaluateBtn();
+});
+
+evaluateBtn?.addEventListener('click', () => {
+  if (evaluateBtn.disabled) return;
   if (Object.keys(answers).length < QUESTIONS.length) {
     const unanswered = QUESTIONS.length - Object.keys(answers).length;
     document.getElementById('save-status').textContent =
-      `Please answer all questions (${unanswered} remaining).`;
+      `Please answer all ${unanswered} remaining question${unanswered === 1 ? '' : 's'}.`;
     document.getElementById('save-status').className = 'save-status error';
     return;
   }
@@ -333,18 +355,21 @@ async function saveEvaluation() {
     const orgRef = doc(db, 'users', currentUser.uid, 'data', 'org');
     await updateDoc(orgRef, { evaluations: arrayUnion(evaluation) });
 
-    // Update dot 2
-    document.getElementById('dot-2')?.classList.add('active');
-
     statusEl.textContent = 'Evaluation saved ✓';
     statusEl.className = 'save-status saved';
-    setTimeout(() => { statusEl.textContent = ''; statusEl.className = 'save-status'; }, 3000);
+
+    // Update dot 2
+    document.getElementById('dot-2')?.classList.add('active');
 
     // Reload previous evals
     await loadPreviousEvals();
 
-    // Reset form for next evaluation
-    resetForm();
+    // After 1.5s, return to the entry form for a new evaluation
+    setTimeout(() => {
+      statusEl.textContent = '';
+      statusEl.className   = 'save-status';
+      resetForm();
+    }, 1500);
   } catch (err) {
     console.error('Save error:', err);
     statusEl.textContent = 'Error saving — please try again.';
@@ -363,6 +388,17 @@ function resetForm() {
   document.querySelectorAll('.q-card').forEach(c =>
     c.classList.remove('answered','answered-caution','answered-no'));
   document.getElementById('result-panel').className = 'result-panel';
+  document.getElementById('questions-section').style.display = 'none';
+  document.getElementById('opp-summary').classList.remove('visible');
+  document.getElementById('opp-form').style.display = 'block';
+  document.getElementById('questions-wrap').innerHTML = '';
+  if (evaluateBtn) {
+    evaluateBtn.disabled      = true;
+    evaluateBtn.style.opacity = '0.45';
+    evaluateBtn.style.cursor  = 'not-allowed';
+  }
+  window.deadlineDays = undefined;
+  document.getElementById('opp-form').scrollIntoView({ behavior: 'smooth' });
 }
 
 // ── Load previous evaluations ───────────────────────────────

@@ -452,10 +452,17 @@
       return;
     }
 
+    // Format amount with $ if not already present
+    if (amount) {
+      const amountEl = document.getElementById('opp-amount');
+      if (amountEl && !amount.startsWith('$')) amountEl.value = '$' + amount;
+    }
+
     // Populate summary card
     document.getElementById('summary-name').textContent   = name;
     document.getElementById('summary-funder').textContent = funder || '';
-    document.getElementById('summary-amount').textContent = amount ? '· ' + amount : '';
+    const displayAmount = amount ? (amount.startsWith('$') ? amount : '$' + amount) : '';
+    document.getElementById('summary-amount').textContent = displayAmount ? '· ' + displayAmount : '';
 
     // Deadline pill with days remaining
     const deadlineEl = document.getElementById('summary-deadline');
@@ -478,6 +485,9 @@
     document.getElementById('opp-form').style.display = 'none';
     document.getElementById('opp-summary').classList.add('visible');
     document.getElementById('questions-section').style.display = 'block';
+
+    // Notify module that questions are now visible
+    document.dispatchEvent(new CustomEvent('questionsReady'));
 
     // Scroll to questions
     document.getElementById('questions-section').scrollIntoView({ behavior: 'smooth' });
