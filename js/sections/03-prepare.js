@@ -13,7 +13,6 @@ const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-<<<<<<< HEAD
 const WORKER_URL = 'https://groundwork-proxy.avengingophelia.workers.dev/';
 
 let currentUser = null;
@@ -37,12 +36,6 @@ async function fetchRFPFromURL(url) {
 
   return data.text;
 }
-=======
-let currentUser = null;
-let extracted   = null; // parsed RFP data
-let docStatuses = {};   // { docId: 'have'|'need'|'na' }
-let timelineChecked = {}; // { idx: true }
->>>>>>> 8b4d0ba11e1eafb37379a0ac7119d1d1c3bffd02
 
 // ── Analyze RFP via Anthropic API ──────────────────────────
 async function analyzeRFP(rfpText, orgContext) {
@@ -333,7 +326,6 @@ async function savePreparation() {
   }
 }
 
-<<<<<<< HEAD
 // ── Fetch button ────────────────────────────────────────────
 document.getElementById('fetch-btn')?.addEventListener('click', async () => {
   const url = document.getElementById('rfp-url')?.value.trim();
@@ -362,8 +354,6 @@ document.getElementById('fetch-btn')?.addEventListener('click', async () => {
   }
 });
 
-=======
->>>>>>> 8b4d0ba11e1eafb37379a0ac7119d1d1c3bffd02
 // ── Analyze button ──────────────────────────────────────────
 document.getElementById('analyze-btn')?.addEventListener('click', async () => {
   const rfpText = document.getElementById('rfp-text')?.value.trim();
