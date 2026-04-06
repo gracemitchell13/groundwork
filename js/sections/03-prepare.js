@@ -69,7 +69,9 @@ If you cannot find a field, use 'Not specified' for strings and [] for arrays. B
 
   const data = await resp.json();
   if (!resp.ok || data.error) throw new Error(data.error?.message || JSON.stringify(data.error) || `Worker returned ${resp.status}`);
-  const text = data.content?.[0]?.text || '';
+  let text = data.content?.[0]?.text || '';
+  // Strip markdown code fences if present
+  text = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
   return JSON.parse(text);
 }
 
