@@ -7,13 +7,12 @@ import { getFirestore, doc, getDoc, updateDoc }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { firebaseConfig } from '../firebase-config.js';
 import { populateSidebarCard } from '../sidebar-org-card.js';
-import { ANTHROPIC_API_KEY } from '../anthropic-config.js';
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-const WORKER_URL = 'https://groundwork-proxy.avengingophelia.workers.dev/';
+const WORKER_URL = 'https://groundwork-proxy.avengingophelia.workers.dev';
 
 let currentUser = null;
 let extracted   = null;
@@ -22,22 +21,17 @@ let timelineChecked = {};
 
 // ── Fetch RFP from URL via Cloudflare Worker ────────────────
 async function fetchRFPFromURL(url) {
-  const resp = await fetch(WORKER_URL, {
+  const resp = await fetch(`${WORKER_URL}/fetch`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ url }),
   });
-
   const data = await resp.json();
-
-  if (!resp.ok || data.error) {
-    throw new Error(data.error || `Worker returned ${resp.status}`);
-  }
-
+  if (!resp.ok || data.error) throw new Error(data.error || `Worker returned ${resp.status}`);
   return data.text;
 }
 
-// ── Analyze RFP via Anthropic API ──────────────────────────
+// ── Analyze RFP via Anthropic API (proxied through Worker) ──
 async function analyzeRFP(rfpText, orgContext) {
   const systemPrompt = `You are an expert grant writer helping a small nonprofit analyze a grant RFP. Extract structured information from the RFP text provided. Return ONLY valid JSON matching this exact schema — no markdown, no explanation, just the JSON object:
 
@@ -59,17 +53,12 @@ async function analyzeRFP(rfpText, orgContext) {
 If you cannot find a field, use 'Not specified' for strings and [] for arrays. Be concise and accurate.`;
 
   const userPrompt = orgContext
-    ? `Organization context: ${orgContext}\n\nRFP text:\n${rfpText}`
+    ? `Organization context:\n${orgContext}\n\nRFP text:\n${rfpText}`
     : `RFP text:\n${rfpText}`;
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const resp = await fetch(`${WORKER_URL}/analyze`, {
     method: 'POST',
-    headers: {
-      'x-api-key':         ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-      'content-type':      'application/json',
-      'anthropic-dangerous-allow-browser': 'true',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model:      'claude-opus-4-6',
       max_tokens: 2048,
@@ -78,12 +67,8 @@ If you cannot find a field, use 'Not specified' for strings and [] for arrays. B
     }),
   });
 
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`API error ${response.status}: ${err}`);
-  }
-
-  const data = await response.json();
+  const data = await resp.json();
+  if (!resp.ok || data.error) throw new Error(data.error?.message || JSON.stringify(data.error) || `Worker returned ${resp.status}`);
   const text = data.content?.[0]?.text || '';
   return JSON.parse(text);
 }
@@ -359,10 +344,6 @@ document.getElementById('analyze-btn')?.addEventListener('click', async () => {
   const rfpText = document.getElementById('rfp-text')?.value.trim();
   if (!rfpText) {
     document.getElementById('rfp-text').focus();
-    return;
-  }
-  if (!ANTHROPIC_API_KEY) {
-    alert('API key not configured. Please contact the site administrator.');
     return;
   }
 
