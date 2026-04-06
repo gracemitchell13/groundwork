@@ -3,7 +3,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, updateDoc }
+import { getFirestore, doc, getDoc, updateDoc, arrayUnion, arrayRemove }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { firebaseConfig } from '../firebase-config.js';
 import { populateSidebarCard } from '../sidebar-org-card.js';
@@ -69,7 +69,9 @@ If you cannot find a field, use 'Not specified' for strings and [] for arrays. B
 
   const data = await resp.json();
   if (!resp.ok || data.error) throw new Error(data.error?.message || JSON.stringify(data.error) || `Worker returned ${resp.status}`);
-  const text = data.content?.[0]?.text || '';
+  let text = data.content?.[0]?.text || '';
+  // Strip any markdown code fences Claude may add
+  text = text.replace(/```[\w]*\n?/g, '').trim();
   return JSON.parse(text);
 }
 
@@ -281,7 +283,8 @@ async function savePreparation() {
   statusEl.className   = 'save-status';
 
   const preparation = {
-    opportunityName:  document.getElementById('opp-name-s3')?.value.trim() || '',
+    id:              Date.now().toString(),
+    opportunityName: document.getElementById('opp-name-s3')?.value.trim() || 'Unnamed opportunity',
     extracted: {
       deadline:    document.getElementById('ext-deadline')?.textContent.trim(),
       amount:      document.getElementById('ext-amount')?.textContent.trim(),
@@ -299,11 +302,12 @@ async function savePreparation() {
 
   try {
     const orgRef = doc(db, 'users', currentUser.uid, 'data', 'org');
-    await updateDoc(orgRef, { applications: [preparation] });
+    await updateDoc(orgRef, { applications: arrayUnion(preparation) });
     document.getElementById('dot-3')?.classList.add('active');
     statusEl.textContent = 'Saved ✓';
     statusEl.className   = 'save-status saved';
     setTimeout(() => { statusEl.textContent = ''; statusEl.className = 'save-status'; }, 3000);
+    await loadPreviousPreps();
   } catch (err) {
     console.error(err);
     statusEl.textContent = 'Error saving — please try again.';
@@ -409,6 +413,101 @@ document.getElementById('rfp-text')?.addEventListener('input', function() {
   document.getElementById('char-count').textContent = n ? `${n.toLocaleString()} characters` : '';
 });
 
+// ── Previous preparations ───────────────────────────────────
+async function loadPreviousPreps() {
+  if (!currentUser) return;
+  const orgRef  = doc(db, 'users', currentUser.uid, 'data', 'org');
+  const orgSnap = await getDoc(orgRef);
+  if (!orgSnap.exists()) return;
+
+  const apps = orgSnap.data().applications || [];
+  const wrap = document.getElementById('prev-preps-wrap');
+  const list = document.getElementById('prev-preps-list');
+  if (!wrap || !list) return;
+
+  if (!apps.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  list.innerHTML = '';
+
+  window._preps      = [...apps].reverse().slice(0, 10);
+  window._loadPrep   = (idx) => loadPrep(window._preps[idx]);
+  window._deletePrep = (idx) => {
+    const prep = window._preps[idx];
+    if (!confirm(`Delete preparation for "${prep.opportunityName}"? This cannot be undone.`)) return;
+    const orgRef2 = doc(db, 'users', currentUser.uid, 'data', 'org');
+    const { arrayRemove } = window._firestoreHelpers;
+    updateDoc(orgRef2, { applications: arrayRemove(prep) })
+      .then(() => loadPreviousPreps())
+      .catch(err => { console.error(err); alert('Error deleting — please try again.'); });
+  };
+
+  window._preps.forEach((prep, idx) => {
+    const date = prep.savedAt
+      ? new Date(prep.savedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      : '';
+    const detailId = `prep-detail-${idx}`;
+
+    const detailHTML = `
+      <div style="font-size:13px;color:var(--muted);display:flex;gap:20px;flex-wrap:wrap;margin-bottom:10px;">
+        ${prep.extracted?.deadline ? `<span><strong style="color:var(--body);">Deadline:</strong> ${prep.extracted.deadline}</span>` : ''}
+        ${prep.extracted?.amount   ? `<span><strong style="color:var(--body);">Amount:</strong> ${prep.extracted.amount}</span>` : ''}
+      </div>
+      ${prep.extracted?.eligibility && prep.extracted.eligibility !== 'Not specified'
+        ? `<p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.5;border-left:2px solid var(--linen-border);padding-left:10px;">${prep.extracted.eligibility}</p>`
+        : ''}
+      <div style="display:flex;gap:10px;">
+        <button class="btn-primary" style="font-size:13px;padding:7px 16px;" onclick="window._loadPrep(${idx})">Load into preparer</button>
+        <button class="copy-btn" style="font-size:13px;padding:7px 16px;color:#A04830;border-color:#A04830;" onclick="event.stopPropagation();window._deletePrep(${idx})">Delete</button>
+      </div>`;
+
+    const wrapper = document.createElement('div');
+    wrapper.style.marginBottom = '8px';
+
+    const header = document.createElement('div');
+    header.className    = 'prev-eval-item';
+    header.style.cursor = 'pointer';
+    header.dataset.target = detailId;
+    header.innerHTML = `
+      <span class="prev-eval-name">${prep.opportunityName}</span>
+      <span class="prev-eval-date">${date}</span>
+      <span class="eval-arrow" style="font-size:11px;color:var(--accent-3);flex-shrink:0;">▶ View</span>`;
+
+    header.addEventListener('click', () => {
+      const detail = document.getElementById(detailId);
+      const arrow  = header.querySelector('.eval-arrow');
+      const open   = detail.style.display !== 'none';
+      detail.style.display = open ? 'none' : 'block';
+      arrow.textContent    = open ? '▶ View' : '▼ Hide';
+    });
+
+    const detail = document.createElement('div');
+    detail.id = detailId;
+    detail.style.cssText = 'display:none;background:#FDFAF2;border:1px solid #C8C0AE;border-top:3px solid var(--accent-3);border-radius:0 0 8px 8px;padding:18px 20px;';
+    detail.innerHTML = detailHTML;
+
+    wrapper.appendChild(header);
+    wrapper.appendChild(detail);
+    list.appendChild(wrapper);
+  });
+}
+
+function loadPrep(prep) {
+  // Populate form
+  const nameEl = document.getElementById('opp-name-s3');
+  if (nameEl) nameEl.value = prep.opportunityName || '';
+
+  // Restore extracted state
+  extracted = prep.extracted || {};
+  docStatuses     = prep.docStatuses || {};
+  timelineChecked = prep.timelineChecked || {};
+
+  // Render everything
+  renderExtracted(extracted);
+
+  // Scroll to top of content
+  document.querySelector('.page-content')?.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 // ── Auth ────────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = '../index.html'; return; }
@@ -423,6 +522,8 @@ onAuthStateChanged(auth, async (user) => {
   const av = document.getElementById('avatar-initial');
   if (av) av.textContent = (user.displayName || user.email || '?')[0].toUpperCase();
 
+  window._firestoreHelpers = { arrayRemove };
+
   const orgRef  = doc(db, 'users', user.uid, 'data', 'org');
   const orgSnap = await getDoc(orgRef);
   if (orgSnap.exists()) {
@@ -434,18 +535,9 @@ onAuthStateChanged(auth, async (user) => {
       const dot = document.getElementById(`dot-${i + 1}`);
       if (dot && val) dot.classList.add('active');
     });
-
-    // Restore saved preparation if exists
-    if (org.applications?.length) {
-      const saved = org.applications[0];
-      if (saved.opportunityName) {
-        const nameEl = document.getElementById('opp-name-s3');
-        if (nameEl) nameEl.value = saved.opportunityName;
-      }
-      if (saved.docStatuses) docStatuses = saved.docStatuses;
-      if (saved.timelineChecked) timelineChecked = saved.timelineChecked;
-    }
   }
+
+  await loadPreviousPreps();
 });
 
 document.getElementById('avatar-btn')?.addEventListener('click', () => {
