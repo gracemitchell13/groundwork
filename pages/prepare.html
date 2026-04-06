@@ -413,12 +413,43 @@
 
     <div class="save-bar">
       <button class="btn-primary" id="save-btn" style="display:none;">Save this preparation</button>
+      <button class="copy-btn" id="print-btn" style="display:none;">Print / Save as PDF</button>
       <span class="save-status" id="save-status"></span>
       <a href="../index.html" style="margin-left:auto;font-size:13px;color:var(--muted);">← Back to dashboard</a>
     </div>
   </div>
 
 </div>
+
+<!-- Print summary — hidden until triggered -->
+<div id="print-summary" style="display:none;">
+</div>
+
+<style>
+@media print {
+  body > .page-shell { display: none !important; }
+  #print-summary {
+    display: block !important;
+    font-family: Georgia, serif;
+    font-size: 12pt;
+    color: #000;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 0;
+  }
+  #print-summary h1 { font-size: 22pt; margin-bottom: 4pt; }
+  #print-summary h2 { font-size: 14pt; margin: 18pt 0 6pt; border-bottom: 1pt solid #ccc; padding-bottom: 4pt; }
+  #print-summary h3 { font-size: 12pt; margin: 10pt 0 3pt; }
+  #print-summary p, #print-summary li { line-height: 1.6; margin-bottom: 4pt; }
+  #print-summary .meta { font-size: 10pt; color: #555; }
+  #print-summary .section-block { margin-bottom: 10pt; padding-left: 12pt; border-left: 2pt solid #999; }
+  #print-summary .doc-row { display: flex; gap: 12pt; margin-bottom: 3pt; font-size: 11pt; }
+  #print-summary .doc-status { min-width: 70pt; font-weight: bold; color: #444; }
+  #print-summary .timeline-row { display: flex; gap: 12pt; margin-bottom: 4pt; font-size: 11pt; }
+  #print-summary .tl-date { min-width: 60pt; font-weight: bold; }
+  #print-summary .footer { margin-top: 32pt; font-size: 9pt; color: #888; border-top: 1pt solid #ddd; padding-top: 6pt; }
+}
+</style>
 
 <script type="module" src="../js/sections/03-prepare.js"></script>
 </body>
