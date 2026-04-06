@@ -10,82 +10,153 @@
     .page-intro { font-size: 16px; line-height: 1.7; margin-bottom: 32px; }
     .section-tag { color: var(--muted-2); }
 
-    /* Step system */
-    .step { margin-bottom: 36px; }
-    .step-header {
-      display: flex; align-items: center; gap: 14px;
-      margin-bottom: 16px;
+    /* Input method tabs */
+    .input-method-tabs {
+      display: flex; gap: 0;
+      border-bottom: 2px solid var(--linen-border);
+      margin-bottom: 0;
     }
+    .input-tab {
+      padding: 9px 20px; font-size: 13px; font-weight: 500;
+      color: var(--muted); background: none; border: none;
+      border-bottom: 2px solid transparent; margin-bottom: -2px;
+      cursor: pointer; font-family: var(--sans); transition: all 0.15s;
+    }
+    .input-tab:hover { color: var(--body); }
+    .input-tab.active { color: var(--accent-3); border-bottom-color: var(--accent-3); }
+
+    .input-method-panel {
+      background: var(--linen-card);
+      border: 1px solid var(--linen-border);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      padding: 18px 20px;
+    }
+
+    /* File drop zone */
+    .file-drop-zone {
+      border: 2px dashed var(--linen-border);
+      border-radius: 8px; padding: 32px 20px;
+      text-align: center; cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .file-drop-zone:hover, .file-drop-zone.drag-over {
+      border-color: var(--accent-3); background: #EDF5F8;
+    }
+    .file-drop-inner { pointer-events: none; }
+
+    /* Results tabbed panel */
+    .results-panel {
+      background: var(--linen-card);
+      border: 1px solid var(--linen-border);
+      border-top: 3px solid var(--accent-3);
+      border-radius: 0 0 10px 10px;
+      margin-top: 24px;
+    }
+    .results-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 22px 14px; border-bottom: 1px solid var(--linen-border);
+    }
+    .results-tabs {
+      display: flex; gap: 0; padding: 0 22px;
+      border-bottom: 1px solid var(--linen-border);
+      background: var(--linen-header);
+    }
+    .results-tab {
+      padding: 10px 20px; font-size: 13px; font-weight: 500;
+      color: var(--muted); background: none; border: none;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      cursor: pointer; font-family: var(--sans); transition: all 0.15s;
+    }
+    .results-tab:hover { color: var(--body); }
+    .results-tab.active { color: var(--accent-3); border-bottom-color: var(--accent-3); background: none; }
+    .results-tab-panel { padding: 22px; }
+
+    /* Calendar grid */
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      margin-bottom: 8px;
+    }
+    .cal-month-header {
+      font-size: 13px; font-weight: 600; color: var(--body);
+      margin: 16px 0 8px; letter-spacing: 0.02em;
+    }
+    .cal-month-header:first-child { margin-top: 0; }
+    .cal-day-header {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--muted-2);
+      text-align: center; padding: 4px 0;
+    }
+    .cal-day {
+      min-height: 36px; padding: 4px 5px;
+      border-radius: 4px; font-size: 11px;
+      border: 1px solid transparent;
+      position: relative;
+    }
+    .cal-day.in-month { background: var(--linen); border-color: var(--linen-border); }
+    .cal-day.other-month { background: transparent; }
+    .cal-day.today { border-color: var(--accent-3) !important; }
+    .cal-day.has-milestone {
+      background: #EDF5F8; border-color: var(--accent-3);
+    }
+    .cal-day-num { font-size: 11px; color: var(--muted); }
+    .cal-milestone-dot {
+      font-size: 10px; color: var(--accent-3);
+      font-weight: 600; line-height: 1.3; margin-top: 2px;
+      overflow: hidden; display: -webkit-box;
+      -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    }
+    .cal-deadline { background: #EED0C4 !important; border-color: var(--accent-4) !important; }
+    .cal-deadline .cal-day-num { color: var(--accent-4); font-weight: 700; }
+    .cal-deadline .cal-milestone-dot { color: var(--accent-4); }
+
+    /* Shared */
+    .step { margin-bottom: 36px; }
+    .step-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
     .step-num {
       width: 28px; height: 28px; border-radius: 50%;
       background: var(--accent-3); color: #fff;
       font-size: 13px; font-weight: 700;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
     .step-num.done { background: var(--accent-1); }
     .step-title { font-size: 18px; font-weight: 600; color: var(--body); }
     .step-desc { font-size: 14px; color: var(--muted); margin-top: 2px; }
 
-    /* RFP paste area */
     .rfp-paste {
-      width: 100%; min-height: 180px; max-height: 320px;
+      width: 100%; min-height: 200px; max-height: 360px;
       font-size: 14px; font-family: var(--sans);
-      border: 1.5px solid var(--linen-border);
-      border-radius: 8px; padding: 14px 16px;
-      background: var(--linen-card); color: var(--body);
-      resize: vertical; line-height: 1.6;
-      transition: border-color 0.15s;
+      border: 1.5px solid var(--linen-border); border-radius: 8px;
+      padding: 14px 16px; background: var(--linen-card); color: var(--body);
+      resize: vertical; line-height: 1.6; transition: border-color 0.15s;
     }
     .rfp-paste:focus { outline: none; border-color: var(--accent-3); }
     .rfp-paste::placeholder { color: var(--muted-2); }
 
-    .analyze-row {
-      display: flex; align-items: center; gap: 14px; margin-top: 12px;
-    }
-    .char-count { font-size: 12px; color: var(--muted-2); }
+    .analyze-row { display: flex; align-items: center; gap: 14px; margin-top: 12px; }
 
-    /* Analyzing state */
     .analyzing-indicator {
-      display: none;
-      align-items: center; gap: 10px;
+      display: none; align-items: center; gap: 10px;
       font-size: 14px; color: var(--accent-3);
-      padding: 12px 16px;
-      background: #EDF5F8;
-      border-radius: 7px;
-      margin-top: 12px;
+      padding: 12px 16px; background: #EDF5F8;
+      border-radius: 7px; margin-top: 12px;
     }
     .analyzing-indicator.show { display: flex; }
     .spinner {
       width: 16px; height: 16px; border-radius: 50%;
-      border: 2px solid var(--accent-3);
-      border-top-color: transparent;
-      animation: spin 0.7s linear infinite;
-      flex-shrink: 0;
+      border: 2px solid var(--accent-3); border-top-color: transparent;
+      animation: spin 0.7s linear infinite; flex-shrink: 0;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Extracted fields */
-    .extracted-panel {
-      display: none;
-      background: var(--linen-card);
-      border: 1px solid var(--linen-border);
-      border-top: 3px solid var(--accent-3);
-      border-radius: 0 0 9px 9px;
-      padding: 22px 24px;
-      margin-top: 16px;
-    }
-    .extracted-panel.show { display: block; }
-    .extracted-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0 28px;
-    }
+    .extracted-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
     .extracted-grid .full { grid-column: 1 / -1; }
     .extracted-label {
-      font-size: 11px; font-weight: 600;
-      letter-spacing: 0.07em; text-transform: uppercase;
-      color: var(--muted-2); margin-bottom: 5px; margin-top: 14px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.07em;
+      text-transform: uppercase; color: var(--muted-2);
+      margin-bottom: 5px; margin-top: 14px;
     }
     .extracted-label:first-child { margin-top: 0; }
     .extracted-value {
@@ -93,101 +164,55 @@
       background: var(--linen); border: 1px solid var(--linen-border);
       border-radius: 6px; padding: 9px 12px;
       min-height: 36px; line-height: 1.55;
-      outline: none; width: 100%;
-      font-family: var(--sans);
+      outline: none; width: 100%; font-family: var(--sans);
     }
     .extracted-value[contenteditable]:focus { border-color: var(--accent-3); }
 
-    /* Criteria list */
     .criteria-item {
       display: flex; align-items: baseline; gap: 10px;
-      padding: 8px 12px;
-      background: var(--linen); border: 1px solid var(--linen-border);
+      padding: 8px 12px; background: var(--linen);
+      border: 1px solid var(--linen-border);
       border-radius: 6px; margin-bottom: 6px; font-size: 14px;
     }
-    .criteria-pts {
-      font-size: 12px; font-weight: 700; color: var(--accent-3);
-      flex-shrink: 0; min-width: 36px;
-    }
+    .criteria-pts { font-size: 12px; font-weight: 700; color: var(--accent-3); flex-shrink: 0; min-width: 36px; }
 
-    /* Proposal outline */
     .outline-section {
-      background: var(--linen-card);
-      border: 1px solid var(--linen-border);
+      background: var(--linen-card); border: 1px solid var(--linen-border);
       border-left: 4px solid var(--accent-3);
-      border-radius: 0 7px 7px 0;
-      padding: 14px 18px;
-      margin-bottom: 10px;
+      border-radius: 0 7px 7px 0; padding: 14px 18px; margin-bottom: 10px;
     }
-    .outline-section-title {
-      font-size: 15px; font-weight: 600; color: var(--body);
-      margin-bottom: 4px;
-    }
-    .outline-section-meta {
-      font-size: 12px; color: var(--muted);
-      display: flex; gap: 14px; flex-wrap: wrap;
-      margin-bottom: 6px;
-    }
-    .outline-section-tip {
-      font-size: 13px; color: var(--muted);
-      line-height: 1.55;
-    }
+    .outline-section-title { font-size: 15px; font-weight: 600; color: var(--body); margin-bottom: 4px; }
+    .outline-section-meta { font-size: 12px; color: var(--muted); display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
+    .outline-section-tip { font-size: 13px; color: var(--muted); line-height: 1.55; }
 
-    /* Timeline */
-    .timeline-item {
-      display: flex; align-items: flex-start; gap: 14px;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--linen-border);
-    }
+    .timeline-item { display: flex; align-items: flex-start; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--linen-border); }
     .timeline-item:last-child { border-bottom: none; }
     .timeline-check {
       width: 18px; height: 18px; border-radius: 4px;
-      border: 1.5px solid var(--linen-border);
-      flex-shrink: 0; margin-top: 1px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s;
+      border: 1.5px solid var(--linen-border); flex-shrink: 0; margin-top: 1px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s;
     }
-    .timeline-check.checked {
-      background: var(--accent-1); border-color: var(--accent-1);
-      color: #fff; font-size: 11px;
-    }
-    .timeline-date {
-      font-size: 13px; font-weight: 600; color: var(--accent-3);
-      min-width: 90px; flex-shrink: 0;
-    }
+    .timeline-check.checked { background: var(--accent-1); border-color: var(--accent-1); color: #fff; font-size: 11px; }
+    .timeline-date { font-size: 13px; font-weight: 600; color: var(--accent-3); min-width: 90px; flex-shrink: 0; }
     .timeline-date.past { color: var(--muted-2); }
     .timeline-date.soon { color: var(--accent-4); }
     .timeline-label { font-size: 14px; color: var(--body); line-height: 1.4; }
     .timeline-note { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
-    /* Document checklist */
     .doc-item {
-      display: flex; align-items: flex-start; gap: 12px;
-      padding: 12px 14px;
-      background: var(--linen-card);
+      padding: 12px 14px; background: var(--linen-card);
       border: 1px solid var(--linen-border);
       border-radius: 7px; margin-bottom: 8px;
+      transition: opacity 0.2s;
     }
-    .doc-check {
-      width: 18px; height: 18px; border-radius: 4px;
-      border: 1.5px solid var(--linen-border);
-      flex-shrink: 0; margin-top: 1px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s;
-    }
-    .doc-check.checked { background: var(--accent-1); border-color: var(--accent-1); color: #fff; font-size: 11px; }
-    .doc-check.na { background: var(--linen-border); border-color: var(--linen-border); }
-    .doc-info { flex: 1; }
+    .doc-item.na-item { opacity: 0.35; }
     .doc-name { font-size: 14px; font-weight: 500; color: var(--body); }
     .doc-note { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
-    .doc-status {
-      display: flex; gap: 6px; margin-top: 7px;
-    }
+    .doc-status { display: flex; gap: 6px; margin-top: 7px; }
     .doc-status-btn {
       font-size: 11px; padding: 3px 9px;
-      border: 1px solid var(--linen-border);
-      border-radius: 99px; cursor: pointer;
-      background: var(--linen); color: var(--muted);
+      border: 1px solid var(--linen-border); border-radius: 99px;
+      cursor: pointer; background: var(--linen); color: var(--muted);
       font-family: var(--sans); transition: all 0.12s;
     }
     .doc-status-btn.active-have { background: var(--accent-1); border-color: var(--accent-1); color: #fff; }
@@ -195,19 +220,13 @@
     .doc-status-btn.active-na   { background: var(--muted-2);  border-color: var(--muted-2);  color: #fff; }
 
     .save-bar {
-      position: sticky; bottom: 0;
-      background: var(--linen); border-top: 1px solid var(--linen-border);
-      padding: 14px 36px; display: flex; align-items: center; gap: 16px;
-      flex-shrink: 0;
+      position: sticky; bottom: 0; background: var(--linen);
+      border-top: 1px solid var(--linen-border);
+      padding: 14px 36px; display: flex; align-items: center; gap: 16px; flex-shrink: 0;
     }
     .save-status { font-size: 14px; color: var(--muted); }
     .save-status.saved { color: #2E6020; }
     .save-status.error { color: var(--accent-4); }
-
-    .section-rule {
-      border: none; border-top: 1px solid var(--linen-border);
-      margin: 32px 0;
-    }
   </style>
 </head>
 <body>
@@ -267,46 +286,63 @@
     <div class="page-content">
       <p class="section-tag">Section 03</p>
       <h2 class="page-title">Prepare Your Application</h2>
-      <p class="page-intro">Paste your RFP below and Groundwork will read it for you — extracting the key requirements, building a proposal outline, mapping a timeline back from the deadline, and generating a document checklist. You review, adjust, and save.</p>
+      <p class="page-intro" style="max-width:100%;">Give Groundwork a copy of the RFP — as a URL, an uploaded file, or pasted text — and it will read it for you: pulling out the key requirements, building a proposal outline, mapping a writing timeline back from the deadline, and generating a document checklist. You review and adjust before saving.</p>
 
-      <!-- ── Step 1: Paste RFP ── -->
+      <!-- ── Step 1: Get the RFP ── -->
       <div class="step" id="step-rfp">
         <div class="step-header">
           <div class="step-num" id="step-num-1">1</div>
           <div>
-            <div class="step-title">Paste the RFP</div>
-            <div class="step-desc">Copy and paste the full text of the funding opportunity announcement, or the sections that describe requirements, eligibility, and what the proposal must include.</div>
+            <div class="step-title">Get the RFP into Groundwork</div>
+            <div class="step-desc">Use whichever method works for this document.</div>
           </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom:20px;">
           <label class="form-label" for="opp-name-s3">Grant / opportunity name</label>
           <input class="form-input" type="text" id="opp-name-s3" placeholder="e.g. Meyer Memorial Trust — Education Programs 2026">
         </div>
 
-        <div class="form-group" style="margin-top:16px;">
-          <label class="form-label" for="rfp-url">RFP URL <span style="font-weight:400;color:var(--muted);font-size:13px;">— paste a link and we'll fetch it for you</span></label>
+        <!-- Three input method tabs -->
+        <div class="input-method-tabs">
+          <button class="input-tab active" data-method="url">Import from URL</button>
+          <button class="input-tab" data-method="file">Upload a file</button>
+          <button class="input-tab" data-method="paste">Paste text</button>
+        </div>
+
+        <!-- URL method -->
+        <div class="input-method-panel active" id="method-url">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Works for most foundation websites and public grant pages. Doesn't work for documents behind a login.</p>
           <div style="display:flex;gap:10px;align-items:center;">
             <input class="form-input" type="url" id="rfp-url" placeholder="https://funder.org/grants/2026-rfp" style="flex:1;">
-            <button class="btn-primary" id="fetch-btn" style="flex-shrink:0;white-space:nowrap;">Fetch →</button>
+            <button class="btn-primary" id="fetch-btn" style="flex-shrink:0;white-space:nowrap;">Import →</button>
           </div>
-          <p id="fetch-status" style="font-size:13px;color:var(--muted);margin-top:6px;min-height:18px;"></p>
+          <p id="fetch-status" style="font-size:13px;color:var(--muted);margin-top:8px;min-height:18px;"></p>
         </div>
 
-        <div style="display:flex;align-items:center;gap:12px;margin:18px 0 14px;">
-          <div style="flex:1;height:1px;background:var(--linen-border);"></div>
-          <span style="font-size:12px;color:var(--muted-2);letter-spacing:.04em;">or paste text directly</span>
-          <div style="flex:1;height:1px;background:var(--linen-border);"></div>
+        <!-- File upload method -->
+        <div class="input-method-panel" id="method-file" style="display:none;">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Accepts PDF, Word (.docx), or plain text files. PDFs must be text-based — scanned PDFs won't work.</p>
+          <div class="file-drop-zone" id="file-drop-zone">
+            <input type="file" id="rfp-file" accept=".pdf,.docx,.doc,.txt" style="display:none;">
+            <div class="file-drop-inner">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="margin-bottom:8px;opacity:0.4;"><path d="M12 16V8m0 0-3 3m3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+              <p style="font-size:14px;color:var(--muted);margin-bottom:4px;">Drop a file here, or <button onclick="document.getElementById('rfp-file').click()" style="color:var(--accent-3);background:none;border:none;cursor:pointer;font-size:14px;text-decoration:underline;text-underline-offset:2px;padding:0;">browse</button></p>
+              <p style="font-size:12px;color:var(--muted-2);">PDF, Word, or plain text</p>
+            </div>
+          </div>
+          <p id="file-status" style="font-size:13px;color:var(--muted);margin-top:8px;min-height:18px;"></p>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="rfp-text">RFP text</label>
-          <textarea class="rfp-paste" id="rfp-text" placeholder="Paste the RFP here. The more complete the text, the better the extraction. You can paste just the narrative requirements section if the full document is too long."></textarea>
+        <!-- Paste method -->
+        <div class="input-method-panel" id="method-paste" style="display:none;">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Copy text from the RFP document or website and paste it below. The more complete the text, the better the analysis.</p>
+          <textarea class="rfp-paste" id="rfp-text" placeholder="Paste the RFP text here…"></textarea>
+          <p style="font-size:12px;color:var(--muted-2);margin-top:6px;"><span id="char-count"></span></p>
         </div>
 
-        <div class="analyze-row">
+        <div class="analyze-row" style="margin-top:16px;">
           <button class="btn-primary" id="analyze-btn">Analyze this RFP →</button>
-          <span class="char-count" id="char-count"></span>
         </div>
 
         <div class="analyzing-indicator" id="analyzing-indicator">
@@ -315,92 +351,80 @@
         </div>
       </div>
 
-      <!-- ── Step 2: Extracted details ── -->
-      <div class="extracted-panel" id="extracted-panel">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+      <!-- ── Results: Tabbed panel ── -->
+      <div class="results-panel" id="results-panel" style="display:none;">
+        <div class="results-header">
           <div>
-            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-3);margin-bottom:4px;">Extracted from RFP</div>
-            <div style="font-size:13px;color:var(--muted);">Review and correct anything that looks wrong before continuing.</div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-3);margin-bottom:3px;">Analysis complete</div>
+            <div style="font-size:13px;color:var(--muted);">Review each tab. Edit any field that looks wrong.</div>
           </div>
-          <button class="copy-btn" id="re-analyze-btn" style="font-size:13px;">Re-analyze</button>
+          <button class="copy-btn" id="re-analyze-btn" style="font-size:13px;">Start over</button>
         </div>
 
-        <div class="extracted-grid">
-          <div>
-            <div class="extracted-label">Deadline</div>
-            <div class="extracted-value" id="ext-deadline" contenteditable="true"></div>
-          </div>
-          <div>
-            <div class="extracted-label">Award amount</div>
-            <div class="extracted-value" id="ext-amount" contenteditable="true"></div>
-          </div>
-          <div>
-            <div class="extracted-label">Eligible applicants</div>
-            <div class="extracted-value" id="ext-eligibility" contenteditable="true"></div>
-          </div>
-          <div>
-            <div class="extracted-label">Page / word limits</div>
-            <div class="extracted-value" id="ext-limits" contenteditable="true"></div>
-          </div>
-          <div class="full">
-            <div class="extracted-label">Required attachments</div>
-            <div class="extracted-value" id="ext-attachments" contenteditable="true" style="min-height:60px;"></div>
-          </div>
-          <div class="full">
-            <div class="extracted-label">Evaluation criteria</div>
-            <div id="ext-criteria-list"></div>
-          </div>
-          <div class="full">
-            <div class="extracted-label">Required proposal sections / questions</div>
-            <div class="extracted-value" id="ext-sections" contenteditable="true" style="min-height:80px;"></div>
-          </div>
-          <div class="full">
-            <div class="extracted-label">Special requirements (match, data, partnerships, etc.)</div>
-            <div class="extracted-value" id="ext-special" contenteditable="true" style="min-height:50px;"></div>
+        <div class="results-tabs">
+          <button class="results-tab active" data-tab="details">Details</button>
+          <button class="results-tab" data-tab="outline">Outline</button>
+          <button class="results-tab" data-tab="timeline">Timeline</button>
+          <button class="results-tab" data-tab="checklist">Checklist</button>
+        </div>
+
+        <!-- Tab: Details -->
+        <div class="results-tab-panel active" id="rtab-details">
+          <div class="extracted-grid">
+            <div>
+              <div class="extracted-label">Deadline</div>
+              <div class="extracted-value" id="ext-deadline" contenteditable="true"></div>
+            </div>
+            <div>
+              <div class="extracted-label">Award amount</div>
+              <div class="extracted-value" id="ext-amount" contenteditable="true"></div>
+            </div>
+            <div>
+              <div class="extracted-label">Eligible applicants</div>
+              <div class="extracted-value" id="ext-eligibility" contenteditable="true"></div>
+            </div>
+            <div>
+              <div class="extracted-label">Page / word limits</div>
+              <div class="extracted-value" id="ext-limits" contenteditable="true"></div>
+            </div>
+            <div class="full">
+              <div class="extracted-label">Required attachments</div>
+              <div class="extracted-value" id="ext-attachments" contenteditable="true" style="min-height:60px;"></div>
+            </div>
+            <div class="full">
+              <div class="extracted-label">Evaluation criteria</div>
+              <div id="ext-criteria-list"></div>
+            </div>
+            <div class="full">
+              <div class="extracted-label">Required proposal sections</div>
+              <div class="extracted-value" id="ext-sections" contenteditable="true" style="min-height:80px;"></div>
+            </div>
+            <div class="full">
+              <div class="extracted-label">Special requirements</div>
+              <div class="extracted-value" id="ext-special" contenteditable="true" style="min-height:50px;"></div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <hr class="section-rule" id="rule-outline" style="display:none;">
-
-      <!-- ── Step 3: Proposal outline ── -->
-      <div class="step" id="step-outline" style="display:none;">
-        <div class="step-header">
-          <div class="step-num" id="step-num-3">2</div>
-          <div>
-            <div class="step-title">Proposal outline</div>
-            <div class="step-desc">Based on the required sections and evaluation criteria. Use this as your writing scaffold.</div>
-          </div>
+        <!-- Tab: Outline -->
+        <div class="results-tab-panel" id="rtab-outline" style="display:none;">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Based on the required sections and evaluation criteria. Use this as your writing scaffold.</p>
+          <div id="outline-list"></div>
         </div>
-        <div id="outline-list"></div>
-      </div>
 
-      <hr class="section-rule" id="rule-timeline" style="display:none;">
-
-      <!-- ── Step 4: Timeline ── -->
-      <div class="step" id="step-timeline" style="display:none;">
-        <div class="step-header">
-          <div class="step-num" id="step-num-4">3</div>
-          <div>
-            <div class="step-title">Writing timeline</div>
-            <div class="step-desc">Counted back from your deadline. Check off milestones as you complete them.</div>
-          </div>
+        <!-- Tab: Timeline -->
+        <div class="results-tab-panel" id="rtab-timeline" style="display:none;">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Counted back from your deadline. Dates shown as a calendar — print or save as PDF to share.</p>
+          <div id="calendar-grid"></div>
+          <div id="timeline-list" style="margin-top:20px;"></div>
         </div>
-        <div id="timeline-list"></div>
-      </div>
 
-      <hr class="section-rule" id="rule-docs" style="display:none;">
-
-      <!-- ── Step 5: Document checklist ── -->
-      <div class="step" id="step-docs" style="display:none;">
-        <div class="step-header">
-          <div class="step-num" id="step-num-5">4</div>
-          <div>
-            <div class="step-title">Document checklist</div>
-            <div class="step-desc">Mark each item as you gather it. "N/A" removes it from your list without deleting it.</div>
-          </div>
+        <!-- Tab: Checklist -->
+        <div class="results-tab-panel" id="rtab-checklist" style="display:none;">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Mark each item as you gather it. N/A fades items you don't need.</p>
+          <div id="doc-list"></div>
         </div>
-        <div id="doc-list"></div>
+
       </div>
 
       <!-- Previous preparations -->
@@ -410,6 +434,7 @@
       </div>
 
     </div><!-- /page-content -->
+
 
     <div class="save-bar">
       <button class="btn-primary" id="save-btn" style="display:none;">Save this preparation</button>
@@ -447,6 +472,12 @@
   #print-summary .doc-status { min-width: 70pt; font-weight: bold; color: #444; }
   #print-summary .timeline-row { display: flex; gap: 12pt; margin-bottom: 4pt; font-size: 11pt; }
   #print-summary .tl-date { min-width: 60pt; font-weight: bold; }
+  #print-summary .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 1pt; margin-bottom: 6pt; }
+  #print-summary .cal-day-header { font-size: 8pt; text-align: center; font-weight: bold; padding: 2pt 0; }
+  #print-summary .cal-day { font-size: 8pt; padding: 2pt 3pt; border: 0.5pt solid #ddd; min-height: 28pt; }
+  #print-summary .cal-day.has-milestone { background: #e8f0e8; }
+  #print-summary .cal-deadline { background: #f5e0d8 !important; }
+  #print-summary .cal-milestone-dot { font-size: 7pt; }
   #print-summary .footer { margin-top: 32pt; font-size: 9pt; color: #888; border-top: 1pt solid #ddd; padding-top: 6pt; }
 }
 </style>

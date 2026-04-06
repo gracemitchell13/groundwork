@@ -19,6 +19,89 @@ let extracted   = null;
 let docStatuses = {};
 let timelineChecked = {};
 
+// ── Input method tabs ───────────────────────────────────────
+document.querySelectorAll('.input-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.input-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.input-method-panel').forEach(p => p.style.display = 'none');
+    tab.classList.add('active');
+    document.getElementById(`method-${tab.dataset.method}`).style.display = 'block';
+  });
+});
+
+// ── Results tabs ────────────────────────────────────────────
+document.querySelectorAll('.results-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.results-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.results-tab-panel').forEach(p => p.style.display = 'none');
+    tab.classList.add('active');
+    document.getElementById(`rtab-${tab.dataset.tab}`).style.display = 'block';
+  });
+});
+
+// ── File upload ──────────────────────────────────────────────
+const fileDropZone = document.getElementById('file-drop-zone');
+const fileInput    = document.getElementById('rfp-file');
+
+fileDropZone?.addEventListener('click', () => fileInput?.click());
+fileDropZone?.addEventListener('dragover', e => { e.preventDefault(); fileDropZone.classList.add('drag-over'); });
+fileDropZone?.addEventListener('dragleave', () => fileDropZone.classList.remove('drag-over'));
+fileDropZone?.addEventListener('drop', e => {
+  e.preventDefault();
+  fileDropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
+});
+fileInput?.addEventListener('change', () => {
+  if (fileInput.files[0]) handleFile(fileInput.files[0]);
+});
+
+async function handleFile(file) {
+  const statusEl = document.getElementById('file-status');
+  statusEl.textContent = `Reading ${file.name}…`;
+  statusEl.style.color = 'var(--muted)';
+
+  try {
+    let text = '';
+    if (file.name.endsWith('.txt')) {
+      text = await file.text();
+    } else if (file.name.endsWith('.docx') || file.name.endsWith('.doc')) {
+      // Send to Worker for extraction
+      const formData = new FormData();
+      formData.append('file', file);
+      const resp = await fetch(`${WORKER_URL}/fetch-file`, {
+        method: 'POST', body: formData,
+      });
+      if (!resp.ok) throw new Error('Worker could not read this file');
+      const data = await resp.json();
+      text = data.text;
+    } else if (file.name.endsWith('.pdf')) {
+      const arrayBuffer = await file.arrayBuffer();
+      const resp = await fetch(`${WORKER_URL}/fetch-file`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/pdf', 'X-Filename': file.name },
+        body: arrayBuffer,
+      });
+      if (!resp.ok) throw new Error('Worker could not read this PDF');
+      const data = await resp.json();
+      text = data.text;
+    } else {
+      text = await file.text();
+    }
+
+    // Switch to paste tab and populate textarea
+    document.querySelector('.input-tab[data-method="paste"]').click();
+    const textarea = document.getElementById('rfp-text');
+    if (textarea) textarea.value = text;
+    document.getElementById('char-count').textContent = `${text.length.toLocaleString()} characters`;
+    statusEl.textContent = `✓ ${file.name} loaded — review the text, then click Analyze.`;
+    statusEl.style.color = '#2E6020';
+  } catch (err) {
+    statusEl.textContent = `Couldn't read that file — ${err.message}. Try copying and pasting the text instead.`;
+    statusEl.style.color = 'var(--accent-4)';
+  }
+}
+
 // ── Fetch RFP from URL via Cloudflare Worker ────────────────
 async function fetchRFPFromURL(url) {
   const resp = await fetch(`${WORKER_URL}/fetch`, {
@@ -79,15 +162,13 @@ If you cannot find a field, use 'Not specified' for strings and [] for arrays. B
 function renderExtracted(data) {
   extracted = data;
 
-  document.getElementById('ext-deadline').textContent    = data.deadline   || '';
-  document.getElementById('ext-amount').textContent      = data.amount     || '';
+  document.getElementById('ext-deadline').textContent    = data.deadline    || '';
+  document.getElementById('ext-amount').textContent      = data.amount      || '';
   document.getElementById('ext-eligibility').textContent = data.eligibility || '';
-  document.getElementById('ext-limits').textContent      = data.limits     || '';
+  document.getElementById('ext-limits').textContent      = data.limits      || '';
   document.getElementById('ext-attachments').textContent = data.attachments || '';
-  document.getElementById('ext-special').textContent     = data.special    || '';
-
-  // Sections
-  document.getElementById('ext-sections').textContent =
+  document.getElementById('ext-special').textContent     = data.special     || '';
+  document.getElementById('ext-sections').textContent    =
     (data.sections || []).map(s => s.title).join('\n');
 
   // Criteria
@@ -104,23 +185,21 @@ function renderExtracted(data) {
     clist.innerHTML = '<div class="extracted-value">Not specified</div>';
   }
 
-  document.getElementById('extracted-panel').classList.add('show');
+  // Show tabbed results panel
+  document.getElementById('results-panel').style.display = 'block';
 
-  // Build downstream sections
+  // Render other tabs
   renderOutline(data);
+  renderCalendar(data.deadline);
   renderTimeline(data.deadline);
   renderDocChecklist(data);
-
-  // Show everything
-  ['rule-outline','step-outline','rule-timeline','step-timeline',
-   'rule-docs','step-docs'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = '';
-  });
 
   document.getElementById('save-btn').style.display  = '';
   document.getElementById('print-btn').style.display = '';
   document.getElementById('step-num-1').classList.add('done');
+
+  // Scroll to results
+  document.getElementById('results-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ── Proposal outline ────────────────────────────────────────
@@ -154,6 +233,114 @@ function defaultSections() {
     { title: 'Budget and Budget Narrative', note: 'Line-item budget with a written justification for each expense. Numbers must match the narrative.', points: '', limit: '' },
     { title: 'Sustainability Plan', note: 'How the project continues after the grant period ends. Be specific about future funding sources.', points: '', limit: '' },
   ];
+}
+
+// ── Calendar ────────────────────────────────────────────────
+function renderCalendar(deadlineStr) {
+  const grid = document.getElementById('calendar-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  let deadlineDate = null;
+  if (deadlineStr && deadlineStr !== 'Not specified') {
+    const parsed = new Date(deadlineStr);
+    if (!isNaN(parsed)) deadlineDate = parsed;
+  }
+
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Build milestone map: date string → label
+  const milestoneMap = {};
+  if (deadlineDate) {
+    const milestones = [
+      { label: 'Kickoff', daysBack: 42 },
+      { label: 'Research complete', daysBack: 35 },
+      { label: 'Outline approved', daysBack: 28 },
+      { label: 'First draft', daysBack: 21 },
+      { label: 'Internal review', daysBack: 14 },
+      { label: 'Budget sign-off', daysBack: 10 },
+      { label: 'Final proof', daysBack: 5 },
+      { label: '⚑ Deadline', daysBack: 0 },
+    ];
+    milestones.forEach(m => {
+      const d = new Date(deadlineDate);
+      d.setDate(d.getDate() - m.daysBack);
+      const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      milestoneMap[key] = m.label;
+    });
+  }
+
+  // Determine range: today's month through deadline month (or +2 months)
+  const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+  const endMonth  = deadlineDate
+    ? new Date(deadlineDate.getFullYear(), deadlineDate.getMonth() + 1, 1)
+    : new Date(today.getFullYear(), today.getMonth() + 3, 1);
+
+  const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const MONTHS = ['January','February','March','April','May','June',
+                  'July','August','September','October','November','December'];
+
+  let cursor = new Date(startDate);
+  while (cursor < endMonth) {
+    const year  = cursor.getFullYear();
+    const month = cursor.getMonth();
+
+    const header = document.createElement('div');
+    header.className = 'cal-month-header';
+    header.textContent = `${MONTHS[month]} ${year}`;
+    grid.appendChild(header);
+
+    const calGrid = document.createElement('div');
+    calGrid.className = 'cal-grid';
+
+    DAYS.forEach(d => {
+      const dh = document.createElement('div');
+      dh.className = 'cal-day-header';
+      dh.textContent = d;
+      calGrid.appendChild(dh);
+    });
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Empty cells before first
+    for (let i = 0; i < firstDay; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'cal-day other-month';
+      calGrid.appendChild(empty);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const cell = document.createElement('div');
+      cell.className = 'cal-day in-month';
+
+      const thisDate = new Date(year, month, day);
+      const key = `${year}-${month}-${day}`;
+      const isToday = thisDate.getTime() === today.getTime();
+      const isDeadline = deadlineDate &&
+        day === deadlineDate.getDate() && month === deadlineDate.getMonth() && year === deadlineDate.getFullYear();
+
+      if (isToday)    cell.classList.add('today');
+      if (isDeadline) cell.classList.add('cal-deadline');
+
+      const milestone = milestoneMap[key];
+      if (milestone) cell.classList.add('has-milestone');
+
+      cell.innerHTML = `<div class="cal-day-num">${day}</div>
+        ${milestone ? `<div class="cal-milestone-dot">${milestone}</div>` : ''}`;
+      calGrid.appendChild(cell);
+    }
+
+    grid.appendChild(calGrid);
+    cursor = new Date(year, month + 1, 1);
+  }
+
+  if (!deadlineDate) {
+    const note = document.createElement('p');
+    note.style.cssText = 'font-size:13px;color:var(--muted);margin-top:8px;';
+    note.textContent = 'Enter a deadline in the Details tab to see milestone dates on the calendar.';
+    grid.appendChild(note);
+  }
 }
 
 // ── Timeline ────────────────────────────────────────────────
@@ -250,18 +437,17 @@ function renderDocChecklist(data) {
   });
 
   standardDocs.forEach(doc => {
-    const status = docStatuses[doc.id] || 'unset';
     const item = document.createElement('div');
     item.className = 'doc-item';
+    const status = docStatuses[doc.id] || 'unset';
+    if (status === 'na') item.classList.add('na-item');
     item.innerHTML = `
-      <div class="doc-info">
-        <div class="doc-name">${doc.name}</div>
-        <div class="doc-note">${doc.note}</div>
-        <div class="doc-status">
-          <button class="doc-status-btn ${status==='have'?'active-have':''}" onclick="window._setDocStatus('${doc.id}','have',this)">Have it</button>
-          <button class="doc-status-btn ${status==='need'?'active-need':''}" onclick="window._setDocStatus('${doc.id}','need',this)">Need to get</button>
-          <button class="doc-status-btn ${status==='na'?'active-na':''}"   onclick="window._setDocStatus('${doc.id}','na',this)">N/A</button>
-        </div>
+      <div class="doc-name">${doc.name}</div>
+      <div class="doc-note">${doc.note}</div>
+      <div class="doc-status">
+        <button class="doc-status-btn ${status==='have'?'active-have':''}" onclick="window._setDocStatus('${doc.id}','have',this)">Have it</button>
+        <button class="doc-status-btn ${status==='need'?'active-need':''}" onclick="window._setDocStatus('${doc.id}','need',this)">Need to get</button>
+        <button class="doc-status-btn ${status==='na'?'active-na':''}"   onclick="window._setDocStatus('${doc.id}','na',this)">N/A</button>
       </div>`;
     list.appendChild(item);
   });
@@ -273,6 +459,7 @@ function renderDocChecklist(data) {
       b.classList.remove('active-have','active-need','active-na'));
     const cls = status === 'have' ? 'active-have' : status === 'need' ? 'active-need' : 'active-na';
     btn.classList.add(cls);
+    row.classList.toggle('na-item', status === 'na');
   };
 }
 
@@ -396,13 +583,10 @@ document.getElementById('analyze-btn')?.addEventListener('click', async () => {
 });
 
 document.getElementById('re-analyze-btn')?.addEventListener('click', () => {
-  document.getElementById('extracted-panel').classList.remove('show');
-  ['rule-outline','step-outline','rule-timeline','step-timeline',
-   'rule-docs','step-docs'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
-  });
-  document.getElementById('save-btn').style.display = 'none';
+  document.getElementById('results-panel').style.display = 'none';
+  document.getElementById('save-btn').style.display  = 'none';
+  document.getElementById('print-btn').style.display = 'none';
+  extracted = null;
   document.getElementById('rfp-text')?.focus();
 });
 
@@ -453,6 +637,8 @@ function generatePrintSummary() {
 
   const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
+  const calHTML = document.getElementById('calendar-grid')?.innerHTML || '';
+
   const html = `
     <h1>${name}</h1>
     <p class="meta">Groundwork preparation summary · Generated ${today}</p>
@@ -466,8 +652,8 @@ function generatePrintSummary() {
     ${special && special !== 'None stated' ? `<p><strong>Special requirements:</strong> ${special}</p>` : ''}
 
     ${outlineHTML ? `<h2>Proposal Outline</h2>${outlineHTML}` : ''}
-    ${timelineHTML ? `<h2>Writing Timeline</h2>${timelineHTML}` : ''}
-    ${docsHTML ? `<h2>Document Checklist</h2>${docsHTML}` : ''}
+    ${calHTML     ? `<h2>Writing Timeline</h2>${calHTML}` : ''}
+    ${docsHTML    ? `<h2>Document Checklist</h2>${docsHTML}` : ''}
 
     <div class="footer">Generated by Groundwork · gracemitchell13.github.io/groundwork</div>`;
 
