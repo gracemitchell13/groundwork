@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prepare Your Application — Groundwork</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .page-title { font-family: var(--serif); font-style: italic; font-size: 32px; color: var(--body); margin-bottom: 10px; font-weight: 400; }
+    .page-intro { font-size: 16px; line-height: 1.7; margin-bottom: 32px; }
+    .section-tag { color: var(--muted-2); }
+
+    /* Step system */
+    .step { margin-bottom: 36px; }
+    .step-header {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 16px;
+    }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--accent-3); color: #fff;
+      font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-num.done { background: var(--accent-1); }
+    .step-title { font-size: 18px; font-weight: 600; color: var(--body); }
+    .step-desc { font-size: 14px; color: var(--muted); margin-top: 2px; }
+
+    /* RFP paste area */
+    .rfp-paste {
+      width: 100%; min-height: 180px; max-height: 320px;
+      font-size: 14px; font-family: var(--sans);
+      border: 1.5px solid var(--linen-border);
+      border-radius: 8px; padding: 14px 16px;
+      background: var(--linen-card); color: var(--body);
+      resize: vertical; line-height: 1.6;
+      transition: border-color 0.15s;
+    }
+    .rfp-paste:focus { outline: none; border-color: var(--accent-3); }
+    .rfp-paste::placeholder { color: var(--muted-2); }
+
+    .analyze-row {
+      display: flex; align-items: center; gap: 14px; margin-top: 12px;
+    }
+    .char-count { font-size: 12px; color: var(--muted-2); }
+
+    /* Analyzing state */
+    .analyzing-indicator {
+      display: none;
+      align-items: center; gap: 10px;
+      font-size: 14px; color: var(--accent-3);
+      padding: 12px 16px;
+      background: #EDF5F8;
+      border-radius: 7px;
+      margin-top: 12px;
+    }
+    .analyzing-indicator.show { display: flex; }
+    .spinner {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2px solid var(--accent-3);
+      border-top-color: transparent;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Extracted fields */
+    .extracted-panel {
+      display: none;
+      background: var(--linen-card);
+      border: 1px solid var(--linen-border);
+      border-top: 3px solid var(--accent-3);
+      border-radius: 0 0 9px 9px;
+      padding: 22px 24px;
+      margin-top: 16px;
+    }
+    .extracted-panel.show { display: block; }
+    .extracted-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 28px;
+    }
+    .extracted-grid .full { grid-column: 1 / -1; }
+    .extracted-label {
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      color: var(--muted-2); margin-bottom: 5px; margin-top: 14px;
+    }
+    .extracted-label:first-child { margin-top: 0; }
+    .extracted-value {
+      font-size: 14px; color: var(--body);
+      background: var(--linen); border: 1px solid var(--linen-border);
+      border-radius: 6px; padding: 9px 12px;
+      min-height: 36px; line-height: 1.55;
+      outline: none; width: 100%;
+      font-family: var(--sans);
+    }
+    .extracted-value[contenteditable]:focus { border-color: var(--accent-3); }
+
+    /* Criteria list */
+    .criteria-item {
+      display: flex; align-items: baseline; gap: 10px;
+      padding: 8px 12px;
+      background: var(--linen); border: 1px solid var(--linen-border);
+      border-radius: 6px; margin-bottom: 6px; font-size: 14px;
+    }
+    .criteria-pts {
+      font-size: 12px; font-weight: 700; color: var(--accent-3);
+      flex-shrink: 0; min-width: 36px;
+    }
+
+    /* Proposal outline */
+    .outline-section {
+      background: var(--linen-card);
+      border: 1px solid var(--linen-border);
+      border-left: 4px solid var(--accent-3);
+      border-radius: 0 7px 7px 0;
+      padding: 14px 18px;
+      margin-bottom: 10px;
+    }
+    .outline-section-title {
+      font-size: 15px; font-weight: 600; color: var(--body);
+      margin-bottom: 4px;
+    }
+    .outline-section-meta {
+      font-size: 12px; color: var(--muted);
+      display: flex; gap: 14px; flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+    .outline-section-tip {
+      font-size: 13px; color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* Timeline */
+    .timeline-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--linen-border);
+    }
+    .timeline-item:last-child { border-bottom: none; }
+    .timeline-check {
+      width: 18px; height: 18px; border-radius: 4px;
+      border: 1.5px solid var(--linen-border);
+      flex-shrink: 0; margin-top: 1px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .timeline-check.checked {
+      background: var(--accent-1); border-color: var(--accent-1);
+      color: #fff; font-size: 11px;
+    }
+    .timeline-date {
+      font-size: 13px; font-weight: 600; color: var(--accent-3);
+      min-width: 90px; flex-shrink: 0;
+    }
+    .timeline-date.past { color: var(--muted-2); }
+    .timeline-date.soon { color: var(--accent-4); }
+    .timeline-label { font-size: 14px; color: var(--body); line-height: 1.4; }
+    .timeline-note { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* Document checklist */
+    .doc-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 14px;
+      background: var(--linen-card);
+      border: 1px solid var(--linen-border);
+      border-radius: 7px; margin-bottom: 8px;
+    }
+    .doc-check {
+      width: 18px; height: 18px; border-radius: 4px;
+      border: 1.5px solid var(--linen-border);
+      flex-shrink: 0; margin-top: 1px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .doc-check.checked { background: var(--accent-1); border-color: var(--accent-1); color: #fff; font-size: 11px; }
+    .doc-check.na { background: var(--linen-border); border-color: var(--linen-border); }
+    .doc-info { flex: 1; }
+    .doc-name { font-size: 14px; font-weight: 500; color: var(--body); }
+    .doc-note { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+    .doc-status {
+      display: flex; gap: 6px; margin-top: 7px;
+    }
+    .doc-status-btn {
+      font-size: 11px; padding: 3px 9px;
+      border: 1px solid var(--linen-border);
+      border-radius: 99px; cursor: pointer;
+      background: var(--linen); color: var(--muted);
+      font-family: var(--sans); transition: all 0.12s;
+    }
+    .doc-status-btn.active-have { background: var(--accent-1); border-color: var(--accent-1); color: #fff; }
+    .doc-status-btn.active-need { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
+    .doc-status-btn.active-na   { background: var(--muted-2);  border-color: var(--muted-2);  color: #fff; }
+
+    .save-bar {
+      position: sticky; bottom: 0;
+      background: var(--linen); border-top: 1px solid var(--linen-border);
+      padding: 14px 36px; display: flex; align-items: center; gap: 16px;
+      flex-shrink: 0;
+    }
+    .save-status { font-size: 14px; color: var(--muted); }
+    .save-status.saved { color: #2E6020; }
+    .save-status.error { color: var(--accent-4); }
+
+    .section-rule {
+      border: none; border-top: 1px solid var(--linen-border);
+      margin: 32px 0;
+    }
+  </style>
+</head>
+<body>
+<div class="page-shell">
+
+  <aside class="sidebar">
+    <div class="sidebar-dots">
+      <div class="dot dot-1" id="dot-1"></div>
+      <div class="dot dot-2" id="dot-2"></div>
+      <div class="dot dot-3" id="dot-3"></div>
+      <div class="dot dot-4" id="dot-4"></div>
+      <div class="dot dot-5" id="dot-5"></div>
+    </div>
+    <div class="sidebar-wordmark">
+      <a href="../index.html" class="wordmark" style="text-decoration:none;">Groundwork</a>
+      <div class="wordmark-rule"></div>
+      <p class="wordmark-sub" id="wordmark-sub">Grant Writing Toolkit</p>
+      <p class="wordmark-org-meta" id="wordmark-org-meta"></p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="org.html"      class="nav-item" data-section="1"><span class="nav-num">01</span><span class="nav-label">Know Your Organization</span></a>
+      <a href="evaluate.html" class="nav-item" data-section="2"><span class="nav-num">02</span><span class="nav-label">Evaluate This Opportunity</span></a>
+      <a href="prepare.html"  class="nav-item active" data-section="3"><span class="nav-num">03</span><span class="nav-label">Prepare Your Application</span></a>
+      <a href="library.html"  class="nav-item" data-section="4"><span class="nav-num">04</span><span class="nav-label">Build Your Language Library</span></a>
+      <a href="pipeline.html" class="nav-item" data-section="5"><span class="nav-num">05</span><span class="nav-label">Track Your Pipeline</span></a>
+    </nav>
+    <div style="height:0.5px;background:rgba(255,255,255,0.1);margin:4px 0;"></div>
+    <a href="resources.html" class="nav-item" style="padding:8px 16px 8px 18px;">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-top:1px;opacity:0.7;"><path d="M1.5 2.5C1.5 2.5 3 2 6.5 2C10 2 11.5 2.5 11.5 2.5V10.5C11.5 10.5 10 10 6.5 10C3 10 1.5 10.5 1.5 10.5V2.5Z" stroke="#90B870" stroke-width="1" fill="none"/><path d="M6.5 2V10" stroke="#90B870" stroke-width="0.75" stroke-dasharray="1 0"/></svg>
+      <span class="nav-label" style="font-size:13px;">Definitions &amp; Resources</span>
+    </a>
+    <div class="sidebar-footer" style="display:none;">
+      <div id="org-name"></div>
+      <div id="org-full"></div>
+    </div>
+  </aside>
+
+  <div class="page-main">
+    <header class="main-header">
+      <div class="header-left">
+        <h1 class="greeting" id="greeting">Good morning.</h1>
+        <p class="greeting-sub">Section 3 of 5</p>
+      </div>
+      <div class="header-right">
+        <button class="ctrl-btn" id="settings-btn" title="Settings" aria-label="Settings">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="2.2" stroke="currentColor" stroke-width="1.2" fill="none"/>
+            <path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.93 2.93l1.06 1.06M10.01 10.01l1.06 1.06M2.93 11.07l1.06-1.06M10.01 3.99l1.06-1.06" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button class="avatar-btn" id="avatar-btn" title="Account" aria-label="Account">
+          <span id="avatar-initial">?</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <p class="section-tag">Section 03</p>
+      <h2 class="page-title">Prepare Your Application</h2>
+      <p class="page-intro">Paste your RFP below and Groundwork will read it for you — extracting the key requirements, building a proposal outline, mapping a timeline back from the deadline, and generating a document checklist. You review, adjust, and save.</p>
+
+      <!-- ── Step 1: Paste RFP ── -->
+      <div class="step" id="step-rfp">
+        <div class="step-header">
+          <div class="step-num" id="step-num-1">1</div>
+          <div>
+            <div class="step-title">Paste the RFP</div>
+            <div class="step-desc">Copy and paste the full text of the funding opportunity announcement, or the sections that describe requirements, eligibility, and what the proposal must include.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="opp-name-s3">Grant / opportunity name</label>
+          <input class="form-input" type="text" id="opp-name-s3" placeholder="e.g. Meyer Memorial Trust — Education Programs 2026">
+        </div>
+
+        <div class="form-group" style="margin-top:16px;">
+          <label class="form-label" for="rfp-text">RFP text</label>
+          <textarea class="rfp-paste" id="rfp-text" placeholder="Paste the RFP here. The more complete the text, the better the extraction. You can paste just the narrative requirements section if the full document is too long."></textarea>
+        </div>
+
+        <div class="analyze-row">
+          <button class="btn-primary" id="analyze-btn">Analyze this RFP →</button>
+          <span class="char-count" id="char-count"></span>
+        </div>
+
+        <div class="analyzing-indicator" id="analyzing-indicator">
+          <div class="spinner"></div>
+          <span id="analyzing-msg">Reading the RFP…</span>
+        </div>
+      </div>
+
+      <!-- ── Step 2: Extracted details ── -->
+      <div class="extracted-panel" id="extracted-panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-3);margin-bottom:4px;">Extracted from RFP</div>
+            <div style="font-size:13px;color:var(--muted);">Review and correct anything that looks wrong before continuing.</div>
+          </div>
+          <button class="copy-btn" id="re-analyze-btn" style="font-size:13px;">Re-analyze</button>
+        </div>
+
+        <div class="extracted-grid">
+          <div>
+            <div class="extracted-label">Deadline</div>
+            <div class="extracted-value" id="ext-deadline" contenteditable="true"></div>
+          </div>
+          <div>
+            <div class="extracted-label">Award amount</div>
+            <div class="extracted-value" id="ext-amount" contenteditable="true"></div>
+          </div>
+          <div>
+            <div class="extracted-label">Eligible applicants</div>
+            <div class="extracted-value" id="ext-eligibility" contenteditable="true"></div>
+          </div>
+          <div>
+            <div class="extracted-label">Page / word limits</div>
+            <div class="extracted-value" id="ext-limits" contenteditable="true"></div>
+          </div>
+          <div class="full">
+            <div class="extracted-label">Required attachments</div>
+            <div class="extracted-value" id="ext-attachments" contenteditable="true" style="min-height:60px;"></div>
+          </div>
+          <div class="full">
+            <div class="extracted-label">Evaluation criteria</div>
+            <div id="ext-criteria-list"></div>
+          </div>
+          <div class="full">
+            <div class="extracted-label">Required proposal sections / questions</div>
+            <div class="extracted-value" id="ext-sections" contenteditable="true" style="min-height:80px;"></div>
+          </div>
+          <div class="full">
+            <div class="extracted-label">Special requirements (match, data, partnerships, etc.)</div>
+            <div class="extracted-value" id="ext-special" contenteditable="true" style="min-height:50px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-rule" id="rule-outline" style="display:none;">
+
+      <!-- ── Step 3: Proposal outline ── -->
+      <div class="step" id="step-outline" style="display:none;">
+        <div class="step-header">
+          <div class="step-num" id="step-num-3">2</div>
+          <div>
+            <div class="step-title">Proposal outline</div>
+            <div class="step-desc">Based on the required sections and evaluation criteria. Use this as your writing scaffold.</div>
+          </div>
+        </div>
+        <div id="outline-list"></div>
+      </div>
+
+      <hr class="section-rule" id="rule-timeline" style="display:none;">
+
+      <!-- ── Step 4: Timeline ── -->
+      <div class="step" id="step-timeline" style="display:none;">
+        <div class="step-header">
+          <div class="step-num" id="step-num-4">3</div>
+          <div>
+            <div class="step-title">Writing timeline</div>
+            <div class="step-desc">Counted back from your deadline. Check off milestones as you complete them.</div>
+          </div>
+        </div>
+        <div id="timeline-list"></div>
+      </div>
+
+      <hr class="section-rule" id="rule-docs" style="display:none;">
+
+      <!-- ── Step 5: Document checklist ── -->
+      <div class="step" id="step-docs" style="display:none;">
+        <div class="step-header">
+          <div class="step-num" id="step-num-5">4</div>
+          <div>
+            <div class="step-title">Document checklist</div>
+            <div class="step-desc">Mark each item as you gather it. "N/A" removes it from your list without deleting it.</div>
+          </div>
+        </div>
+        <div id="doc-list"></div>
+      </div>
+
+    </div><!-- /page-content -->
+
+    <div class="save-bar">
+      <button class="btn-primary" id="save-btn" style="display:none;">Save this preparation</button>
+      <span class="save-status" id="save-status"></span>
+      <a href="../index.html" style="margin-left:auto;font-size:13px;color:var(--muted);">← Back to dashboard</a>
+    </div>
+  </div>
+
+</div>
+
+<script type="module" src="../js/sections/03-prepare.js"></script>
+</body>
+</html>
