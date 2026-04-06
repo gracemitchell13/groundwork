@@ -173,10 +173,9 @@ function renderQuestions() {
     if (cls === 'sel-maybe') card.classList.add('answered-caution');
     if (cls === 'sel-no')    card.classList.add('answered-no');
 
-    // Auto-show result if all answered
+    // All answered — enable the button but don't auto-fire result
     if (Object.keys(answers).length === QUESTIONS.length) {
       enableEvaluateBtn();
-      showResult();
     }
   });
 }
@@ -341,7 +340,7 @@ function enableEvaluateBtn() {
   if (wrap) wrap.style.display = 'block';
 }
 
-// Enable if all questions already auto-answered (e.g. deadline pre-selected)
+// Enable button immediately if deadline pre-answered all questions
 document.addEventListener('questionsReady', () => {
   if (Object.keys(answers).length === QUESTIONS.length) enableEvaluateBtn();
 });
