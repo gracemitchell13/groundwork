@@ -1,17 +1,31 @@
-// Shared helper — populate the org profile card in the sidebar
+// Groundwork — sidebar org context
+// Populates the wordmark area with org name + metadata once Section 1 is saved
 
 export function populateSidebarCard(org) {
-  const card = document.getElementById('sidebar-org-card');
-  if (!card || !org?.name) return;
+  if (!org?.name) return;
 
-  document.getElementById('card-org-name').textContent    = org.name || '';
-  
-  const mission = org.mission || '';
-  const missionEl = document.getElementById('card-org-mission');
-  missionEl.textContent = mission.length > 100 ? mission.slice(0, 100).trimEnd() + '…' : mission;
+  const subEl  = document.getElementById('wordmark-sub');
+  const metaEl = document.getElementById('wordmark-org-meta');
 
-  const budgetEl = document.getElementById('card-org-budget');
-  budgetEl.textContent = org.budget ? `Annual budget: ${org.budget}` : '';
+  if (subEl) {
+    subEl.textContent = org.name.toUpperCase();
+    subEl.style.color        = '#C8D8BC';
+    subEl.style.letterSpacing = '0.04em';
+    subEl.style.lineHeight   = '1.35';
+    subEl.style.fontSize     = '10.5px';
+  }
 
-  card.classList.add('visible');
+  if (metaEl) {
+    const parts = [];
+    if (org.budget) parts.push(org.budget);
+    if (org.staff)  parts.push(org.staff + ' staff');
+    metaEl.textContent = parts.join(' · ');
+    metaEl.style.display = parts.length ? 'block' : 'none';
+  }
+
+  // Keep hidden footer IDs updated for any JS that still references them
+  const nameEl = document.getElementById('org-name');
+  const fullEl = document.getElementById('org-full');
+  if (nameEl) nameEl.textContent = org.abbreviation || org.name || '';
+  if (fullEl) fullEl.textContent = '';
 }

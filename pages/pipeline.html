@@ -20,7 +20,8 @@
     <div class="sidebar-wordmark">
       <a href="../index.html" class="wordmark" style="text-decoration:none;">Groundwork</a>
       <div class="wordmark-rule"></div>
-      <p class="wordmark-sub">Grant Writing Toolkit</p>
+      <p class="wordmark-sub" id="wordmark-sub">Grant Writing Toolkit</p>
+      <p class="wordmark-org-meta" id="wordmark-org-meta"></p>
     </div>
     <nav class="sidebar-nav">
       <a href="org.html"      class="nav-item" data-section="1">
@@ -44,22 +45,10 @@
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-top:1px;opacity:0.7;"><path d="M1.5 2.5C1.5 2.5 3 2 6.5 2C10 2 11.5 2.5 11.5 2.5V10.5C11.5 10.5 10 10 6.5 10C3 10 1.5 10.5 1.5 10.5V2.5Z" stroke="#90B870" stroke-width="1" fill="none"/><path d="M6.5 2V10" stroke="#90B870" stroke-width="0.75" stroke-dasharray="1 0"/></svg>
         <span class="nav-label" style="font-size:13px;color:#A8B898;">Definitions &amp; Resources</span>
       </a>
-    <div class="sidebar-org-card" id="sidebar-org-card">
-      <div class="sidebar-org-card-header" onclick="
-        const c = document.getElementById('sidebar-org-card');
-        c.classList.toggle('collapsed');
-      ">
-        <span class="sidebar-org-card-label">Your organization</span>
-        <span class="sidebar-org-card-toggle">▼</span>
-      </div>
-      <div class="sidebar-org-card-body">
-        <div class="sidebar-org-card-name" id="card-org-name"></div>
-        <div class="sidebar-org-card-mission" id="card-org-mission"></div>
-        <div class="sidebar-org-card-budget" id="card-org-budget"></div>
       </div>
     </div>
-    <div class="sidebar-footer">
-      <div class="org-name" id="org-name">—</div>
+    <div class="sidebar-footer" style="display:none;">
+      <div class="org-name" id="org-name"></div>
       <div class="org-full" id="org-full"></div>
     </div>
   </aside>
