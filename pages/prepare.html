@@ -45,32 +45,54 @@
     }
     .file-drop-inner { pointer-events: none; }
 
-    /* Results tabbed panel */
-    .results-panel {
-      background: var(--linen-card);
-      border: 1px solid var(--linen-border);
-      border-top: 3px solid var(--accent-3);
-      border-radius: 0 0 10px 10px;
-      margin-top: 24px;
+    /* Results modal */
+    .results-modal-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.45);
+      align-items: flex-start; justify-content: center;
+      padding: 32px 24px; overflow-y: auto;
     }
-    .results-header {
+    .results-modal-overlay.open { display: flex; }
+    .results-modal {
+      background: var(--linen);
+      border-radius: 12px;
+      width: 100%; max-width: 860px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+      display: flex; flex-direction: column;
+      max-height: calc(100vh - 64px);
+      overflow: hidden;
+    }
+    .results-modal-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 22px 14px; border-bottom: 1px solid var(--linen-border);
-    }
-    .results-tabs {
-      display: flex; gap: 0; padding: 0 22px;
+      padding: 18px 24px 16px;
       border-bottom: 1px solid var(--linen-border);
       background: var(--linen-header);
+      flex-shrink: 0;
+    }
+    .results-modal-title { font-size: 15px; font-weight: 600; color: var(--body); }
+    .results-modal-close {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--linen-border); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: var(--muted); transition: background 0.15s;
+    }
+    .results-modal-close:hover { background: var(--linen-border); color: var(--body); }
+    .results-tabs {
+      display: flex; gap: 0; padding: 0 24px;
+      border-bottom: 1px solid var(--linen-border);
+      background: var(--linen-header); flex-shrink: 0;
     }
     .results-tab {
-      padding: 10px 20px; font-size: 13px; font-weight: 500;
+      padding: 10px 18px; font-size: 13px; font-weight: 500;
       color: var(--muted); background: none; border: none;
       border-bottom: 2px solid transparent; margin-bottom: -1px;
       cursor: pointer; font-family: var(--sans); transition: all 0.15s;
     }
     .results-tab:hover { color: var(--body); }
-    .results-tab.active { color: var(--accent-3); border-bottom-color: var(--accent-3); background: none; }
-    .results-tab-panel { padding: 22px; }
+    .results-tab.active { color: var(--accent-3); border-bottom-color: var(--accent-3); }
+    .results-tab-panel { padding: 22px 24px; overflow-y: auto; }
+    .results-modal-body { flex: 1; overflow-y: auto; }
 
     /* Calendar grid */
     .cal-grid {
@@ -352,81 +374,6 @@
       </div>
 
       <!-- ── Results: Tabbed panel ── -->
-      <div class="results-panel" id="results-panel" style="display:none;">
-        <div class="results-header">
-          <div>
-            <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-3);margin-bottom:3px;">Analysis complete</div>
-            <div style="font-size:13px;color:var(--muted);">Review each tab. Edit any field that looks wrong.</div>
-          </div>
-          <button class="copy-btn" id="re-analyze-btn" style="font-size:13px;">Start over</button>
-        </div>
-
-        <div class="results-tabs">
-          <button class="results-tab active" data-tab="details">Details</button>
-          <button class="results-tab" data-tab="outline">Outline</button>
-          <button class="results-tab" data-tab="timeline">Timeline</button>
-          <button class="results-tab" data-tab="checklist">Checklist</button>
-        </div>
-
-        <!-- Tab: Details -->
-        <div class="results-tab-panel active" id="rtab-details">
-          <div class="extracted-grid">
-            <div>
-              <div class="extracted-label">Deadline</div>
-              <div class="extracted-value" id="ext-deadline" contenteditable="true"></div>
-            </div>
-            <div>
-              <div class="extracted-label">Award amount</div>
-              <div class="extracted-value" id="ext-amount" contenteditable="true"></div>
-            </div>
-            <div>
-              <div class="extracted-label">Eligible applicants</div>
-              <div class="extracted-value" id="ext-eligibility" contenteditable="true"></div>
-            </div>
-            <div>
-              <div class="extracted-label">Page / word limits</div>
-              <div class="extracted-value" id="ext-limits" contenteditable="true"></div>
-            </div>
-            <div class="full">
-              <div class="extracted-label">Required attachments</div>
-              <div class="extracted-value" id="ext-attachments" contenteditable="true" style="min-height:60px;"></div>
-            </div>
-            <div class="full">
-              <div class="extracted-label">Evaluation criteria</div>
-              <div id="ext-criteria-list"></div>
-            </div>
-            <div class="full">
-              <div class="extracted-label">Required proposal sections</div>
-              <div class="extracted-value" id="ext-sections" contenteditable="true" style="min-height:80px;"></div>
-            </div>
-            <div class="full">
-              <div class="extracted-label">Special requirements</div>
-              <div class="extracted-value" id="ext-special" contenteditable="true" style="min-height:50px;"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab: Outline -->
-        <div class="results-tab-panel" id="rtab-outline" style="display:none;">
-          <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Based on the required sections and evaluation criteria. Use this as your writing scaffold.</p>
-          <div id="outline-list"></div>
-        </div>
-
-        <!-- Tab: Timeline -->
-        <div class="results-tab-panel" id="rtab-timeline" style="display:none;">
-          <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Counted back from your deadline. Dates shown as a calendar — print or save as PDF to share.</p>
-          <div id="calendar-grid"></div>
-          <div id="timeline-list" style="margin-top:20px;"></div>
-        </div>
-
-        <!-- Tab: Checklist -->
-        <div class="results-tab-panel" id="rtab-checklist" style="display:none;">
-          <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Mark each item as you gather it. N/A fades items you don't need.</p>
-          <div id="doc-list"></div>
-        </div>
-
-      </div>
-
       <!-- Previous preparations -->
       <div id="prev-preps-wrap" style="display:none;margin-top:32px;padding-top:28px;border-top:1px solid var(--linen-border);">
         <p style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);margin-bottom:12px;">Previous preparations</p>
@@ -435,15 +382,88 @@
 
     </div><!-- /page-content -->
 
-
     <div class="save-bar">
       <button class="btn-primary" id="save-btn" style="display:none;">Save this preparation</button>
       <button class="copy-btn" id="print-btn" style="display:none;">Print / Save as PDF</button>
+      <button class="copy-btn" id="reopen-btn" style="display:none;">View results</button>
       <span class="save-status" id="save-status"></span>
       <a href="../index.html" style="margin-left:auto;font-size:13px;color:var(--muted);">← Back to dashboard</a>
     </div>
   </div>
 
+</div>
+
+<!-- Results modal -->
+<div class="results-modal-overlay" id="results-modal-overlay">
+  <div class="results-modal">
+    <div class="results-modal-header">
+      <div>
+        <div class="results-modal-title" id="results-modal-title">Analysis complete</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">Review each tab. Edit any field that looks wrong.</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button class="copy-btn" id="re-analyze-btn" style="font-size:12px;padding:6px 14px;">Start over</button>
+        <button class="results-modal-close" id="modal-close-btn" title="Close">✕</button>
+      </div>
+    </div>
+    <div class="results-tabs">
+      <button class="results-tab active" data-tab="details">Details</button>
+      <button class="results-tab" data-tab="outline">Outline</button>
+      <button class="results-tab" data-tab="timeline">Timeline</button>
+      <button class="results-tab" data-tab="checklist">Checklist</button>
+    </div>
+    <div class="results-modal-body">
+      <div class="results-tab-panel" id="rtab-details">
+        <div class="extracted-grid">
+          <div>
+            <div class="extracted-label">Deadline</div>
+            <div class="extracted-value" id="ext-deadline" contenteditable="true"></div>
+          </div>
+          <div>
+            <div class="extracted-label">Award amount</div>
+            <div class="extracted-value" id="ext-amount" contenteditable="true"></div>
+          </div>
+          <div>
+            <div class="extracted-label">Eligible applicants</div>
+            <div class="extracted-value" id="ext-eligibility" contenteditable="true"></div>
+          </div>
+          <div>
+            <div class="extracted-label">Page / word limits</div>
+            <div class="extracted-value" id="ext-limits" contenteditable="true"></div>
+          </div>
+          <div class="full">
+            <div class="extracted-label">Required attachments</div>
+            <div class="extracted-value" id="ext-attachments" contenteditable="true" style="min-height:60px;"></div>
+          </div>
+          <div class="full">
+            <div class="extracted-label">Evaluation criteria</div>
+            <div id="ext-criteria-list"></div>
+          </div>
+          <div class="full">
+            <div class="extracted-label">Required proposal sections</div>
+            <div class="extracted-value" id="ext-sections" contenteditable="true" style="min-height:80px;"></div>
+          </div>
+          <div class="full">
+            <div class="extracted-label">Special requirements</div>
+            <div class="extracted-value" id="ext-special" contenteditable="true" style="min-height:50px;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="results-tab-panel" id="rtab-outline" style="display:none;">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Based on the required sections and evaluation criteria. Use this as your writing scaffold.</p>
+        <div id="outline-list"></div>
+      </div>
+      <div class="results-tab-panel" id="rtab-timeline" style="display:none;">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Counted back from your deadline. Print or save as PDF to share.</p>
+        <div id="calendar-grid"></div>
+        <div id="timeline-list" style="margin-top:20px;"></div>
+      </div>
+      <div class="results-tab-panel" id="rtab-checklist" style="display:none;">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Mark each item as you gather it. N/A fades items you don't need.</p>
+        <div id="doc-list"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Print summary — hidden until triggered -->

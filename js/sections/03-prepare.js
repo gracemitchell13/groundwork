@@ -29,7 +29,22 @@ document.querySelectorAll('.input-tab').forEach(tab => {
   });
 });
 
-// ── Results tabs ────────────────────────────────────────────
+// ── Modal open/close ────────────────────────────────────────
+function openModal() {
+  document.getElementById('results-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('results-modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('modal-close-btn')?.addEventListener('click', closeModal);
+document.getElementById('results-modal-overlay')?.addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+document.getElementById('reopen-btn')?.addEventListener('click', openModal);
+
+// ── Results tabs (inside modal) ──────────────────────────────
 document.querySelectorAll('.results-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.results-tab').forEach(t => t.classList.remove('active'));
@@ -185,21 +200,24 @@ function renderExtracted(data) {
     clist.innerHTML = '<div class="extracted-value">Not specified</div>';
   }
 
-  // Show tabbed results panel
-  document.getElementById('results-panel').style.display = 'block';
-
-  // Render other tabs
+  // Render all tabs
   renderOutline(data);
   renderCalendar(data.deadline);
   renderTimeline(data.deadline);
   renderDocChecklist(data);
 
+  // Update modal title with opportunity name
+  const oppName = document.getElementById('opp-name-s3')?.value.trim();
+  if (oppName) {
+    document.getElementById('results-modal-title').textContent = oppName;
+  }
+
+  // Show modal and save bar buttons
+  openModal();
   document.getElementById('save-btn').style.display  = '';
   document.getElementById('print-btn').style.display = '';
+  document.getElementById('reopen-btn').style.display = '';
   document.getElementById('step-num-1').classList.add('done');
-
-  // Scroll to results
-  document.getElementById('results-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ── Proposal outline ────────────────────────────────────────
@@ -519,7 +537,7 @@ document.getElementById('fetch-btn')?.addEventListener('click', async () => {
   try {
     const text = await fetchRFPFromURL(url);
     document.getElementById('rfp-text').value = text;
-    statusEl.textContent = `✓ Fetched ${text.length.toLocaleString()} characters. Review below, then click Analyze.`;
+    statusEl.textContent = `✓ Imported ${text.length.toLocaleString()} characters. Click Analyze to continue.`;
     statusEl.style.color = '#2E6020';
     document.getElementById('char-count').textContent = `${text.length.toLocaleString()} characters`;
   } catch (err) {
@@ -583,9 +601,10 @@ document.getElementById('analyze-btn')?.addEventListener('click', async () => {
 });
 
 document.getElementById('re-analyze-btn')?.addEventListener('click', () => {
-  document.getElementById('results-panel').style.display = 'none';
-  document.getElementById('save-btn').style.display  = 'none';
-  document.getElementById('print-btn').style.display = 'none';
+  closeModal();
+  document.getElementById('save-btn').style.display   = 'none';
+  document.getElementById('print-btn').style.display  = 'none';
+  document.getElementById('reopen-btn').style.display = 'none';
   extracted = null;
   document.getElementById('rfp-text')?.focus();
 });
