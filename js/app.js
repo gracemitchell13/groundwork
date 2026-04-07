@@ -141,5 +141,6 @@ function setBadge(id, text) {
   if (!el) return;
   el.textContent = text;
   el.className   = 'badge';
-  if (text !== 'Not started') el.classList.add('in-progress');
+  if (text === 'Complete')      el.classList.add('complete');
+  else if (text !== 'Not started') el.classList.add('in-progress');
 }
