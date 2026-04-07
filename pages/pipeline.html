@@ -5,11 +5,164 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Track Your Pipeline — Groundwork</title>
   <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .page-title { font-family: var(--serif); font-style: italic; font-size: 32px; color: var(--body); margin-bottom: 10px; font-weight: 400; }
+    .page-intro { font-size: 16px; line-height: 1.7; margin-bottom: 28px; }
+    .section-tag { color: var(--muted-2); }
+
+    /* Status filter bar */
+    .filter-bar {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-bottom: 24px; align-items: center;
+    }
+    .filter-btn {
+      padding: 6px 14px; border-radius: 99px;
+      border: 1.5px solid var(--linen-border);
+      font-size: 13px; color: var(--muted);
+      background: var(--linen); cursor: pointer;
+      font-family: var(--sans); transition: all 0.15s;
+    }
+    .filter-btn:hover { border-color: var(--accent-3); color: var(--accent-3); }
+    .filter-btn.active { background: var(--green-dark); border-color: var(--green-dark); color: #EDE5D4; font-weight: 500; }
+
+    /* Add grant button */
+    .add-grant-btn {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    /* Grant cards */
+    .grant-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .grant-card {
+      background: var(--linen-card);
+      border: 1px solid var(--linen-border);
+      border-left: 4px solid var(--linen-border);
+      border-radius: 0 9px 9px 0;
+      padding: 16px 18px;
+      transition: border-left-color 0.2s, box-shadow 0.15s;
+      cursor: pointer;
+    }
+    .grant-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .grant-card.status-prospect    { border-left-color: var(--muted-2); }
+    .grant-card.status-evaluating  { border-left-color: var(--accent-2); }
+    .grant-card.status-applying    { border-left-color: var(--accent-3); }
+    .grant-card.status-submitted   { border-left-color: var(--accent-5); }
+    .grant-card.status-awarded     { border-left-color: var(--accent-1); }
+    .grant-card.status-declined    { border-left-color: var(--accent-4); }
+
+    .grant-card-top {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 12px;
+      margin-bottom: 8px;
+    }
+    .grant-name { font-size: 15px; font-weight: 600; color: var(--body); line-height: 1.3; }
+    .grant-funder { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+    .grant-badge {
+      font-size: 10px; font-weight: 700; padding: 3px 9px;
+      border-radius: 3px; text-transform: uppercase;
+      letter-spacing: 0.06em; flex-shrink: 0; margin-top: 2px;
+    }
+    .badge-prospect   { background: #E0DCD4; color: #5A5248; }
+    .badge-evaluating { background: #F8E0B0; color: #7A5000; }
+    .badge-applying   { background: #C8E4EE; color: #1E4858; }
+    .badge-submitted  { background: #DDB8DC; color: #522050; }
+    .badge-awarded    { background: #D0EAC8; color: #2E5020; }
+    .badge-declined   { background: #EED0C4; color: #6A2C18; }
+
+    .grant-meta {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      font-size: 12px; color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .grant-meta-item { display: flex; align-items: center; gap: 4px; }
+    .deadline-soon   { color: var(--accent-4); font-weight: 500; }
+    .deadline-urgent { color: var(--accent-4); font-weight: 700; }
+
+    .grant-actions {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .grant-action-btn {
+      font-size: 12px; padding: 5px 12px;
+      border: 1px solid var(--linen-border);
+      border-radius: 5px; background: var(--linen);
+      color: var(--muted); cursor: pointer;
+      font-family: var(--sans); transition: all 0.12s;
+    }
+    .grant-action-btn:hover { border-color: var(--accent-3); color: var(--accent-3); }
+    .grant-action-btn.primary { background: var(--green-dark); border-color: var(--green-dark); color: #EDE5D4; }
+    .grant-action-btn.danger  { color: var(--accent-4); border-color: var(--accent-4); }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center; padding: 64px 24px;
+      color: var(--muted);
+    }
+    .empty-state-icon { font-size: 40px; margin-bottom: 16px; opacity: 0.3; }
+    .empty-state-title { font-size: 18px; font-weight: 600; color: var(--body); margin-bottom: 8px; }
+    .empty-state-desc  { font-size: 14px; line-height: 1.6; max-width: 400px; margin: 0 auto 20px; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.45);
+      align-items: center; justify-content: center; padding: 24px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--linen); border-radius: 12px;
+      width: 100%; max-width: 520px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    .modal-header {
+      padding: 20px 24px 18px;
+      border-bottom: 1px solid var(--linen-border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-title { font-size: 16px; font-weight: 600; color: var(--body); }
+    .modal-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--linen-border); border: none; cursor: pointer;
+      font-size: 14px; color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-body { padding: 22px 24px; }
+    .modal-footer {
+      padding: 14px 24px 20px;
+      display: flex; gap: 10px; justify-content: flex-end;
+      border-top: 1px solid var(--linen-border);
+    }
+
+    /* Status select */
+    .status-select {
+      width: 100%; padding: 10px 12px;
+      border: 1.5px solid var(--linen-border);
+      border-radius: 7px; background: var(--linen-card);
+      font-size: 14px; font-family: var(--sans);
+      color: var(--body); cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237A6E60' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+    }
+    .status-select:focus { outline: none; border-color: var(--accent-3); }
+
+    .save-bar {
+      position: sticky; bottom: 0; background: var(--linen);
+      border-top: 1px solid var(--linen-border);
+      padding: 14px 36px; display: flex; align-items: center; gap: 16px; flex-shrink: 0;
+    }
+    .save-status { font-size: 14px; color: var(--muted); }
+    .save-status.saved { color: #2E6020; }
+    .save-status.error { color: var(--accent-4); }
+  </style>
 </head>
 <body>
 <div class="page-shell">
 
-    <aside class="sidebar">
+  <aside class="sidebar">
     <div class="sidebar-dots">
       <div class="dot dot-1" id="dot-1"></div>
       <div class="dot dot-2" id="dot-2"></div>
@@ -50,37 +203,103 @@
         <p class="greeting-sub">Section 5 of 5</p>
       </div>
       <div class="header-right">
-        <button class="ctrl-btn" id="settings-btn" title="Settings" aria-label="Settings">
+        <button class="ctrl-btn" id="settings-btn" title="Settings">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <circle cx="7" cy="7" r="2.2" stroke="currentColor" stroke-width="1.2" fill="none"/>
             <path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.93 2.93l1.06 1.06M10.01 10.01l1.06 1.06M2.93 11.07l1.06-1.06M10.01 3.99l1.06-1.06" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
           </svg>
         </button>
-        <button class="avatar-btn" id="avatar-btn" title="Account" aria-label="Account">
+        <button class="avatar-btn" id="avatar-btn">
           <span id="avatar-initial">?</span>
         </button>
       </div>
-      <svg class="corner-mark" width="90" height="90" viewBox="0 0 90 90" fill="none" aria-hidden="true">
-        <path d="M90 90 Q55 75 45 45 Q35 15 0 0" stroke="#3D5830" stroke-width="1.5" fill="none"/>
-        <path d="M90 90 Q60 80 52 55 Q44 28 10 10" stroke="#3D5830" stroke-width="1.5" fill="none"/>
-        <path d="M90 90 Q65 85 58 64 Q52 40 20 20" stroke="#3D5830" stroke-width="1.5" fill="none"/>
-        <path d="M90 90 Q70 88 65 72 Q59 52 30 30" stroke="#3D5830" stroke-width="1.5" fill="none"/>
-        <path d="M90 90 Q76 90 73 80 Q68 65 42 42" stroke="#3D5830" stroke-width="1.5" fill="none"/>
-      </svg>
     </header>
 
     <div class="page-content">
-      <p class="section-tag" style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#7A8C50;margin-bottom:10px;">Section 5</p>
+      <p class="section-tag">Section 05</p>
       <h2 class="page-title">Track Your Pipeline</h2>
-      <p class="page-intro">A simple application tracker. Funder, opportunity, deadline, ask amount, status, assigned writer, notes. Everything in one place, no spreadsheet required.</p>
-      <!-- Section content goes here -->
+      <p class="page-intro">Every grant opportunity your organization is tracking — from prospect to decision. Add an opportunity here first, then use Sections 2 and 3 to evaluate and prepare it.</p>
+
+      <div class="filter-bar">
+        <button class="filter-btn active" data-status="all">All</button>
+        <button class="filter-btn" data-status="prospect">Prospect</button>
+        <button class="filter-btn" data-status="evaluating">Evaluating</button>
+        <button class="filter-btn" data-status="applying">Applying</button>
+        <button class="filter-btn" data-status="submitted">Submitted</button>
+        <button class="filter-btn" data-status="awarded">Awarded</button>
+        <button class="filter-btn" data-status="declined">Declined</button>
+        <button class="btn-primary add-grant-btn" id="add-grant-btn">+ Add opportunity</button>
+      </div>
+
+      <div class="grant-list" id="grant-list">
+        <!-- Populated by JS -->
+      </div>
+
+      <div class="empty-state" id="empty-state" style="display:none;">
+        <div class="empty-state-icon">◎</div>
+        <div class="empty-state-title">No opportunities yet</div>
+        <div class="empty-state-desc">Add your first grant opportunity to start tracking your pipeline. You don't need to run an evaluation first — just add it and set its status.</div>
+        <button class="btn-primary" id="add-grant-btn-2">+ Add your first opportunity</button>
+      </div>
+    </div>
+
+    <div class="save-bar">
+      <span class="save-status" id="save-status"></span>
+      <a href="../index.html" style="margin-left:auto;font-size:13px;color:var(--muted);">← Back to dashboard</a>
     </div>
   </div>
 
 </div>
-<script type="module">
-  import { initPage } from '../js/auth.js';
-  initPage();
-</script>
+
+<!-- Add / Edit grant modal -->
+<div class="modal-overlay" id="grant-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Add opportunity</span>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label" for="g-name">Opportunity name <span style="color:var(--accent-4);">*</span></label>
+        <input class="form-input" type="text" id="g-name" placeholder="e.g. Meyer Memorial Trust — Education 2026">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="g-funder">Funder name</label>
+        <input class="form-input" type="text" id="g-funder" placeholder="e.g. Meyer Memorial Trust">
+      </div>
+      <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px;">
+        <div>
+          <label class="form-label" for="g-amount">Award amount</label>
+          <input class="form-input" type="text" id="g-amount" placeholder="e.g. $25,000">
+        </div>
+        <div>
+          <label class="form-label" for="g-deadline">Deadline</label>
+          <input class="form-input" type="date" id="g-deadline">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="g-status">Status</label>
+        <select class="status-select" id="g-status">
+          <option value="prospect">Prospect — on our radar</option>
+          <option value="evaluating">Evaluating — running a go/no-go</option>
+          <option value="applying">Applying — writing the proposal</option>
+          <option value="submitted">Submitted — waiting for decision</option>
+          <option value="awarded">Awarded — we got it</option>
+          <option value="declined">Declined — not this cycle</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="g-notes">Notes</label>
+        <textarea class="form-textarea" id="g-notes" placeholder="Program officer contact, application portal, key requirements, next steps…" style="min-height:80px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="copy-btn" id="modal-cancel">Cancel</button>
+      <button class="btn-primary" id="modal-save">Save opportunity</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="../js/sections/05-pipeline.js"></script>
 </body>
 </html>
