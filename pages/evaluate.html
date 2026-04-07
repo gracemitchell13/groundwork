@@ -308,22 +308,23 @@
     </div>
     <nav class="sidebar-nav">
       <a href="org.html" class="nav-item" data-section="1"><span class="nav-num">01</span><span class="nav-label">Know Your Organization</span></a>
-      <div style="height:0.5px;background:rgba(255,255,255,0.08);margin:6px 0;"></div>
+      <a href="pipeline.html" class="nav-item" data-section="2"><span class="nav-num">02</span><span class="nav-label">Grant Opportunities</span></a>
+      <a href="evaluate.html" class="nav-item active" data-section="3"><span class="nav-num">03</span><span class="nav-label">Evaluate an Opportunity</span></a>
+      <a href="prepare.html" class="nav-item" data-section="4"><span class="nav-num">04</span><span class="nav-label">Prepare Your Application</span></a>
+      <div style="height:0.5px;background:rgba(255,255,255,0.12);margin:8px 0;"></div>
       <a href="pipeline.html" class="nav-item" style="padding:9px 16px 9px 18px;">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="flex-shrink:0;margin-top:1px;opacity:0.7;"><circle cx="6.5" cy="6.5" r="5.5" stroke="#90B870" stroke-width="1" fill="none"/><path d="M4 6.5h5M7 4.5l2 2-2 2" stroke="#90B870" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span class="nav-label" style="font-size:13px;">Grant Pipeline</span>
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="flex-shrink:0;margin-top:1px;opacity:0.7;"><rect x="2" y="4" width="9" height="1.2" rx=".6" fill="#90B870"/><rect x="2" y="6.4" width="6" height="1.2" rx=".6" fill="#90B870"/><rect x="2" y="8.8" width="7.5" height="1.2" rx=".6" fill="#90B870"/></svg>
+        <span class="nav-label" style="font-size:13px;">Track Your Pipeline</span>
       </a>
-      <div style="height:0.5px;background:rgba(255,255,255,0.08);margin:6px 0;"></div>
-      <a href="evaluate.html" class="nav-item active" data-section="2"><span class="nav-num">02</span><span class="nav-label">Evaluate This Opportunity</span></a>
-      <a href="prepare.html" class="nav-item" data-section="3"><span class="nav-num">03</span><span class="nav-label">Prepare Your Application</span></a>
-      <div style="height:0.5px;background:rgba(255,255,255,0.08);margin:6px 0;"></div>
-      <a href="library.html" class="nav-item" data-section="4"><span class="nav-num">04</span><span class="nav-label">Build Your Language Library</span></a>
+      <a href="library.html" class="nav-item" style="padding:9px 16px 9px 18px;">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="flex-shrink:0;margin-top:1px;opacity:0.7;"><rect x="2" y="2" width="3" height="9" rx="1" stroke="#90B870" stroke-width="1" fill="none"/><rect x="6" y="2" width="3" height="9" rx="1" stroke="#90B870" stroke-width="1" fill="none"/><rect x="10" y="2" width="1" height="9" rx=".5" fill="#90B870" opacity=".5"/></svg>
+        <span class="nav-label" style="font-size:13px;">Language Library</span>
+      </a>
+      <a href="resources.html" class="nav-item" style="padding:9px 16px 9px 18px;">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-top:1px;opacity:0.7;"><path d="M1.5 2.5C1.5 2.5 3 2 6.5 2C10 2 11.5 2.5 11.5 2.5V10.5C11.5 10.5 10 10 6.5 10C3 10 1.5 10.5 1.5 10.5V2.5Z" stroke="#90B870" stroke-width="1" fill="none"/><path d="M6.5 2V10" stroke="#90B870" stroke-width="0.75" stroke-dasharray="1 0"/></svg>
+        <span class="nav-label" style="font-size:13px;">Definitions &amp; Resources</span>
+      </a>
     </nav>
-    <div style="height:0.5px;background:rgba(255,255,255,0.1);margin:4px 0;"></div>
-    <a href="resources.html" class="nav-item" style="padding:8px 16px 8px 18px;">
-      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-top:1px;opacity:0.7;"><path d="M1.5 2.5C1.5 2.5 3 2 6.5 2C10 2 11.5 2.5 11.5 2.5V10.5C11.5 10.5 10 10 6.5 10C3 10 1.5 10.5 1.5 10.5V2.5Z" stroke="#90B870" stroke-width="1" fill="none"/><path d="M6.5 2V10" stroke="#90B870" stroke-width="0.75" stroke-dasharray="1 0"/></svg>
-      <span class="nav-label" style="font-size:13px;">Definitions &amp; Resources</span>
-    </a>
     <div class="sidebar-footer" style="display:none;">
       <div id="org-name"></div>
       <div id="org-full"></div>
@@ -334,7 +335,7 @@
     <header class="main-header">
       <div class="header-left">
         <h1 class="greeting" id="greeting">Good morning.</h1>
-        <p class="greeting-sub">Section 2 of 5</p>
+        <p class="greeting-sub">Section 3 of 4</p>
       </div>
       <div class="header-right">
         <button class="ctrl-btn" id="settings-btn" title="Settings" aria-label="Settings">
@@ -363,8 +364,8 @@
     </div>
 
     <div class="page-content">
-      <p class="section-tag">Section 02</p>
-      <h2 class="page-title">Evaluate This Opportunity</h2>
+      <p class="section-tag">Section 03</p>
+      <h2 class="page-title">Evaluate an Opportunity</h2>
       <p class="page-intro">Not every grant is worth applying for. A weak application wastes your time and the funder's. Work through these eight questions before you commit to writing anything. At the end you'll get a clear recommendation — and a summary you can share with your board.</p>
 
       <!-- Opportunity info form -->
