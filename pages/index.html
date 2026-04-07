@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Groundwork — Grant Writing Toolkit</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Login overlay — visible by default until Firebase confirms auth -->
+  <div id="login-overlay" class="login-overlay">
+    <div class="login-card">
+      <p class="login-wordmark">Groundwork</p>
+      <p class="login-sub">Grant Writing Toolkit</p>
+      <div class="login-rule"></div>
+      <p class="login-prompt">Sign in to continue</p>
+      <button id="login-google-btn" class="login-btn">Sign in with Google</button>
+      <p class="login-note">Your data is saved to your account and accessible from any device.</p>
+    </div>
+  </div>
+
+  <!-- App shell — hidden until auth confirmed -->
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="sidebar-dots">
+        <div class="dot dot-1" id="dot-1"></div>
+        <div class="dot dot-2" id="dot-2"></div>
+        <div class="dot dot-3" id="dot-3"></div>
+        <div class="dot dot-4" id="dot-4"></div>
+        <div class="dot dot-5" id="dot-5"></div>
+      </div>
+      <div class="sidebar-wordmark">
+        <a href="index.html" class="wordmark" style="text-decoration:none;">Groundwork</a>
+        <div class="wordmark-rule"></div>
+        <p class="wordmark-sub" id="wordmark-sub">Grant Writing Toolkit</p>
+      <p class="wordmark-org-meta" id="wordmark-org-meta"></p>
+      </div>
+      <nav class="sidebar-nav">
+      <a href="pages/org.html" class="nav-item" data-section="1"><span class="nav-num">01</span><span class="nav-label">Know Your Organization</span></a>
+      <div style="padding:6px 18px 4px;"><span style="font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.25);">For this opportunity</span></div>
+      <a href="pages/evaluate.html" class="nav-item" data-section="2"><span class="nav-num">02</span><span class="nav-label">Evaluate This Opportunity</span></a>
+      <a href="pages/prepare.html" class="nav-item" data-section="3"><span class="nav-num">03</span><span class="nav-label">Prepare Your Application</span></a>
+      <div style="padding:6px 18px 4px;"><span style="font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.25);">Your grant program</span></div>
+      <a href="pages/library.html" class="nav-item" data-section="4"><span class="nav-num">04</span><span class="nav-label">Build Your Language Library</span></a>
+      <a href="pages/pipeline.html" class="nav-item" data-section="5"><span class="nav-num">05</span><span class="nav-label">Track Your Pipeline</span></a>
+    </nav>
+    <div style="height:0.5px;background:rgba(255,255,255,0.1);margin:4px 0;"></div>
+    <a href="pages/resources.html" class="nav-item" style="padding:8px 16px 8px 18px;">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-top:1px;opacity:0.7;"><path d="M1.5 2.5C1.5 2.5 3 2 6.5 2C10 2 11.5 2.5 11.5 2.5V10.5C11.5 10.5 10 10 6.5 10C3 10 1.5 10.5 1.5 10.5V2.5Z" stroke="#90B870" stroke-width="1" fill="none"/><path d="M6.5 2V10" stroke="#90B870" stroke-width="0.75" stroke-dasharray="1 0"/></svg>
+      <span class="nav-label" style="font-size:13px;">Definitions &amp; Resources</span>
+    </a>
+      <div class="sidebar-footer" style="display:none;">
+      <div class="org-name" id="org-name"></div>
+      <div class="org-full" id="org-full"></div>
+    </div>
+  </aside>
+
+    <main class="main">
+      <header class="main-header">
+        <div class="header-left">
+          <h1 class="greeting" id="greeting">Good morning.</h1>
+          <p class="greeting-sub">Built for organizations like yours. Start anywhere.</p>
+        </div>
+        <div class="header-right">
+          <button class="ctrl-btn" id="settings-btn" title="Settings" aria-label="Settings">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <circle cx="7" cy="7" r="2.2" stroke="currentColor" stroke-width="1.2" fill="none"/>
+              <path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.93 2.93l1.06 1.06M10.01 10.01l1.06 1.06M2.93 11.07l1.06-1.06M10.01 3.99l1.06-1.06" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <button class="avatar-btn" id="avatar-btn" title="Account" aria-label="Account">
+            <span id="avatar-initial">?</span>
+          </button>
+        </div>
+
+      </header>
+
+      <div class="card-grid">
+        <a href="pages/org.html" class="card card-1">
+          <div class="card-head">
+            <div class="num num-1"><span>1</span></div>
+            <div class="card-text">
+              <p class="card-title">Know Your Organization</p>
+              <p class="card-desc">Mission, programs, population served, budget, theory of change.</p>
+            </div>
+          </div>
+          <div class="card-foot">
+            <span class="badge" id="status-1">Not started</span>
+            <span class="cta">Begin →</span>
+          </div>
+        </a>
+        <a href="pages/evaluate.html" class="card card-2">
+          <div class="card-head">
+            <div class="num num-2"><span>2</span></div>
+            <div class="card-text">
+              <p class="card-title">Evaluate This Opportunity</p>
+              <p class="card-desc">Go/no-go assessment before committing to an application.</p>
+            </div>
+          </div>
+          <div class="card-foot">
+            <span class="badge" id="status-2">Not started</span>
+            <span class="cta">Evaluate →</span>
+          </div>
+        </a>
+        <a href="pages/prepare.html" class="card card-3">
+          <div class="card-head">
+            <div class="num num-3"><span>3</span></div>
+            <div class="card-text">
+              <p class="card-title">Prepare Your Application</p>
+              <p class="card-desc">RFP checklist, timeline, workplan — terminology explained.</p>
+            </div>
+          </div>
+          <div class="card-foot">
+            <span class="badge" id="status-3">Not started</span>
+            <span class="cta">Prepare →</span>
+          </div>
+        </a>
+        <a href="pages/library.html" class="card card-4">
+          <div class="card-head">
+            <div class="num num-4"><span>4</span></div>
+            <div class="card-text">
+              <p class="card-title">Build Your Language Library</p>
+              <p class="card-desc">Reusable narrative blocks that build your grant voice.</p>
+            </div>
+          </div>
+          <div class="card-foot">
+            <span class="badge" id="status-4">Not started</span>
+            <span class="cta">Build →</span>
+          </div>
+        </a>
+        <a href="pages/pipeline.html" class="card card-5 card-wide">
+          <div class="card-head">
+            <div class="num num-5"><span>5</span></div>
+            <div class="card-text">
+              <p class="card-title">Track Your Pipeline</p>
+              <p class="card-desc">Funder, opportunity, deadline, ask, status, notes — no spreadsheet required.</p>
+            </div>
+          </div>
+          <div class="card-foot">
+            <span class="badge" id="status-5">Not started</span>
+            <span class="cta">Open →</span>
+          </div>
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
