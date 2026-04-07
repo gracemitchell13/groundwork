@@ -92,6 +92,18 @@ async function loadOrgData(user) {
     funders = [...org.funderHistory];
     renderFunders();
   }
+
+  // Restore complete button state
+  const completeBtn = document.getElementById('complete-btn');
+  if (org.name && completeBtn) {
+    completeBtn.style.display = '';
+    if (org.profileComplete) {
+      completeBtn.textContent       = 'Profile complete ✓';
+      completeBtn.style.color       = '#2E6020';
+      completeBtn.style.borderColor = '#2E6020';
+      completeBtn.disabled          = true;
+    }
+  }
 }
 
 function setField(id, value) {
@@ -184,9 +196,15 @@ async function saveOrg() {
     const fullEl = document.getElementById('org-full');
     if (nameEl) nameEl.textContent = orgData.abbreviation || orgData.name || '—';
     if (fullEl) fullEl.textContent = orgData.name || '';
+    populateSidebarCard(orgData);
 
     // Light up dot 1
     document.getElementById('dot-1')?.classList.add('active');
+
+    // Show complete button if org has a name
+    if (orgData.name) {
+      document.getElementById('complete-btn').style.display = '';
+    }
 
     statusEl.textContent = 'Saved ✓';
     statusEl.className = 'save-status saved';
@@ -197,6 +215,26 @@ async function saveOrg() {
     statusEl.className = 'save-status error';
   }
 }
+
+// ── Mark complete ───────────────────────────────────────────
+document.getElementById('complete-btn')?.addEventListener('click', async () => {
+  if (!currentUser) return;
+  const btn = document.getElementById('complete-btn');
+  const statusEl = document.getElementById('save-status');
+  try {
+    const orgRef = doc(db, 'users', currentUser.uid, 'data', 'org');
+    await setDoc(orgRef, { profileComplete: true, updatedAt: new Date().toISOString() }, { merge: true });
+    btn.textContent = 'Profile complete ✓';
+    btn.style.color = '#2E6020';
+    btn.style.borderColor = '#2E6020';
+    btn.disabled = true;
+    statusEl.textContent = 'Profile marked complete.';
+    statusEl.className = 'save-status saved';
+    setTimeout(() => { statusEl.textContent = ''; statusEl.className = 'save-status'; }, 3000);
+  } catch (err) {
+    console.error(err);
+  }
+});
 
 // ── Sign out ────────────────────────────────────────────────
 document.getElementById('avatar-btn')?.addEventListener('click', () => {

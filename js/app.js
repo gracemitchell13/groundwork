@@ -100,7 +100,8 @@ function updateDots(org, grants) {
 function updateStatuses(org, grants) {
   // Card 1: Know Your Organization
   setBadge('status-1',
-    org?.name ? 'In progress' : 'Not started');
+    org?.profileComplete ? 'Complete' :
+    org?.name            ? 'In progress' : 'Not started');
 
   // Card 2: Grant Opportunities
   const grantCount = grants?.length || 0;
