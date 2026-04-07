@@ -16,7 +16,7 @@ Last updated: April 5, 2026
 
 ## Sections to build
 
-- [ ] **Section 3: Prepare Your Application** — RFP checklist, backward-mapped timeline, workplan scaffold
+- [x] **Section 3: Prepare Your Application** — RFP checklist, backward-mapped timeline, workplan scaffold
 - [ ] **Section 4: Build Your Language Library** — reusable narrative blocks (save, edit, delete, copy)
 - [ ] **Section 5: Track Your Pipeline** — table with add/edit/delete rows, status tracking, deadline visibility
 
