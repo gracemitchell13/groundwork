@@ -678,7 +678,7 @@ onAuthStateChanged(auth, async (user) => {
     });
   }
 
-  // Show active grant in bar if set
+  // Show active grant in bar if set, and pre-populate form fields
   const activeGrantId = sessionStorage.getItem('gw-active-grant');
   if (activeGrantId) {
     try {
@@ -689,6 +689,16 @@ onAuthStateChanged(auth, async (user) => {
         const nameEl = document.getElementById('grant-bar-name');
         if (bar)    bar.style.display = 'flex';
         if (nameEl) nameEl.textContent = grant.name + (grant.funder ? ` — ${grant.funder}` : '');
+
+        // Pre-populate opportunity form fields
+        const nameField   = document.getElementById('opp-name');
+        const funderField = document.getElementById('opp-funder');
+        const amountField = document.getElementById('opp-amount');
+        const deadlineField = document.getElementById('opp-deadline');
+        if (nameField   && !nameField.value)    nameField.value   = grant.name   || '';
+        if (funderField && !funderField.value)  funderField.value = grant.funder || '';
+        if (amountField && !amountField.value)  amountField.value = grant.amount || '';
+        if (deadlineField && !deadlineField.value && grant.deadline) deadlineField.value = grant.deadline;
       }
     } catch(e) { /* non-fatal */ }
   }

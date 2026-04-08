@@ -850,7 +850,7 @@ onAuthStateChanged(auth, async (user) => {
     });
   }
 
-  // Show active grant in bar if set
+  // Show active grant in bar if set, and pre-populate form fields
   const activeGrantId = sessionStorage.getItem('gw-active-grant');
   if (activeGrantId) {
     try {
@@ -861,6 +861,12 @@ onAuthStateChanged(auth, async (user) => {
         const nameEl = document.getElementById('grant-bar-name');
         if (bar)    bar.style.display = 'flex';
         if (nameEl) nameEl.textContent = grant.name + (grant.funder ? ` — ${grant.funder}` : '');
+
+        // Pre-populate opportunity name field
+        const nameField = document.getElementById('opp-name-s3');
+        if (nameField && !nameField.value) {
+          nameField.value = grant.name + (grant.funder ? ` — ${grant.funder}` : '');
+        }
       }
     } catch(e) { /* non-fatal */ }
   }
