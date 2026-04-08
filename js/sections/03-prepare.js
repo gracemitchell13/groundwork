@@ -850,6 +850,21 @@ onAuthStateChanged(auth, async (user) => {
     });
   }
 
+  // Show active grant in bar if set
+  const activeGrantId = sessionStorage.getItem('gw-active-grant');
+  if (activeGrantId) {
+    try {
+      const grantSnap = await getDoc(doc(db, 'users', user.uid, 'grants', activeGrantId));
+      if (grantSnap.exists()) {
+        const grant  = grantSnap.data();
+        const bar    = document.getElementById('grant-bar');
+        const nameEl = document.getElementById('grant-bar-name');
+        if (bar)    bar.style.display = 'flex';
+        if (nameEl) nameEl.textContent = grant.name + (grant.funder ? ` — ${grant.funder}` : '');
+      }
+    } catch(e) { /* non-fatal */ }
+  }
+
   await loadPreviousPreps();
 });
 
