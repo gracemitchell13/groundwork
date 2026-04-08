@@ -3,13 +3,216 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Build Your Language Library — Groundwork</title>
+  <title>Language Library — Groundwork</title>
   <link rel="stylesheet" href="../css/style.css">
+  <style>
+    /* ── Library layout ── */
+    #library-container {
+      max-width: 720px;
+    }
+
+    .lib-category {
+      margin-bottom: 40px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--linen-border);
+    }
+    .lib-category:last-child {
+      border-bottom: none;
+    }
+
+    .lib-cat-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    .lib-cat-title {
+      font-family: var(--serif);
+      font-size: 19px;
+      font-weight: normal;
+      color: var(--body);
+      margin: 0;
+    }
+    .lib-cat-count {
+      font-size: 12px;
+      color: var(--muted-2);
+      background: var(--linen-badge);
+      border-radius: 10px;
+      padding: 2px 9px;
+    }
+    .lib-cat-hint {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0 0 18px;
+      line-height: 1.6;
+      max-width: 600px;
+    }
+
+    /* ── Block cards ── */
+    .lib-blocks {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .lib-block-card {
+      background: var(--linen-card);
+      border: 1px solid var(--linen-border);
+      border-radius: 8px;
+      padding: 16px 18px 12px;
+    }
+    .lib-block-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent-4);
+      margin-bottom: 6px;
+    }
+    .lib-block-preview {
+      font-size: 14px;
+      color: var(--body);
+      line-height: 1.7;
+      margin-bottom: 12px;
+      white-space: pre-wrap;
+    }
+    .lib-block-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .lib-word-count {
+      font-size: 12px;
+      color: var(--muted-2);
+    }
+    .lib-block-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .lib-action-btn {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      background: none;
+      border: 1px solid var(--linen-border);
+      color: var(--muted);
+      font-family: var(--sans);
+      transition: border-color .15s, color .15s;
+    }
+    .lib-action-btn:hover { border-color: var(--muted); color: var(--body); }
+    .lib-copy-btn:hover   { border-color: var(--accent-1); color: var(--accent-1); }
+    .lib-delete-btn:hover { border-color: var(--accent-4); color: var(--accent-4); }
+
+    /* ── Add button ── */
+    .lib-add-btn {
+      font-size: 13px;
+      color: var(--accent-4);
+      background: none;
+      border: 1px dashed var(--accent-4);
+      border-radius: 6px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-family: var(--sans);
+      opacity: 0.75;
+      transition: opacity .15s;
+      margin-top: 4px;
+    }
+    .lib-add-btn:hover { opacity: 1; }
+
+    /* ── Editor ── */
+    .lib-editor-wrap {
+      margin-bottom: 10px;
+    }
+    .lib-editor {
+      background: var(--linen-card);
+      border: 1px solid var(--linen-border);
+      border-top: 3px solid var(--accent-4);
+      border-radius: 0 0 8px 8px;
+      padding: 18px 20px 16px;
+    }
+    .lib-editor-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .lib-label-input {
+      flex: 1;
+      font-size: 13px;
+      padding: 7px 10px;
+      border: 1px solid var(--linen-border);
+      border-radius: 5px;
+      background: var(--linen);
+      color: var(--body);
+      font-family: var(--sans);
+    }
+    .lib-label-input:focus {
+      outline: none;
+      border-color: var(--accent-4);
+    }
+    .lib-editor-wordcount {
+      font-size: 12px;
+      color: var(--muted-2);
+      flex-shrink: 0;
+      min-width: 60px;
+      text-align: right;
+    }
+    .lib-editor-textarea {
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 14px;
+      line-height: 1.75;
+      padding: 12px 14px;
+      border: 1px solid var(--linen-border);
+      border-radius: 6px;
+      background: var(--linen);
+      color: var(--body);
+      font-family: var(--sans);
+      resize: vertical;
+      margin-bottom: 14px;
+    }
+    .lib-editor-textarea:focus {
+      outline: none;
+      border-color: var(--accent-4);
+    }
+    .lib-editor-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .lib-editor-left, .lib-editor-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .lib-draft-btn {
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+    }
+    .lib-draft-status {
+      font-size: 12px;
+      color: var(--muted);
+      max-width: 280px;
+    }
+
+    /* ── Empty state ── */
+    .lib-empty {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--muted);
+    }
+    .lib-empty p { font-size: 14px; margin: 0; }
+  </style>
 </head>
 <body>
 <div class="page-shell">
 
-    <aside class="sidebar">
+  <aside class="sidebar">
     <div class="sidebar-dots">
       <div class="dot dot-1" id="dot-1"></div>
       <div class="dot dot-2" id="dot-2"></div>
@@ -38,7 +241,7 @@
         <span class="nav-label" style="font-size:13px;">Language Library</span>
       </a>
       <a href="resources.html" class="nav-item" style="padding:9px 16px 9px 18px;">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-top:1px;opacity:0.7;"><path d="M1.5 2.5C1.5 2.5 3 2 6.5 2C10 2 11.5 2.5 11.5 2.5V10.5C11.5 10.5 10 10 6.5 10C3 10 1.5 10.5 1.5 10.5V2.5Z" stroke="#90B870" stroke-width="1" fill="none"/><path d="M6.5 2V10" stroke="#90B870" stroke-width="0.75" stroke-dasharray="1 0"/></svg>
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="flex-shrink:0;margin-top:1px;opacity:0.7;"><path d="M1.5 2.5C1.5 2.5 3 2 6.5 2C10 2 11.5 2.5 11.5 2.5V10.5C11.5 10.5 10 10 6.5 10C3 10 1.5 10.5 1.5 10.5V2.5Z" stroke="#90B870" stroke-width="1" fill="none"/><path d="M6.5 2V10" stroke="#90B870" stroke-width="0.75"/></svg>
         <span class="nav-label" style="font-size:13px;">Definitions &amp; Resources</span>
       </a>
     </nav>
@@ -52,7 +255,7 @@
     <header class="main-header">
       <div class="header-left">
         <h1 class="greeting" id="greeting">Good morning.</h1>
-        <p class="greeting-sub">Section 4 of 5</p>
+        <p class="greeting-sub">Standing tool</p>
       </div>
       <div class="header-right">
         <button class="ctrl-btn" id="settings-btn" title="Settings" aria-label="Settings">
@@ -75,17 +278,17 @@
     </header>
 
     <div class="page-content">
-      <p class="section-tag" style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#B05840;margin-bottom:10px;">Section 4</p>
+      <p class="section-tag" style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-4);margin-bottom:10px;">Language Library</p>
       <h2 class="page-title">Build Your Language Library</h2>
-      <p class="page-intro">Reusable narrative blocks — mission statement, statement of need, organizational capacity, program descriptions, population served, geographic focus, theory of change — that compound over time into your organization's institutional grant voice.</p>
-      <!-- Section content goes here -->
+      <p class="page-intro" style="max-width:680px;">Reusable narrative blocks — mission statement, statement of need, organizational capacity, and more — that compound over time into your organization's institutional grant voice. Save multiple versions of each block and copy directly into any application.</p>
+
+      <div id="library-container" style="margin-top:36px;">
+        <div class="lib-empty"><p>Loading your library…</p></div>
+      </div>
     </div>
   </div>
 
 </div>
-<script type="module">
-  import { initPage } from '../js/auth.js';
-  initPage();
-</script>
+<script type="module" src="../js/sections/04-library.js"></script>
 </body>
 </html>
