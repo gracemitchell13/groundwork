@@ -87,13 +87,15 @@ async function loadUserData(user) {
 function updateDots(org, grants) {
   // Dot 1: org profile
   if (org?.name) document.getElementById('dot-1')?.classList.add('active');
-  // Dot 2: grant opportunities (new grants collection)
+  // Dot 2: grant opportunities
   if (grants?.length) document.getElementById('dot-2')?.classList.add('active');
-  // Dot 3: evaluations (old org.evaluations or grants with evaluation)
-  const hasEvals = org?.evaluations?.length || grants?.some(g => g.evaluation);
+  // Dot 3: evaluations — check grants array and org doc orphans
+  const grantEvalCount = grants?.reduce((n, g) => n + (g.evaluations?.length || 0), 0) || 0;
+  const hasEvals = grantEvalCount || org?.evaluations?.length;
   if (hasEvals) document.getElementById('dot-3')?.classList.add('active');
   // Dot 4: preparations
-  const hasPrep = org?.applications?.length || grants?.some(g => g.preparation);
+  const grantAppCount = grants?.reduce((n, g) => n + (g.applications?.length || 0), 0) || 0;
+  const hasPrep = grantAppCount || org?.applications?.length;
   if (hasPrep) document.getElementById('dot-4')?.classList.add('active');
 }
 
@@ -108,13 +110,15 @@ function updateStatuses(org, grants) {
   setBadge('status-2',
     grantCount ? `${grantCount} opportunit${grantCount === 1 ? 'y' : 'ies'}` : 'Not started');
 
-  // Card 3: Evaluate an Opportunity
-  const evalCount = org?.evaluations?.length || 0;
+  // Card 3: Evaluate an Opportunity — count from grant docs + org doc orphans
+  const evalCount = (grants?.reduce((n, g) => n + (g.evaluations?.length || 0), 0) || 0)
+                  + (org?.evaluations?.length || 0);
   setBadge('status-3',
     evalCount ? `${evalCount} evaluated` : 'Not started');
 
-  // Card 4: Prepare Your Application
-  const prepCount = org?.applications?.length || 0;
+  // Card 4: Prepare Your Application — count from grant docs + org doc orphans
+  const prepCount = (grants?.reduce((n, g) => n + (g.applications?.length || 0), 0) || 0)
+                  + (org?.applications?.length || 0);
   setBadge('status-4',
     prepCount ? `${prepCount} prepared` : 'Not started');
 

@@ -3,7 +3,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, updateDoc, arrayUnion, arrayRemove }
+import { getFirestore, doc, getDoc, getDocs, collection, updateDoc, arrayUnion, arrayRemove }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { firebaseConfig } from '../firebase-config.js';
 import { populateSidebarCard } from '../sidebar-org-card.js';
@@ -507,8 +507,12 @@ async function savePreparation() {
   };
 
   try {
-    const orgRef = doc(db, 'users', currentUser.uid, 'data', 'org');
-    await updateDoc(orgRef, { applications: arrayUnion(preparation) });
+    const activeGrantId = sessionStorage.getItem('gw-active-grant');
+    preparation.grantId = activeGrantId || 'org';
+    const targetRef = activeGrantId
+      ? doc(db, 'users', currentUser.uid, 'grants', activeGrantId)
+      : doc(db, 'users', currentUser.uid, 'data', 'org');
+    await updateDoc(targetRef, { applications: arrayUnion(preparation) });
     document.getElementById('dot-3')?.classList.add('active');
     statusEl.textContent = 'Saved ✓';
     statusEl.className   = 'save-status saved';
@@ -693,11 +697,29 @@ document.getElementById('print-btn')?.addEventListener('click', generatePrintSum
 // ── Previous preparations ───────────────────────────────────
 async function loadPreviousPreps() {
   if (!currentUser) return;
-  const orgRef  = doc(db, 'users', currentUser.uid, 'data', 'org');
-  const orgSnap = await getDoc(orgRef);
-  if (!orgSnap.exists()) return;
 
-  const apps = orgSnap.data().applications || [];
+  // Collect preparations from all grant docs
+  let apps = [];
+  try {
+    const grantsSnap = await getDocs(collection(db, 'users', currentUser.uid, 'grants'));
+    grantsSnap.forEach(d => {
+      const data = d.data();
+      (data.applications || []).forEach(a => apps.push(a));
+    });
+  } catch(e) { /* non-fatal */ }
+
+  // Also collect orphan preparations from org doc (legacy saves with no active grant)
+  try {
+    const orgSnap = await getDoc(doc(db, 'users', currentUser.uid, 'data', 'org'));
+    if (orgSnap.exists()) {
+      (orgSnap.data().applications || [])
+        .filter(a => !a.grantId || a.grantId === 'org')
+        .forEach(a => apps.push(a));
+    }
+  } catch(e) { /* non-fatal */ }
+
+  // Sort newest first
+  apps.sort((a, b) => new Date(b.savedAt || 0) - new Date(a.savedAt || 0));
   const wrap = document.getElementById('prev-preps-wrap');
   const list = document.getElementById('prev-preps-list');
   if (!wrap || !list) return;
@@ -706,14 +728,15 @@ async function loadPreviousPreps() {
   wrap.style.display = 'block';
   list.innerHTML = '';
 
-  window._preps      = [...apps].reverse().slice(0, 10);
+  window._preps      = apps.slice(0, 10);
   window._loadPrep   = (idx) => loadPrep(window._preps[idx]);
   window._deletePrep = (idx) => {
     const prep = window._preps[idx];
     if (!confirm(`Delete preparation for "${prep.opportunityName}"? This cannot be undone.`)) return;
-    const orgRef2 = doc(db, 'users', currentUser.uid, 'data', 'org');
-    const { arrayRemove } = window._firestoreHelpers;
-    updateDoc(orgRef2, { applications: arrayRemove(prep) })
+    const targetRef = prep.grantId && prep.grantId !== 'org'
+      ? doc(db, 'users', currentUser.uid, 'grants', prep.grantId)
+      : doc(db, 'users', currentUser.uid, 'data', 'org');
+    updateDoc(targetRef, { applications: arrayRemove(prep) })
       .then(() => loadPreviousPreps())
       .catch(err => { console.error(err); alert('Error deleting — please try again.'); });
   };
@@ -805,7 +828,21 @@ onAuthStateChanged(auth, async (user) => {
   if (orgSnap.exists()) {
     const org = orgSnap.data();
     populateSidebarCard(org);
-    const checks = [org?.name, org?.evaluations?.length, org?.applications?.length,
+
+    // Count evals/apps from grants (may have moved off org doc)
+    let grantEvalCount = 0, grantAppCount = 0;
+    try {
+      const gSnap = await getDocs(collection(db, 'users', user.uid, 'grants'));
+      gSnap.forEach(d => {
+        const gd = d.data();
+        grantEvalCount += (gd.evaluations || []).length;
+        grantAppCount  += (gd.applications || []).length;
+      });
+    } catch(e) { /* non-fatal */ }
+
+    const checks = [org?.name,
+                    (org?.evaluations?.length || 0) + grantEvalCount,
+                    (org?.applications?.length || 0) + grantAppCount,
                     org?.library?.length, org?.pipeline?.length];
     checks.forEach((val, i) => {
       const dot = document.getElementById(`dot-${i + 1}`);

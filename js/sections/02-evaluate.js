@@ -3,7 +3,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, updateDoc, arrayUnion, arrayRemove }
+import { getFirestore, doc, getDoc, getDocs, collection, updateDoc, arrayUnion, arrayRemove }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { firebaseConfig } from '../firebase-config.js';
 import { populateSidebarCard } from '../sidebar-org-card.js';
@@ -383,8 +383,12 @@ async function saveEvaluation() {
   };
 
   try {
-    const orgRef = doc(db, 'users', currentUser.uid, 'data', 'org');
-    await updateDoc(orgRef, { evaluations: arrayUnion(evaluation) });
+    const activeGrantId = sessionStorage.getItem('gw-active-grant');
+    evaluation.grantId = activeGrantId || 'org';
+    const targetRef = activeGrantId
+      ? doc(db, 'users', currentUser.uid, 'grants', activeGrantId)
+      : doc(db, 'users', currentUser.uid, 'data', 'org');
+    await updateDoc(targetRef, { evaluations: arrayUnion(evaluation) });
 
     statusEl.textContent = 'Evaluation saved ✓';
     statusEl.className = 'save-status saved';
@@ -436,12 +440,29 @@ function resetForm() {
 // ── Load previous evaluations ───────────────────────────────
 async function loadPreviousEvals() {
   if (!currentUser) return;
-  const orgRef  = doc(db, 'users', currentUser.uid, 'data', 'org');
-  const orgSnap = await getDoc(orgRef);
-  if (!orgSnap.exists()) return;
 
-  const org   = orgSnap.data();
-  const evals = org.evaluations || [];
+  // Collect evals from all grant docs
+  let evals = [];
+  try {
+    const grantsSnap = await getDocs(collection(db, 'users', currentUser.uid, 'grants'));
+    grantsSnap.forEach(d => {
+      const data = d.data();
+      (data.evaluations || []).forEach(ev => evals.push(ev));
+    });
+  } catch(e) { /* non-fatal */ }
+
+  // Also collect orphan evals from org doc (legacy saves with no active grant)
+  try {
+    const orgSnap = await getDoc(doc(db, 'users', currentUser.uid, 'data', 'org'));
+    if (orgSnap.exists()) {
+      (orgSnap.data().evaluations || [])
+        .filter(ev => !ev.grantId || ev.grantId === 'org')
+        .forEach(ev => evals.push(ev));
+    }
+  } catch(e) { /* non-fatal */ }
+
+  // Sort newest first
+  evals.sort((a, b) => new Date(b.savedAt || 0) - new Date(a.savedAt || 0));
 
   const wrap = document.getElementById('prev-evals-wrap');
   const list = document.getElementById('prev-evals-list');
@@ -463,7 +484,7 @@ async function loadPreviousEvals() {
     q7: { good: 'Has a sustainability plan', caution: 'Sustainability needs development', bad: 'No sustainability plan' },
   };
 
-  const recentEvals = [...evals].reverse().slice(0, 10);
+  const recentEvals = evals.slice(0, 10);
 
   recentEvals.forEach((ev, idx) => {
     const badgeClass = ev.tier === 'apply' ? 'badge-apply' :
@@ -530,8 +551,10 @@ async function loadPreviousEvals() {
   window._deleteEval  = (idx) => {
     const ev = window._recentEvals[idx];
     if (!confirm(`Delete evaluation for "${ev.name}"? This cannot be undone.`)) return;
-    const orgRef = doc(db, 'users', currentUser.uid, 'data', 'org');
-    updateDoc(orgRef, { evaluations: arrayRemove(ev) })
+    const targetRef = ev.grantId && ev.grantId !== 'org'
+      ? doc(db, 'users', currentUser.uid, 'grants', ev.grantId)
+      : doc(db, 'users', currentUser.uid, 'data', 'org');
+    updateDoc(targetRef, { evaluations: arrayRemove(ev) })
       .then(() => loadPreviousEvals())
       .catch(err => { console.error('Delete error:', err); alert('Error deleting — please try again.'); });
   };
@@ -633,7 +656,21 @@ onAuthStateChanged(auth, async (user) => {
     if (nameEl) nameEl.textContent = org.abbreviation || org.name || '—';
     if (fullEl) fullEl.textContent = '';
     populateSidebarCard(org);
-    const checks = [org?.name, org?.evaluations?.length, org?.applications?.length,
+
+    // Count evals from grants (may have moved off org doc)
+    let grantEvalCount = 0, grantAppCount = 0;
+    try {
+      const gSnap = await getDocs(collection(db, 'users', user.uid, 'grants'));
+      gSnap.forEach(d => {
+        const gd = d.data();
+        grantEvalCount += (gd.evaluations || []).length;
+        grantAppCount  += (gd.applications || []).length;
+      });
+    } catch(e) { /* non-fatal */ }
+
+    const checks = [org?.name,
+                    (org?.evaluations?.length || 0) + grantEvalCount,
+                    (org?.applications?.length || 0) + grantAppCount,
                     org?.library?.length, org?.pipeline?.length];
     checks.forEach((val, i) => {
       const dot = document.getElementById(`dot-${i + 1}`);
