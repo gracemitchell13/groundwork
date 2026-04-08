@@ -6,9 +6,15 @@
   <title>Language Library — Groundwork</title>
   <link rel="stylesheet" href="../css/style.css">
   <style>
+    /* ── Match other page overrides ── */
+    .page-title  { font-size: 32px; font-weight: 400; font-style: italic; }
+    .page-intro  { font-size: 16px; line-height: 1.7; max-width: 100%; margin-bottom: 0; }
+    .section-tag { color: var(--accent-4); }
+
     /* ── Library layout ── */
     #library-container {
       max-width: 720px;
+      margin-top: 36px;
     }
 
     .lib-category {
@@ -22,29 +28,30 @@
 
     .lib-cat-header {
       display: flex;
-      align-items: baseline;
-      gap: 12px;
-      margin-bottom: 6px;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 5px;
     }
     .lib-cat-title {
-      font-family: var(--serif);
-      font-size: 19px;
-      font-weight: normal;
-      color: var(--body);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted-2);
       margin: 0;
     }
     .lib-cat-count {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--muted-2);
       background: var(--linen-badge);
       border-radius: 10px;
-      padding: 2px 9px;
+      padding: 2px 8px;
     }
     .lib-cat-hint {
-      font-size: 13px;
+      font-size: 14px;
       color: var(--muted);
-      margin: 0 0 18px;
-      line-height: 1.6;
+      margin: 0 0 16px;
+      line-height: 1.65;
       max-width: 600px;
     }
 
@@ -81,6 +88,8 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--linen-border);
     }
     .lib-word-count {
       font-size: 12px;
@@ -92,39 +101,36 @@
     }
     .lib-action-btn {
       font-size: 12px;
-      padding: 4px 12px;
-      border-radius: 4px;
+      padding: 5px 13px;
+      border-radius: 5px;
       cursor: pointer;
-      background: none;
+      background: transparent;
       border: 1px solid var(--linen-border);
       color: var(--muted);
       font-family: var(--sans);
       transition: border-color .15s, color .15s;
     }
-    .lib-action-btn:hover { border-color: var(--muted); color: var(--body); }
-    .lib-copy-btn:hover   { border-color: var(--accent-1); color: var(--accent-1); }
-    .lib-delete-btn:hover { border-color: var(--accent-4); color: var(--accent-4); }
+    .lib-action-btn:hover   { border-color: var(--muted); color: var(--body); }
+    .lib-copy-btn:hover     { border-color: var(--accent-1); color: var(--accent-1); }
+    .lib-delete-btn:hover   { border-color: var(--accent-4); color: var(--accent-4); }
 
     /* ── Add button ── */
     .lib-add-btn {
       font-size: 13px;
-      color: var(--accent-4);
+      color: var(--muted);
       background: none;
-      border: 1px dashed var(--accent-4);
+      border: 1px dashed var(--linen-border);
       border-radius: 6px;
       padding: 8px 18px;
       cursor: pointer;
       font-family: var(--sans);
-      opacity: 0.75;
-      transition: opacity .15s;
+      transition: border-color .15s, color .15s;
       margin-top: 4px;
     }
-    .lib-add-btn:hover { opacity: 1; }
+    .lib-add-btn:hover { border-color: var(--accent-4); color: var(--accent-4); }
 
     /* ── Editor ── */
-    .lib-editor-wrap {
-      margin-bottom: 10px;
-    }
+    .lib-editor-wrap { margin-bottom: 10px; }
     .lib-editor {
       background: var(--linen-card);
       border: 1px solid var(--linen-border);
@@ -148,10 +154,7 @@
       color: var(--body);
       font-family: var(--sans);
     }
-    .lib-label-input:focus {
-      outline: none;
-      border-color: var(--accent-4);
-    }
+    .lib-label-input:focus { outline: none; border-color: var(--accent-4); }
     .lib-editor-wordcount {
       font-size: 12px;
       color: var(--muted-2);
@@ -173,10 +176,7 @@
       resize: vertical;
       margin-bottom: 14px;
     }
-    .lib-editor-textarea:focus {
-      outline: none;
-      border-color: var(--accent-4);
-    }
+    .lib-editor-textarea:focus { outline: none; border-color: var(--accent-4); }
     .lib-editor-actions {
       display: flex;
       align-items: center;
@@ -189,24 +189,8 @@
       align-items: center;
       gap: 8px;
     }
-    .lib-draft-btn {
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-    }
-    .lib-draft-status {
-      font-size: 12px;
-      color: var(--muted);
-      max-width: 280px;
-    }
-
-    /* ── Empty state ── */
-    .lib-empty {
-      text-align: center;
-      padding: 48px 20px;
-      color: var(--muted);
-    }
-    .lib-empty p { font-size: 14px; margin: 0; }
+    .lib-draft-btn { font-size: 13px; padding: 8px 16px; display: inline-flex; align-items: center; }
+    .lib-draft-status { font-size: 12px; color: var(--muted); }
   </style>
 </head>
 <body>
@@ -282,7 +266,7 @@
       <h2 class="page-title">Build Your Language Library</h2>
       <p class="page-intro" style="max-width:680px;">Reusable narrative blocks — mission statement, statement of need, organizational capacity, and more — that compound over time into your organization's institutional grant voice. Save multiple versions of each block and copy directly into any application.</p>
 
-      <div id="library-container" style="margin-top:36px;">
+      <div id="library-container">
         <div class="lib-empty"><p>Loading your library…</p></div>
       </div>
     </div>
