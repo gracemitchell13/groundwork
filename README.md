@@ -1,5 +1,7 @@
 # Groundwork — Grant Writing Toolkit
 
+**[→ Live app](https://gracemitchell13.github.io/groundwork)**
+
 A free, web-based grant writing toolkit for small nonprofits with no dedicated development staff and no prior grant writing experience.
 
 Built for organizations like the Elkton Community Education Center (ECEC) — where one person is running the whole operation and writing grants largely alone.
