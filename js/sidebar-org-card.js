@@ -16,11 +16,7 @@ export function populateSidebarCard(org) {
   }
 
   if (metaEl) {
-    const parts = [];
-    if (org.budget) parts.push(org.budget);
-    if (org.staff)  parts.push(org.staff + ' staff');
-    metaEl.textContent = parts.join(' · ');
-    metaEl.style.display = parts.length ? 'block' : 'none';
+    metaEl.style.display = 'none';
   }
 
   // Keep hidden footer IDs updated for any JS that still references them
