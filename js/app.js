@@ -105,26 +105,22 @@ function updateStatuses(org, grants) {
     org?.profileComplete ? 'Complete' :
     org?.name            ? 'In progress' : 'Not started');
 
-  // Card 2: Grant Opportunities
-  const grantCount = grants?.length || 0;
-  setBadge('status-2',
-    grantCount ? `${grantCount} opportunit${grantCount === 1 ? 'y' : 'ies'}` : 'Not started');
-
-  // Card 3: Evaluate an Opportunity — count from grant docs + org doc orphans
+  // Card 2: Evaluate an Opportunity
   const evalCount = (grants?.reduce((n, g) => n + (g.evaluations?.length || 0), 0) || 0)
                   + (org?.evaluations?.length || 0);
-  setBadge('status-3',
+  setBadge('status-2',
     evalCount ? `${evalCount} evaluated` : 'Not started');
 
-  // Card 4: Prepare Your Application — count from grant docs + org doc orphans
+  // Card 3: Prepare Your Application
   const prepCount = (grants?.reduce((n, g) => n + (g.applications?.length || 0), 0) || 0)
                   + (org?.applications?.length || 0);
-  setBadge('status-4',
+  setBadge('status-3',
     prepCount ? `${prepCount} prepared` : 'Not started');
 
-  // Track Your Pipeline (status-5)
-  const applying  = grants?.filter(g => ['applying','submitted'].includes(g.status)).length || 0;
-  const awarded   = grants?.filter(g => g.status === 'awarded').length || 0;
+  // Track Your Pipeline (status-pipeline)
+  const grantCount = grants?.length || 0;
+  const applying   = grants?.filter(g => ['applying','submitted'].includes(g.status)).length || 0;
+  const awarded    = grants?.filter(g => g.status === 'awarded').length || 0;
   let pipeText = 'Not started';
   if (grantCount) {
     const parts = [];
@@ -132,7 +128,7 @@ function updateStatuses(org, grants) {
     if (awarded)  parts.push(`${awarded} awarded`);
     pipeText = parts.length ? parts.join(', ') : `${grantCount} tracked`;
   }
-  setBadge('status-5', pipeText);
+  setBadge('status-pipeline', pipeText);
 
   // Language Library (status-lib)
   const libCount = org?.library?.length || 0;
