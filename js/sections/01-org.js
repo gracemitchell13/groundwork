@@ -234,12 +234,15 @@ async function saveOrg() {
     updatedAt:      new Date().toISOString(),
   };
 
-  savedOrgData = orgData;
+  // Capture previous values before overwriting
+  const prevMission = savedOrgData?.mission || '';
+  const prevToc     = savedOrgData?.theoryOfChange || '';
 
   try {
     const orgRef = doc(db, 'users', currentUser.uid, 'data', 'org');
     await setDoc(orgRef, orgData, { merge: true });
 
+    savedOrgData = orgData;
     populateSidebarCard(orgData);
 
     if (orgData.name) {
@@ -250,8 +253,10 @@ async function saveOrg() {
     statusEl.className = 'save-status saved';
     setTimeout(() => { statusEl.textContent = ''; statusEl.className = 'save-status'; }, 3000);
 
-    // Show library nudge if mission or theory of change are filled
-    showLibraryNudge(orgData);
+    // Show nudge only if mission or theory of change were changed and are non-empty
+    const missionChanged = !!orgData.mission && orgData.mission !== prevMission;
+    const tocChanged     = !!orgData.theoryOfChange && orgData.theoryOfChange !== prevToc;
+    if (missionChanged || tocChanged) showLibraryNudge(orgData, missionChanged, tocChanged);
 
   } catch (err) {
     console.error('Save error:', err);
@@ -261,13 +266,10 @@ async function saveOrg() {
 }
 
 // ── Library nudge ───────────────────────────────────────────
-function showLibraryNudge(org) {
+function showLibraryNudge(org, hasMission, hasToc) {
   const existing = document.getElementById('library-nudge');
   if (existing) existing.remove();
 
-  const hasMission = !!org.mission;
-  const hasToc     = !!org.theoryOfChange;
-  if (!hasMission && !hasToc) return;
 
   const nudge = document.createElement('div');
   nudge.id = 'library-nudge';
