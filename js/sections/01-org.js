@@ -291,22 +291,25 @@ function showLibraryNudge(org) {
     </button>`).join('');
 
   nudge.innerHTML = `
-    <p style="font-size:13px;font-weight:600;color:var(--body);margin-bottom:6px;">
-      Save to your Language Library?
-    </p>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6;">
-      Your ${items.map(i => i.label.toLowerCase()).join(' and ')} can be saved as reusable blocks
-      in your Language Library — ready to copy into any grant application.
-    </p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">${buttonsHTML}</div>
-    <button id="nudge-dismiss" style="font-size:12px;color:var(--muted-2);background:none;border:none;cursor:pointer;margin-top:12px;display:block;">
-      No thanks
-    </button>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+      <div>
+        <p style="font-size:13px;font-weight:600;color:var(--body);margin-bottom:6px;">
+          Save to your Language Library?
+        </p>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6;">
+          Your ${items.map(i => i.label.toLowerCase()).join(' and ')} can be saved as reusable blocks
+          in your Language Library — ready to copy into any grant application.
+        </p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">${buttonsHTML}</div>
+      </div>
+      <button id="nudge-dismiss" title="Dismiss"
+        style="font-size:18px;line-height:1;color:var(--muted-2);background:none;border:none;cursor:pointer;flex-shrink:0;padding:0 4px;">×</button>
+    </div>
   `;
 
-  // Insert after save bar
+  // Insert inside page-content, before the save bar
   const saveBar = document.getElementById('save-bar');
-  saveBar?.parentNode?.insertBefore(nudge, saveBar.nextSibling);
+  saveBar?.insertAdjacentElement('beforebegin', nudge);
 
   // Dismiss
   nudge.querySelector('#nudge-dismiss').addEventListener('click', () => nudge.remove());
