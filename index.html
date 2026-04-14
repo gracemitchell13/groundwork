@@ -16,16 +16,19 @@
       letter-spacing: .09em;
       text-transform: uppercase;
       color: var(--muted-2);
-      padding-bottom: 8px;
+      padding-bottom: 5px;
       border-bottom: 1px solid var(--linen-border);
       margin-top: 4px;
-      margin-bottom: 0;
+      margin-bottom: -4px;
+      align-self: end;
     }
-    .card.card-tool {
-      border-left-color: var(--linen-border);
-      background: var(--linen);
-    }
-    .card.card-tool:hover { background: var(--linen-header); }
+    .card.card-tool { border-left-width: 5px; }
+    .card.card-tool.tool-1 { border-left-color: var(--accent-2); background: #FBF7EE; }
+    .card.card-tool.tool-1:hover { background: #F7F0E0; }
+    .card.card-tool.tool-2 { border-left-color: var(--accent-4); background: #FAF4F2; }
+    .card.card-tool.tool-2:hover { background: #F4EAE6; }
+    .card.card-tool.tool-3 { border-left-color: var(--accent-5); background: #F8F4FA; }
+    .card.card-tool.tool-3:hover { background: #F2EAF6; }
     .card.card-tool .card-title { font-size: 15px; font-weight: 500; }
     .card.card-tool .num span { font-family: var(--sans); font-size: 14px; }
   </style>
@@ -136,9 +139,9 @@
 
         <div class="card-section-label">Tools</div>
 
-        <a href="pages/pipeline.html" class="card card-tool">
+        <a href="pages/pipeline.html" class="card card-tool tool-1">
           <div class="card-head">
-            <div class="num num-4" style="background:var(--linen-badge);"><span style="font-family:var(--sans);font-size:13px;color:var(--muted);">↗</span></div>
+            <div class="num num-4" style="background:var(--num-bg-2);"><span style="font-family:var(--sans);font-size:13px;color:var(--num-fg-2);">↗</span></div>
             <div class="card-text">
               <p class="card-title">Track Your Pipeline</p>
               <p class="card-desc">Add opportunities, track their status, and move them through your workflow.</p>
@@ -146,12 +149,11 @@
           </div>
           <div class="card-foot">
             <span class="badge" id="status-pipeline">Not started</span>
-            <span class="cta">Open →</span>
           </div>
         </a>
-        <a href="pages/library.html" class="card card-tool">
+        <a href="pages/library.html" class="card card-tool tool-2">
           <div class="card-head">
-            <div class="num num-5" style="background:var(--linen-badge);"><span style="font-family:var(--sans);font-size:13px;color:var(--muted);">↗</span></div>
+            <div class="num num-5" style="background:var(--num-bg-4);"><span style="font-family:var(--sans);font-size:13px;color:var(--num-fg-4);">↗</span></div>
             <div class="card-text">
               <p class="card-title">Language Library</p>
               <p class="card-desc">Reusable narrative blocks that build your grant voice over time.</p>
@@ -159,19 +161,17 @@
           </div>
           <div class="card-foot">
             <span class="badge" id="status-lib">Not started</span>
-            <span class="cta">Build →</span>
           </div>
         </a>
-        <a href="pages/resources.html" class="card card-tool">
+        <a href="pages/resources.html" class="card card-tool tool-3">
           <div class="card-head">
-            <div class="num" style="background:var(--linen-badge);"><span style="font-family:var(--sans);font-size:13px;color:var(--muted);">↗</span></div>
+            <div class="num" style="background:var(--num-bg-5);"><span style="font-family:var(--sans);font-size:13px;color:var(--num-fg-5);">↗</span></div>
             <div class="card-text">
               <p class="card-title">Definitions & Resources</p>
               <p class="card-desc">Glossary of grant terms and curated links for nonprofit grant writers.</p>
             </div>
           </div>
           <div class="card-foot">
-            <span class="cta">Browse →</span>
           </div>
         </a>
 
