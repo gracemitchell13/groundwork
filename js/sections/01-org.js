@@ -110,13 +110,30 @@ function showSynopsis(org) {
       </div>`
     : '';
 
+  const abbrHTML = org.abbreviation
+    ? ` <span style="font-style:normal;font-size:16px;color:var(--muted);">(${escHtml(org.abbreviation)})</span>`
+    : '';
+
+  // Place Edit button next to the page title
+  const titleEl = document.querySelector('.page-title');
+  if (titleEl && !document.getElementById('edit-btn')) {
+    titleEl.style.display = 'flex';
+    titleEl.style.alignItems = 'baseline';
+    titleEl.style.justifyContent = 'space-between';
+    titleEl.style.gap = '16px';
+    const editBtn = document.createElement('button');
+    editBtn.id = 'edit-btn';
+    editBtn.className = 'btn-secondary';
+    editBtn.style.cssText = 'font-size:13px;padding:6px 16px;flex-shrink:0;font-family:var(--sans);font-style:normal;';
+    editBtn.textContent = 'Edit profile';
+    editBtn.addEventListener('click', hideSynopsis);
+    titleEl.appendChild(editBtn);
+  }
+
   synopsis.innerHTML = `
-    <div class="synopsis-header">
-      <div>
-        <div class="synopsis-name">${escHtml(org.name)}${org.abbreviation ? ' <span style="font-style:normal;font-size:16px;color:var(--muted);">(${escHtml(org.abbreviation)})</span>' : ''}</div>
-        ${metaParts.length ? `<div class="synopsis-meta">${escHtml(metaParts.join(' · '))}</div>` : ''}
-      </div>
-      <button class="btn-secondary" id="edit-btn" style="flex-shrink:0;">Edit profile</button>
+    <div style="margin-bottom:6px;">
+      <div class="synopsis-name">${escHtml(org.name)}${abbrHTML}</div>
+      ${metaParts.length ? `<div class="synopsis-meta">${escHtml(metaParts.join(' · '))}</div>` : ''}
     </div>
     ${blocks.map(b => `
       <div class="synopsis-block">
@@ -137,9 +154,14 @@ function hideSynopsis() {
   const synopsis = document.getElementById('org-synopsis');
   const form     = document.getElementById('org-form');
   const saveBar  = document.getElementById('save-bar');
+  const editBtn  = document.getElementById('edit-btn');
+  const titleEl  = document.querySelector('.page-title');
+
   if (synopsis) synopsis.style.display = 'none';
   if (form)     form.style.display = '';
   if (saveBar)  saveBar.style.display = '';
+  if (editBtn)  editBtn.remove();
+  if (titleEl)  { titleEl.style.display = ''; titleEl.style.alignItems = ''; titleEl.style.justifyContent = ''; titleEl.style.gap = ''; }
 }
 
 // ── Budget pills ────────────────────────────────────────────
