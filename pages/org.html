@@ -129,6 +129,58 @@
       padding: 4px 0; text-decoration: underline; text-underline-offset: 3px;
     }
     .add-funder-btn:hover { color: var(--accent-1); }
+    /* ── Synopsis view ── */
+    .synopsis-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      gap: 16px;
+    }
+    .synopsis-name {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 22px;
+      color: var(--body);
+      margin-bottom: 4px;
+    }
+    .synopsis-meta {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .synopsis-block {
+      margin-bottom: 22px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--linen-border);
+    }
+    .synopsis-block:last-child { border-bottom: none; margin-bottom: 0; }
+    .synopsis-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--muted-2);
+      margin-bottom: 6px;
+    }
+    .synopsis-text {
+      font-size: 15px;
+      color: var(--body);
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+    .synopsis-funders {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .synopsis-funder-tag {
+      font-size: 12px;
+      padding: 3px 10px;
+      background: var(--linen-badge);
+      border-radius: 3px;
+      color: var(--muted);
+    }
   </style>
 </head>
 <body>
@@ -180,7 +232,10 @@
       <h2 class="page-title">Know Your Organization</h2>
       <p class="page-intro">Before you apply for anything, you need to be able to answer these questions. Funders will ask them in application forms, in conversations, and in their review process. Having clear answers makes every application faster and stronger.</p>
 
-      <div class="org-grid">
+      <!-- Synopsis view — shown when profileComplete -->
+      <div id="org-synopsis" style="display:none;"></div>
+
+      <div class="org-grid" id="org-form">
 
         <!-- Organization identity -->
         <p class="section-subhead">Organization identity</p>

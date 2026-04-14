@@ -15,7 +15,7 @@ const db   = getFirestore(app);
 let currentUser  = null;
 let selectedBudget = null;
 let funders = [];
-let isLocked = false;
+
 let savedOrgData = null; // keep a reference for library nudge
 
 // ── Auth guard ──────────────────────────────────────────────
@@ -67,9 +67,9 @@ async function loadOrgData(user) {
 
   populateSidebarCard(org);
 
-  // Lock if complete
+  // Show synopsis if complete, otherwise show complete button if name exists
   if (org.profileComplete) {
-    lockForm();
+    showSynopsis(org);
   } else if (org.name) {
     document.getElementById('complete-btn').style.display = '';
   }
@@ -80,89 +80,71 @@ function setField(id, value) {
   if (el && value) el.value = value;
 }
 
-// ── Lock / unlock form ──────────────────────────────────────
-function lockForm() {
-  isLocked = true;
-
-  // Disable all inputs and textareas
-  document.querySelectorAll('.form-input, .form-textarea').forEach(el => {
-    el.disabled = true;
-    el.style.opacity = '0.75';
-    el.style.cursor  = 'default';
-  });
-
-  // Disable budget pills
-  document.querySelectorAll('.budget-option').forEach(btn => {
-    btn.disabled = true;
-    btn.style.cursor = 'default';
-  });
-
-  // Hide add funder button and remove buttons
-  document.getElementById('add-funder-btn').style.display = 'none';
-  document.querySelectorAll('.funder-remove').forEach(b => b.style.display = 'none');
-
-  // Update save bar
+// ── Synopsis view ───────────────────────────────────────────
+function showSynopsis(org) {
+  const synopsis = document.getElementById('org-synopsis');
+  const form     = document.getElementById('org-form');
   const saveBar  = document.getElementById('save-bar');
-  const saveBtn  = document.getElementById('save-btn');
-  const compBtn  = document.getElementById('complete-btn');
-  const statusEl = document.getElementById('save-status');
+  if (!synopsis || !form) return;
 
-  if (saveBtn) saveBtn.style.display = 'none';
-  if (compBtn) compBtn.style.display = 'none';
-  if (statusEl) statusEl.textContent = '';
+  // Build meta line
+  const metaParts = [];
+  if (org.budget) metaParts.push(org.budget.replace('under-100k','Under $100K').replace('100k-250k','$100K–$250K').replace('250k-500k','$250K–$500K').replace('500k-1m','$500K–$1M').replace('1m-5m','$1M–$5M').replace('over-5m','Over $5M'));
+  if (org.staff)  metaParts.push(org.staff);
 
-  // Add Edit button if not already there
-  if (saveBar && !document.getElementById('edit-btn')) {
-    const editBtn = document.createElement('button');
-    editBtn.id        = 'edit-btn';
-    editBtn.className = 'btn-secondary';
-    editBtn.textContent = 'Edit profile';
-    editBtn.addEventListener('click', unlockForm);
-    saveBar.prepend(editBtn);
+  const blocks = [
+    { label: 'Mission',           value: org.mission },
+    { label: 'Programs',          value: org.programs },
+    { label: 'Population served', value: org.population },
+    { label: 'Geography',         value: org.geography },
+    { label: 'Theory of change',  value: org.theoryOfChange },
+    { label: 'Grant notes',       value: org.grantNotes },
+  ].filter(b => b.value);
 
-    const note = document.createElement('span');
-    note.className   = 'save-status';
-    note.style.color = 'var(--accent-1)';
-    note.textContent = 'Profile complete ✓';
-    saveBar.appendChild(note);
-  }
+  const fundersHTML = org.funderHistory?.length
+    ? `<div class="synopsis-block">
+        <div class="synopsis-label">Funder history</div>
+        <div class="synopsis-funders">
+          ${org.funderHistory.map(f => `<span class="synopsis-funder-tag">${escHtml(f)}</span>`).join('')}
+        </div>
+      </div>`
+    : '';
+
+  synopsis.innerHTML = `
+    <div class="synopsis-header">
+      <div>
+        <div class="synopsis-name">${escHtml(org.name)}${org.abbreviation ? ' <span style="font-style:normal;font-size:16px;color:var(--muted);">(${escHtml(org.abbreviation)})</span>' : ''}</div>
+        ${metaParts.length ? `<div class="synopsis-meta">${escHtml(metaParts.join(' · '))}</div>` : ''}
+      </div>
+      <button class="btn-secondary" id="edit-btn" style="flex-shrink:0;">Edit profile</button>
+    </div>
+    ${blocks.map(b => `
+      <div class="synopsis-block">
+        <div class="synopsis-label">${b.label}</div>
+        <div class="synopsis-text">${escHtml(b.value)}</div>
+      </div>`).join('')}
+    ${fundersHTML}
+  `;
+
+  synopsis.style.display = 'block';
+  form.style.display = 'none';
+  if (saveBar) saveBar.style.display = 'none';
+
+  document.getElementById('edit-btn').addEventListener('click', hideSynopsis);
 }
 
-function unlockForm() {
-  isLocked = false;
-
-  document.querySelectorAll('.form-input, .form-textarea').forEach(el => {
-    el.disabled = false;
-    el.style.opacity = '';
-    el.style.cursor  = '';
-  });
-
-  document.querySelectorAll('.budget-option').forEach(btn => {
-    btn.disabled = false;
-    btn.style.cursor = '';
-  });
-
-  document.getElementById('add-funder-btn').style.display = '';
-  document.querySelectorAll('.funder-remove').forEach(b => b.style.display = '');
-
-  const saveBtn = document.getElementById('save-btn');
-  const compBtn = document.getElementById('complete-btn');
-  const editBtn = document.getElementById('edit-btn');
-  const saveBar = document.getElementById('save-bar');
-
-  if (saveBtn) saveBtn.style.display = '';
-  if (compBtn) { compBtn.style.display = ''; compBtn.textContent = 'Mark profile complete ✓'; compBtn.disabled = false; }
-  if (editBtn) editBtn.remove();
-
-  // Remove the "Profile complete ✓" note
-  saveBar?.querySelectorAll('.save-status').forEach(el => {
-    if (el.textContent.includes('complete')) el.remove();
-  });
+function hideSynopsis() {
+  const synopsis = document.getElementById('org-synopsis');
+  const form     = document.getElementById('org-form');
+  const saveBar  = document.getElementById('save-bar');
+  if (synopsis) synopsis.style.display = 'none';
+  if (form)     form.style.display = '';
+  if (saveBar)  saveBar.style.display = '';
 }
 
 // ── Budget pills ────────────────────────────────────────────
 document.getElementById('budget-options')?.addEventListener('click', (e) => {
-  if (isLocked) return;
+
   const btn = e.target.closest('.budget-option');
   if (!btn) return;
   selectedBudget = btn.dataset.value;
@@ -179,8 +161,8 @@ function renderFunders() {
     const row = document.createElement('div');
     row.className = 'funder-row';
     row.innerHTML = `
-      <input class="form-input" type="text" placeholder="Funder name" value="${escHtml(funder)}" data-index="${i}"${isLocked ? ' disabled' : ''}>
-      <button class="funder-remove" data-index="${i}" aria-label="Remove"${isLocked ? ' style="display:none;"' : ''}>×</button>`;
+      <input class="form-input" type="text" placeholder="Funder name" value="${escHtml(funder)}" data-index="${i}">
+      <button class="funder-remove" data-index="${i}" aria-label="Remove">×</button>`;
     list.appendChild(row);
   });
 
@@ -357,7 +339,7 @@ document.getElementById('complete-btn')?.addEventListener('click', async () => {
     const orgRef = doc(db, 'users', currentUser.uid, 'data', 'org');
     await setDoc(orgRef, { profileComplete: true, updatedAt: new Date().toISOString() }, { merge: true });
     document.getElementById('library-nudge')?.remove();
-    lockForm();
+    showSynopsis(savedOrgData);
   } catch (err) {
     console.error(err);
   }
