@@ -20,7 +20,7 @@ const QUESTIONS = [
   {
     id: 'q0',
     text: 'Does this opportunity align with your mission and current programs?',
-    why: 'Mission fit is the single most important factor. Funders fund what they fund — if you have to stretch your work to fit their priorities, the application will feel forced and probably won\'t succeed. A strong fit means you could describe your work and their priorities in the same sentence without reaching.',
+    why: 'Mission fit is the single most important factor. Funders fund what they fund — if you have to stretch your work to fit their priorities, the application will feel forced and probably won\'t succeed.',
     options: [
       { label: 'Strong fit — this is exactly what we do', value: 2, cls: 'sel-yes' },
       { label: 'Partial fit — adjacent to our work', value: 1, cls: 'sel-maybe' },
@@ -40,7 +40,7 @@ const QUESTIONS = [
   {
     id: 'q2',
     text: 'Is there enough time to write a strong application before the deadline?',
-    why: 'A rushed application is worse than no application — it reflects poorly on your organization. Budget at least 3–4 weeks for a foundation grant, 6–8 weeks for anything requiring a full narrative, budget, and letters of support. If the deadline is in less than two weeks and you haven\'t started, consider passing.',
+    why: 'A rushed application is worse than no application — it reflects poorly on your organization. Budget at least 3–4 weeks for a simple grant, 6–8 weeks for anything requiring a full narrative, budget, and letters of support. If the deadline is in less than two weeks and you haven\'t started, consider passing.',
     deadlineAuto: true,
     options: [
       { label: 'Yes — plenty of time (4+ weeks)', value: 2, cls: 'sel-yes' },
@@ -61,7 +61,7 @@ const QUESTIONS = [
   {
     id: 'q4',
     text: 'Does your organization have the capacity to write, manage, and report on this grant?',
-    why: 'Winning a grant creates obligations. You\'ll need to deliver on what you promise, track data, and submit reports — often for 1–3 years. If your team is already stretched thin, a new grant can cause more harm than good. Be honest about what you can actually take on.',
+    why: 'Winning a grant creates obligations. You\'ll need to deliver on what you promise, track data, and often submit reports — often for multiple years. If your team is already stretched thin, a new grant can cause more harm than good. Be honest about what you can actually take on.',
     options: [
       { label: 'Yes — we have the bandwidth', value: 2, cls: 'sel-yes' },
       { label: 'Maybe — it would be a stretch', value: 1, cls: 'sel-maybe' },
@@ -81,7 +81,7 @@ const QUESTIONS = [
   {
     id: 'q6',
     text: 'Are the reporting and compliance requirements manageable?',
-    why: 'Some grants require quarterly reports, audited financials, site visits, or complex data collection. If the reporting requirements are more burdensome than the grant is worth, that\'s a real cost. Read the full requirements — including what happens after the grant — before you decide to apply.',
+    why: 'Some grants require quarterly reports, audited financials, site visits, or complex data collection. If the reporting requirements are more burdensome than the grant is worth, that\'s a real cost. Read the full requirements, including what happens after the grant, before you decide to apply.',
     options: [
       { label: 'Yes — requirements are straightforward', value: 2, cls: 'sel-yes' },
       { label: 'Manageable but significant', value: 1, cls: 'sel-maybe' },
@@ -91,7 +91,7 @@ const QUESTIONS = [
   {
     id: 'q7',
     text: 'If funded, can you sustain this work when the grant ends?',
-    why: 'Most funders don\'t want to be your permanent source of funding for a program. They expect you to have a plan for what happens when the grant period ends. If you can\'t answer this question, it will show in your application — and it\'s a sign the project may not be ready to propose.',
+    why: 'Most funders don\'t want to be your permanent source of funding for a program. They expect you to have a plan for what happens when the grant period ends. If you can\'t answer this question, it will show in your application; it\'s a sign the project may not be ready to propose.',
     options: [
       { label: 'Yes — we have a sustainability plan', value: 2, cls: 'sel-yes' },
       { label: 'Possibly — we\'re working on it', value: 1, cls: 'sel-maybe' },
