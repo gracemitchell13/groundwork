@@ -156,7 +156,7 @@ function openEditor(cat, existingBlock) {
     <div class="lib-editor">
       <div class="lib-editor-top">
         <input class="lib-label-input" id="editor-label-${cat.slug}" type="text"
-          placeholder="Optional label (e.g. &quot;Short version&quot;)"
+          placeholder="Block label/title"
           value="${escHtml(existingBlock?.label || '')}">
         <span class="lib-editor-wordcount" id="editor-wc-${cat.slug}">0 words</span>
       </div>
