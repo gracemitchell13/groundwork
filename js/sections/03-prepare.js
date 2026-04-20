@@ -670,7 +670,7 @@ function generatePrintSummary() {
     ${deadline ? `<p><strong>Deadline:</strong> ${deadline}</p>` : ''}
     ${amount   ? `<p><strong>Award amount:</strong> ${amount}</p>` : ''}
     ${elig     ? `<p><strong>Eligible applicants:</strong> ${elig}</p>` : ''}
-    ${limits   ? `<p><strong>Page / word limits:</strong> ${limits}</p>` : ''}
+    ${limits   ? `<p><strong>Page/word limits:</strong> ${limits}</p>` : ''}
     ${attach   ? `<p><strong>Required attachments:</strong> ${attach}</p>` : ''}
     ${special && special !== 'None stated' ? `<p><strong>Special requirements:</strong> ${special}</p>` : ''}
 

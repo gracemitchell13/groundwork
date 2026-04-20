@@ -23,35 +23,35 @@ const CATEGORIES = [
     slug:  'mission',
     label: 'Mission Statement',
     accent: 'var(--accent-1)',
-    hint:  "A concise statement of your organization's purpose — who you serve, what you do, and why it matters.",
+    hint:  "A concise statement of your organization's purpose: who you serve, what you do, and why it matters.",
     draftPrompt: (org) => `Draft a concise, compelling mission statement for a nonprofit grant application. Write 2–4 sentences. Be specific, not generic. Do not use jargon or clichés like "empower" or "transform." Write in third person.\n\nOrganization name: ${org.name || 'Not provided'}\nCurrent mission: ${org.mission || 'Not provided'}\nPrograms: ${org.programs || 'Not provided'}\nPopulation served: ${org.population || 'Not provided'}\nGeography: ${org.geography || 'Not provided'}\n\nReturn only the mission statement text, no labels or commentary.`,
   },
   {
     slug:  'need',
     label: 'Statement of Need',
     accent: 'var(--accent-2)',
-    hint:  'The problem your organization exists to address — grounded in data, specific to your community.',
+    hint:  'The problem your organization exists to address, grounded in data, specific to your community.',
     draftPrompt: (org) => `Draft a statement of need for a nonprofit grant application. Write 3–5 sentences. Ground it in the specific community and population this organization serves. Reference the kinds of challenges or gaps that would make a funder understand why this work is necessary.\n\nOrganization name: ${org.name || 'Not provided'}\nMission: ${org.mission || 'Not provided'}\nPopulation served: ${org.population || 'Not provided'}\nGeography: ${org.geography || 'Not provided'}\nPrograms: ${org.programs || 'Not provided'}\n\nReturn only the statement of need text, no labels or commentary.`,
   },
   {
     slug:  'capacity',
     label: 'Organizational Capacity',
     accent: 'var(--accent-3)',
-    hint:  'Evidence that your organization can deliver on a grant — staff, systems, track record, infrastructure.',
+    hint:  'Evidence that your organization can deliver on a grant; staff, systems, track record, infrastructure.',
     draftPrompt: (org) => `Draft an organizational capacity paragraph for a nonprofit grant application. Write 3–5 sentences demonstrating this organization has the staff, systems, and track record to implement a grant successfully.\n\nOrganization name: ${org.name || 'Not provided'}\nStaff count: ${org.staffCount || 'Not provided'}\nAnnual budget: ${org.budget || 'Not provided'}\nPrograms: ${org.programs || 'Not provided'}\nTheory of change: ${org.theoryOfChange || 'Not provided'}\nGrant writing notes: ${org.grantNotes || 'Not provided'}\n\nReturn only the capacity paragraph text, no labels or commentary.`,
   },
   {
     slug:  'programs',
     label: 'Program Description',
     accent: 'var(--accent-4)',
-    hint:  'What your programs actually do — activities, approach, timeline, and expected outcomes.',
+    hint:  'What your programs do: activities, approach, timeline, and expected outcomes.',
     draftPrompt: (org) => `Draft a program description paragraph for a nonprofit grant application. Write 3–5 sentences describing the core programs or services this organization delivers. Be concrete about activities, approach, and outcomes.\n\nOrganization name: ${org.name || 'Not provided'}\nPrograms: ${org.programs || 'Not provided'}\nPopulation served: ${org.population || 'Not provided'}\nGeography: ${org.geography || 'Not provided'}\nTheory of change: ${org.theoryOfChange || 'Not provided'}\n\nReturn only the program description text, no labels or commentary.`,
   },
   {
     slug:  'population',
     label: 'Population Served',
     accent: 'var(--accent-5)',
-    hint:  'Who you serve — demographics, geography, scale, and what brings them to your organization.',
+    hint:  'Who you serve: demographics, geography, scale, and what brings them to your organization.',
     draftPrompt: (org) => `Draft a population served paragraph for a nonprofit grant application. Write 2–4 sentences describing the specific people this organization serves — who they are, where they live, what they face, and roughly how many. Be specific and humanizing, not clinical.\n\nOrganization name: ${org.name || 'Not provided'}\nPopulation served: ${org.population || 'Not provided'}\nGeography: ${org.geography || 'Not provided'}\nPrograms: ${org.programs || 'Not provided'}\n\nReturn only the population description text, no labels or commentary.`,
   },
   {
@@ -65,7 +65,7 @@ const CATEGORIES = [
     slug:  'theory',
     label: 'Theory of Change',
     accent: 'var(--accent-2)',
-    hint:  'How your work produces change — the logic connecting your activities to long-term outcomes.',
+    hint:  'How your work drives change: the logic that connects your activities to long-term outcomes.',
     draftPrompt: (org) => `Draft a theory of change paragraph for a nonprofit grant application. Write 3–5 sentences connecting this organization's activities to its intended outcomes. Use an if/then or inputs-to-outcomes logic, but write it as flowing prose, not a list.\n\nOrganization name: ${org.name || 'Not provided'}\nMission: ${org.mission || 'Not provided'}\nPrograms: ${org.programs || 'Not provided'}\nTheory of change (user notes): ${org.theoryOfChange || 'Not provided'}\nPopulation served: ${org.population || 'Not provided'}\n\nReturn only the theory of change text, no labels or commentary.`,
   },
 ];
@@ -156,7 +156,7 @@ function openEditor(cat, existingBlock) {
     <div class="lib-editor">
       <div class="lib-editor-top">
         <input class="lib-label-input" id="editor-label-${cat.slug}" type="text"
-          placeholder="Optional label (e.g. &quot;Short version&quot;)"
+          placeholder="Block label/title"
           value="${escHtml(existingBlock?.label || '')}">
         <span class="lib-editor-wordcount" id="editor-wc-${cat.slug}">0 words</span>
       </div>
