@@ -710,6 +710,3 @@ onAuthStateChanged(auth, async (user) => {
 document.getElementById('avatar-btn')?.addEventListener('click', () => {
   if (confirm('Sign out?')) signOut(auth).then(() => window.location.href = '../index.html');
 });
-document.getElementById('settings-btn')?.addEventListener('click', () => {
-  alert('Settings coming soon.');
-});
